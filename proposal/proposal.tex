@@ -1,0 +1,53 @@
+\documentstyle[11pt]{article}
+\setlength{\topmargin}{-.8in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{.125in}
+\setlength{\textwidth}{6.5in}
+\begin{document}
+\title{Spring 2012 Senior Design Proposal:\\
+GPU Computing}
+\author{Riley Spahn}
+\renewcommand{\today}{December 2011}
+\maketitle
+
+\section*{Project Goal}
+We will be using nVidia CUDA to develop a massively parallel Monte Carlo 
+simulation of molecular dynamics based on Dr. Acevedo's legacy Fortran code.
+The simulation we develop will be a framework that Dr. Acevedo and the chemistry
+department can use as a basis to easily develop future simulations.  After we
+have developed the simulation we will benchmark our simulation against Dr.
+Acevedo's legacy Fortran and compare the speed up from versus potential loss of
+accuracy.  
+
+\section*{Learning Material}
+There is ample learning material available from nVidia and other sources online
+and in print.  Our best reference for learning to use CUDA is the CUDA
+Programming Guide.  It gives complete information about the programming model,
+memory hierarchy, multiple device execution, etc.
+Two potentially useful printed books are \emph{CUDA by Example} by Sanders and
+Kandrot and \emph{Programming Massively Parallel Processors} by Kirk and Hwu.
+\emph{GPU Gems} parts one, two and three are freely available online.  These
+three books focus more on using the GPU for graphics but they still have the
+potential to be useful.
+
+\section*{Tool Chain}
+We will use the CUDA toolkit provided by nVidia.  The toolkit provides many
+libraries with functions and data structures that are optimized for parallel
+execution.  We will develop using C/C++.  All group members should at least be
+familiar with C++ since it is required earlier in the curriculum.  nVidia's
+toolkit includes a C/C++ compiler (NVCC).  The toolkit also includes a profiler,
+memory debugging tool as well as the console based CUDA-GDB Debugger.
+
+\section*{Hardware}
+Common hardware will be required for this project.  CUDA is compatible with
+nVidia's consumer GeForce GPUs with at least 256 MB of memory as well as with
+their professional Quadro and
+Tesla products.  We will most likely use one of the GeForce products because
+they are the most common and should be readily available. A full list of CUDA
+compatible graphics cards can be found on nVidia's website. Ideally we would like
+to use a headless Linux machine that we can access through SSH or other means.
+Without a monitor the graphics can devote more time to our computations and less
+to display.  We would like to use a Linux machine because the CUDA-GDB looks to be
+the most viable debugging tool and is only available on Linux.
+
+\end{document}
