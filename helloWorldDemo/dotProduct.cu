@@ -56,5 +56,13 @@ int main(){
     }
     
     printf("\nResult = %f\n", dotProduct);
+
+    free(vector_a);
+    free(vector_b);
+    free(result);
+
+    cudaFree(dev_a);
+    cudaFree(dev_b);
+    cudaFree(dev_result);
     
 }
