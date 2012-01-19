@@ -110,6 +110,8 @@ Atom translateAtom(Atom atom, Box box){
     double newX = wrap(deltaX + atom.x, box.width);
     double newY = wrap(deltaY + atom.y, box.height);
     double newZ = wrap(deltaZ + atom.z, box.depth);
+    
+    printf("Moved %f, %f, %f\n", deltaX, deltaY, deltaZ);
 
     atom.x = newX;
     atom.y = newY;
@@ -164,7 +166,7 @@ int main(int argc, const char **argv){
         atoms[i] = createAtom(kryptonSigma, kryptonEpsilon, x, y, z);
     }
 
-    printAtoms(atoms);
+    //printAtoms(atoms);
 
     int acceptedMoves = 0;
     int rejectedMoves = 0;
@@ -177,13 +179,11 @@ int main(int argc, const char **argv){
         Atom oldAtom = atoms[atomIndex];
         
         atoms[atomIndex] = translateAtom(atoms[atomIndex], box);
-        printf("Moving: %d\n", atomIndex);
        // printAtom(oldAtom);
         //printAtom(atoms[atomIndex]);
 
         const double newEnergy = calcTotalEnergy(atoms, box);
         
-        printf("%f\n",oldEnergy - newEnergy);
 
         bool accept = false;
 
@@ -193,8 +193,10 @@ int main(int argc, const char **argv){
         else{
             //Monte Carlo it
             double mcValue = exp( -(newEnergy - oldEnergy) / kT);
-            if(mcValue >= randomPoint(1.0))
+            double randPoint = randomPoint(1.0);
+            if(mcValue >= randPoint){
                 accept = true;
+            }
             else
                 accept = false;
 
@@ -206,12 +208,12 @@ int main(int argc, const char **argv){
         }
         else{
             rejectedMoves++;
-            //atoms[atomIndex] = oldAtom;
+            atoms[atomIndex] = oldAtom;
         }
         
     }
 
-    printAtoms(atoms);
-    printf("rejected: %d\naccepted: %d\n", acceptedMoves, rejectedMoves);
+   // printAtoms(atoms);
+    printf("accepted: %d\nrejected: %d\n", acceptedMoves, rejectedMoves);
 
 }
