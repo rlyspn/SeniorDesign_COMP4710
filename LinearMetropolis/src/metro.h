@@ -3,12 +3,14 @@
 #define METRO_H
 
 #define ATOMS 25 // Number of atoms in the box
-#define MOVES 10000000 // Number of moves to run
+#define MOVES 10 // Number of moves to run
 #define MAX_MOVE (double) 0.5 // Angstroms
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <time.h>
 
 
 //Struct to represent a specific atom in a Simulation
@@ -71,6 +73,33 @@ double calcTotalEnergy(Atom *atoms, Box box);
 * @param length - the length of the box in that direction
 */
 double periodic(double delta, double length);
+
+/**
+* Generates a random point [0, sideLength]
+* @param sideLength - upper bound of the range
+* @return - a random number [0, sideLength]
+*/
+double randomPoint(double sideLength);
+
+/**
+* @param atom - the atom to be translated
+* @param box - the box where the atom resides
+* @return - the atom translated.
+*/
+Atom translateAtome(Atom atom, Box box);
+
+/**
+* The box is treated as a torus
+* @param atom - the atom to be wrapped around the torus
+* @param box - the box that will that contains the atom
+* @return - the atom translated by a random amount
+*/
+Atom wrap(Atom atom, Box box);
+
+void printAtom(Atom atom, int i);
+void printAtom(Atom atom);
+
+void printAtoms(Atom *atoms);
 
 
 int main(int argc, const char **argv);

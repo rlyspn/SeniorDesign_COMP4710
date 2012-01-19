@@ -76,21 +76,142 @@ Box createBox(double h, double w, double d, double trans, double newTemp){
     return box;
 }
 
+Atom createAtom(double newSig, double newEp, double newX, double newY, double newZ){
+    Atom atom;
+
+    atom.sigma = newSig;
+    atom.epsilon = newEp;
+    atom.x = newX;
+    atom.y = newY;
+    atom.z = newZ;
+
+    return atom;
+}
+
+double randomPoint(double sideLength){
+    return sideLength * (double(rand()) / RAND_MAX);
+}
+
+double wrap(double x, double max){
+    if(x > max){
+        x -= max;
+    }
+    else if(x < 0){
+        x += max;
+    }
+    return x;
+}
+
+Atom translateAtom(Atom atom, Box box){
+    double deltaX = randomPoint(box.maxTranslation * 2.0) - box.maxTranslation;
+    double deltaY = randomPoint(box.maxTranslation * 2.0) - box.maxTranslation;
+    double deltaZ = randomPoint(box.maxTranslation * 2.0) - box.maxTranslation;
+
+    double newX = wrap(deltaX + atom.x, box.width);
+    double newY = wrap(deltaY + atom.y, box.height);
+    double newZ = wrap(deltaZ + atom.z, box.depth);
+
+    atom.x = newX;
+    atom.y = newY;
+    atom.z = newZ;
+
+    return atom;
+
+}
+
+void printAtom(Atom atom, int i){
+    printf("%d: (%f, %f, %f)\n", i, atom.x, atom.y, atom.z);
+}
+
+void printAtom(Atom atom){
+    printf("(%f, %f, %f)\n", atom.x, atom.y, atom.z);
+}
+
+
+void printAtoms(Atom *atoms){
+    for(int i = 0; i < ATOMS; i++){
+       printAtom(atoms[i], i); 
+    }
+}
+
+
 int main(int argc, const char **argv){
+    srand(time(NULL));
+
     const double boxSide = 10.0;
     const double boxTemp = 298.15;
     const double boxMaxTrans = 0.5;
+
+    const double kryptonSigma = 3.624;
+    const double kryptonEpsilon = 0.317;
+
+    const double kBoltz = 1.987206504191549E-003;
+    const double kT = kBoltz * boxTemp;
     int i;
 
     Box box = createBox(boxSide, boxSide, boxSide, boxMaxTrans, boxTemp);
     
     Atom *atoms;
     atoms = (Atom *) malloc(sizeof(*atoms) * ATOMS);
+   
+    //this is potentially parallelizable
+    //Create the atoms that are going to be used for this simulation.
     for(i = 0; i < ATOMS; i++){
+        double x = randomPoint(box.width);
+        double y = randomPoint(box.height);
+        double z = randomPoint(box.depth);
+
+        atoms[i] = createAtom(kryptonSigma, kryptonEpsilon, x, y, z);
     }
 
+    printAtoms(atoms);
 
+    int acceptedMoves = 0;
+    int rejectedMoves = 0;
 
+    for(i = 0; i < MOVES; i++){
+        const double oldEnergy = calcTotalEnergy(atoms, box);
+        
+        //index of the atom that is randomly chosen
+        int atomIndex = randomPoint(ATOMS);
+        Atom oldAtom = atoms[atomIndex];
+        
+        atoms[atomIndex] = translateAtom(atoms[atomIndex], box);
+        printf("Moving: %d\n", atomIndex);
+       // printAtom(oldAtom);
+        //printAtom(atoms[atomIndex]);
 
+        const double newEnergy = calcTotalEnergy(atoms, box);
+        
+        printf("%f\n",oldEnergy - newEnergy);
+
+        bool accept = false;
+
+        if(newEnergy <= oldEnergy){
+            accept = true;
+        }
+        else{
+            //Monte Carlo it
+            double mcValue = exp( -(newEnergy - oldEnergy) / kT);
+            if(mcValue >= randomPoint(1.0))
+                accept = true;
+            else
+                accept = false;
+
+        }
+
+        //restore old move if not accepted
+        if(accept){
+            acceptedMoves++;
+        }
+        else{
+            rejectedMoves++;
+            //atoms[atomIndex] = oldAtom;
+        }
+        
+    }
+
+    printAtoms(atoms);
+    printf("rejected: %d\naccepted: %d\n", acceptedMoves, rejectedMoves);
 
 }
