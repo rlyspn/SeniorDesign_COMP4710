@@ -8,6 +8,8 @@ Atom createAtom(unsigned long id, double x, double y, double z, double sigma, do
     atom.z = z;
     atom.sigma = sigma;
     atom.epsilon = epsilon;
+
+    return atom;
 }
 Atom createAtom(unsigned long id, double x, double y, double z){
     Atom atom;
@@ -17,6 +19,8 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     atom.z = z;
     atom.sigma = 0.0;
     atom.epsilon = 0.0;
+
+    return atom;
 }
 
 double makePeriodic(double x, const double box){
@@ -44,7 +48,6 @@ double wrapBox(double x, double box){
 
     return x;
 }
-
 
 double calculateEnergy(Atom *atoms, int atomNumber, double boxSize){
     double sigma = atoms[0].sigma;
