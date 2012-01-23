@@ -4,7 +4,7 @@
 #include "metroUtil.h"
 
 
-const int atomNumber = 25;
+const int atomNumber = 3;
 
 const int numMoves = 10;
 
@@ -16,7 +16,7 @@ const double temperature = 298.15;
 
 
 
-double rand(const double start, const double end)
+double randomFloat(const double start, const double end)
 {
     return (end-start) * (double(rand()) / RAND_MAX) + start;
 }
@@ -31,6 +31,10 @@ int main(int argc, char **argv){
     double sigma = 3.624;
 
     double epsilon = 0.317;
+
+    double kBoltz = 1.987206504191549E-003;
+
+    double kT = kBoltz * temperature;
     
     srand(time(NULL)); 
     Atom *atoms = new Atom[atomNumber];
@@ -38,9 +42,9 @@ int main(int argc, char **argv){
     //atoms = (Atom *)malloc(sizeof(*atoms) * atomNumber);
 
     for(int i = 0; i < atomNumber; i++){
-        double x = rand(0, boxSize);
-        double y = rand(0, boxSize);
-        double z = rand(0, boxSize);
+        double x = randomFloat(0, boxSize);
+        double y = randomFloat(0, boxSize);
+        double z = randomFloat(0, boxSize);
 
       //  Atom newAtom = createAtom((unsigned long) i, x, y, z, sigma, epsilon);
        // atoms[i] = newAtom;
@@ -53,21 +57,46 @@ int main(int argc, char **argv){
 
     int move;
     for(move = 0; move < numMoves; move++){
+        printAtoms(atoms, atomNumber);
         const double oldEnergy = calculateEnergy(atoms, atomNumber, boxSize); 
 
         //save old atom
-        int atomIndex = int(rand(0, atomNumber));
+        int atomIndex = int(randomFloat(0, atomNumber));
         Atom oldAtom = atoms[atomIndex];
 
-        const double deltaX = rand(-maxTranslation, maxTranslation);
-        const double deltaY = rand(-maxTranslation, maxTranslation);
-        const double deltaZ = rand(-maxTranslation, maxTranslation);
+        const double deltaX = randomFloat(-maxTranslation, maxTranslation);
+        const double deltaY = randomFloat(-maxTranslation, maxTranslation);
+        const double deltaZ = randomFloat(-maxTranslation, maxTranslation);
 
         atoms[atomIndex] = createAtom((unsigned long) atomIndex, oldAtom.x +
                 deltaX, oldAtom.y + deltaY, oldAtom.z + deltaZ, sigma, epsilon);
 
         double newEnergy = calculateEnergy(atoms, atomNumber, boxSize);
 
+        bool accept = false;
+        
+        if(newEnergy < oldEnergy){
+            accept = true;
+        }
+        else{
+            double x = exp(-(newEnergy - oldEnergy) / kT);
+            
+            if(x >= randomFloat(0.0, 1.0)){
+                accept = true;
+            }
+            else{
+                accept = false;
+            }
+        }
 
+        if(accept){
+            accepted++;
+        }
+        else{
+            rejected++;
+            atoms[atomIndex] = oldAtom;
+        }
+        printf("old energy: %f\nnew energy: %f\n", oldEnergy, newEnergy);
+        printf("accepted: %d\nrejected: %d\n\n", accepted, rejected);
     }
 }

@@ -63,6 +63,7 @@ double calculateEnergy(Atom *atoms, int atomNumber, double boxSize){
             double deltaY = atoms[i].y - atoms[j].y;
             double deltaZ = atoms[i].z - atoms[j].z;
 
+
             deltaX = makePeriodic(deltaX, boxSize);
             deltaY = makePeriodic(deltaY, boxSize);
             deltaZ = makePeriodic(deltaZ, boxSize);
@@ -78,7 +79,6 @@ double calculateEnergy(Atom *atoms, int atomNumber, double boxSize){
             const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
 
             totalEnergy += energy;
-
             
         }
     }
