@@ -1,7 +1,24 @@
-CC=gcc
+CC=g++
+EXE=metro
+TSTEXE=linearTest
+SRC=src/
+TST=test/
 
-util: metroUtil.h metroUtil.cpp
-	$(CC) -c metroUtil.cpp
+all: metro test
+
+test: util baseTest $(TST)linearTest.cpp
+	$(CC) $(TST)linearTest.cpp metroUtil.o -o $(TSTEXE)
+
+metro: util
+	$(CC) $(SRC)kryptonMetropolis.cpp metroUtil.o -o $(EXE)
+
+util: $(SRC)metroUtil.h $(SRC)metroUtil.cpp
+	$(CC) -c $(SRC)metroUtil.cpp
+
+baseTest: $(TST)baseTests.h $(TST)baseTests.cpp
+	$(CC) -c $(TST)baseTests.cpp
 
 clean:
-	rm -f *.o
+	rm -f -R *.o
+	rm -f -R $(EXE)
+	rm -f -R $(TSTEXE)
