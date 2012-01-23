@@ -6,7 +6,7 @@
 
 const int atomNumber = 3;
 
-const int numMoves = 10;
+const int numMoves = 1000;
 
 const double boxSize = 10.0;
 
@@ -46,18 +46,17 @@ int main(int argc, char **argv){
         double y = randomFloat(0, boxSize);
         double z = randomFloat(0, boxSize);
 
-      //  Atom newAtom = createAtom((unsigned long) i, x, y, z, sigma, epsilon);
-       // atoms[i] = newAtom;
+        Atom newAtom = createAtom((unsigned long) i, x, y, z, sigma, epsilon);
+        atoms[i] = newAtom;
     }
 
-    printAtoms(atoms, atomNumber);
 
     int accepted = 0;
     int rejected = 0;
 
     int move;
     for(move = 0; move < numMoves; move++){
-        printAtoms(atoms, atomNumber);
+        //printAtoms(atoms, atomNumber);
         const double oldEnergy = calculateEnergy(atoms, atomNumber, boxSize); 
 
         //save old atom
@@ -72,7 +71,8 @@ int main(int argc, char **argv){
                 deltaX, oldAtom.y + deltaY, oldAtom.z + deltaZ, sigma, epsilon);
 
         double newEnergy = calculateEnergy(atoms, atomNumber, boxSize);
-
+        printf("newEnergy: %f\n", newEnergy);
+        printf("oldEnergy: %f\n", oldEnergy);
         bool accept = false;
         
         if(newEnergy < oldEnergy){
@@ -96,7 +96,7 @@ int main(int argc, char **argv){
             rejected++;
             atoms[atomIndex] = oldAtom;
         }
-        printf("old energy: %f\nnew energy: %f\n", oldEnergy, newEnergy);
+        //printf("old energy: %f\nnew energy: %f\n", oldEnergy, newEnergy);
         printf("accepted: %d\nrejected: %d\n\n", accepted, rejected);
     }
 }

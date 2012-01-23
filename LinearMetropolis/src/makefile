@@ -11,3 +11,4 @@ util: metroUtil.h metroUtil.cpp
 
 clean:
 	rm -f *.o
+	rm -f metro

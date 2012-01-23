@@ -58,15 +58,16 @@ double calculateEnergy(Atom *atoms, int atomNumber, double boxSize){
     int i;
     for(i = 0; i < atomNumber - 1; i++){
         int j;
-        for(j = ++i; j < atomNumber; j++){
+        for(j = i + 1; j < atomNumber; j++){
             double deltaX = atoms[i].x - atoms[j].x;
             double deltaY = atoms[i].y - atoms[j].y;
             double deltaZ = atoms[i].z - atoms[j].z;
 
-
+  //          //printf("preperiodic: %f\n", deltaX);
             deltaX = makePeriodic(deltaX, boxSize);
             deltaY = makePeriodic(deltaY, boxSize);
             deltaZ = makePeriodic(deltaZ, boxSize);
+//            //printf("postperiodic: %f\n\n", deltaX);
 
             const double r2 = (deltaX * deltaX) +
                               (deltaY * deltaY) + 
@@ -75,11 +76,13 @@ double calculateEnergy(Atom *atoms, int atomNumber, double boxSize){
             const double sig2OverR2 = pow(sigma, 2) / r2;
             const double sig6OverR6 = pow(sig2OverR2, 3);
             const double sig12OverR12 = pow(sig6OverR6, 2);
-
+            //printf("%f\n", sig2OverR2); 
+            //printf("%f\n", sig6OverR6);
+            //printf("%f\n", sig12OverR12);
             const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
-
+            //printf("%f\n", energy);
             totalEnergy += energy;
-            
+            //printf("%f\n\n", totalEnergy); 
         }
     }
     return totalEnergy;
