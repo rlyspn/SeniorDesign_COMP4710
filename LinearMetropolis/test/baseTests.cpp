@@ -1,7 +1,7 @@
 #include "baseTests.h"
 
-double calculate_energy(double **coords, const int n_atoms, const double *box_size,
-                        const double sigma, const double epsilon)
+double calculate_energy(double **coords,  int n_atoms,  double *box_size,
+                         double sigma,  double epsilon)
 {
     // Loop over all pairs of atoms and calculate
     // the LJ energy
@@ -20,15 +20,15 @@ double calculate_energy(double **coords, const int n_atoms, const double *box_si
             delta_y = make_periodic(delta_y, box_size[1]);
             delta_z = make_periodic(delta_z, box_size[2]);
 
-            const double r2 = (delta_x*delta_x) + (delta_y*delta_y) +
+             double r2 = (delta_x*delta_x) + (delta_y*delta_y) +
                               (delta_z*delta_z);
 
             // E_LJ = 4*epsilon[ (sigma/r)^12 - (sigma/r)^6 ]
-            const double sig2_over_r2 = (sigma*sigma) / r2;
-            const double sig6_over_r6 = sig2_over_r2*sig2_over_r2*sig2_over_r2;
-            const double sig12_over_r12 = sig6_over_r6 * sig6_over_r6;
+             double sig2_over_r2 = (sigma*sigma) / r2;
+             double sig6_over_r6 = sig2_over_r2*sig2_over_r2*sig2_over_r2;
+             double sig12_over_r12 = sig6_over_r6 * sig6_over_r6;
 
-            const double e_lj = 4.0 * epsilon * ( sig12_over_r12 - sig6_over_r6 );
+             double e_lj = 4.0 * epsilon * ( sig12_over_r12 - sig6_over_r6 );
 
             total_energy = total_energy + e_lj;
         }
@@ -39,7 +39,7 @@ double calculate_energy(double **coords, const int n_atoms, const double *box_si
 }
 
 // Subroutine to apply periodic boundaries
-double make_periodic(double x, const double box)
+double make_periodic(double x,  double box)
 {
     while (x < -0.5*box)
     {

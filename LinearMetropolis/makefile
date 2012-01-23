@@ -7,7 +7,7 @@ TST=test/
 all: metro test
 
 test: util baseTest $(TST)linearTest.cpp
-	$(CC) $(TST)linearTest.cpp metroUtil.o -o $(TSTEXE)
+	$(CC) $(TST)linearTest.cpp metroUtil.o baseTests.o -o $(TSTEXE)
 
 metro: util
 	$(CC) $(SRC)kryptonMetropolis.cpp metroUtil.o -o $(EXE)
