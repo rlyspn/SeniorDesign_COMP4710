@@ -4,7 +4,10 @@ TSTEXE=linearTest
 SRC=src/
 TST=test/
 
-all: metro test
+all: runtest metro
+
+runtest: test
+	./$(TSTEXE)	
 
 test: util baseTest $(TST)linearTest.cpp
 	$(CC) $(TST)linearTest.cpp metroUtil.o baseTests.o -o $(TSTEXE)
