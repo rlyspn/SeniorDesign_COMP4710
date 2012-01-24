@@ -88,3 +88,9 @@ double calculateEnergy(Atom *atoms, int atomNumber, double boxSize){
     return totalEnergy;
 
 }
+
+void printAtoms(Atom *atoms, int count){
+    for(int i = 0; i < count; i++){
+        printf("%f, %f, %f\n", atoms[i].x, atoms[i].y, atoms[i].z);
+    }
+}

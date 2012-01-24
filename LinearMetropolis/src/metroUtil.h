@@ -43,4 +43,12 @@ double wrapBox(double x, double box);
 double calculateEnergy(Atom *atoms, int atomNumber, double boxSize);
 
 
+/**
+  Prints the position of all the atoms in an array.
+  @param atoms - array of atoms
+  @param count - number of atoms
+*/
+void printAtoms(Atom *atoms, int count);
+   
+
 #endif //METROUTIL_H
