@@ -34,3 +34,14 @@ __device__ double wrapBox(double x, double box);
   @param enviro - the environmental variables
 */
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro); 
+
+/**
+  Calculates the energy between n atoms where n is the
+  the number of threads in the block. The block's sum is then stored 
+  in the energySum array at its block index position.
+  @param *atoms - the array of atoms
+  @param enviro - the environmental variables
+  @param *energySum - the array of block sums
+  @param threadsPerBlock - the nember of threads runing in parallel per each block 
+*/
+__global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, int threadsPerBlock);
