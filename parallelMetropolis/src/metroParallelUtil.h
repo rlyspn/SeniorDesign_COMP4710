@@ -2,15 +2,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+struct Atom{
+    double x; // x coord of the atom
+    double y; // y coord of the atom
+    double z; // z coord of the atom
+
+    unsigned long id; // unique id of the atom
+
+    double sigma; // sigma value for the atom for the LJ calculations
+    double epsilon; // epsilon value for the atom for the LJ calculation
+};
+
+Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon);
+Atom createAtom(unsigned long id, double x, double y, double z);
+
+struct Environment{
+    double x; // length of the box in the x direction
+    double y; // length of the box in the y direction
+    double z; // length of the box in the z direction
+
+    double maxTranslation; // the maximum distance that an atom can move
+    double temperature; // the temperature of the box
+};
+
+Environment createEnvironment(double x, double y, double z, double maxTrans, double temp);
+
 
 /**
-  @param idx - the index in the 1 dimensional array of energies
-  @return - the id of the X atom
+  Prints the position of all the atoms in an array.
+  @param atoms - array of atoms
+  @param count - number of atoms
 */
-int getXFromIndex(int idx);
-
-/**
-  @param x - the id of the x atom
-  @param idx - the index in the 1 dimensional array of energies
-*/
-int getYFromIndex(int x, int idx);
+void printAtoms(Atom *atoms, int count);
