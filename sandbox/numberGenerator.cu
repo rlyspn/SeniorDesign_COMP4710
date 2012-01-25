@@ -8,11 +8,11 @@ __global__ void setup_kernel ( curandState * state, unsigned long seed )
         curand_init ( seed, id, 0, &state[id] );
 } 
 
-__global__ void generate( curandState* globalState, double* dev_storage ) 
+__global__ void generate( curandState* globalState, float* dev_storage ) 
 {
         int ind = threadIdx.x;
         curandState localState = globalState[ind];
-        double stable_storage = curand_uniform_double( &localState );
+        float stable_storage = curand_uniform( &globalState )[ind];
         dev_storage = &stable_storage;
         globalState[ind] = localState; 
 }
@@ -23,12 +23,13 @@ int main( int argc, char** argv)
         curandState* devStates;
         cudaMalloc ( &devStates, N*sizeof( curandState ) );
         
-        double *host_storage; 
-        double *dev_storage;
+        float *host_storage; 
+        float *dev_storage;
 
-        host_storage = (double *) malloc(sizeof(double));
+        host_storage = (float *) malloc(sizeof(float));
 
         *host_storage = -1.0;
+        printf("host_storage before = %f\n", *host_storage);
         cudaMalloc(&dev_storage, sizeof(*dev_storage));
 
         // setup seeds
@@ -39,7 +40,7 @@ int main( int argc, char** argv)
 
         cudaMemcpy(host_storage, dev_storage, sizeof(*host_storage), cudaMemcpyDeviceToHost);
 
-        printf("host_storage = %f", *host_storage);
+        printf("host_storage = %f\n", *host_storage);
 
         return 0;
 }

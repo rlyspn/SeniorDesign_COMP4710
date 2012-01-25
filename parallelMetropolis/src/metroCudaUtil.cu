@@ -82,6 +82,10 @@ __global__ void generatePoints(curandState *globalState, Atom *atoms, Environmen
 
 double calcEnergyWrapper(Atom *atoms, Environment enviro){
     double totalEnergy = 0.0;
+    
+    Atom *atoms_device;
+    double *energySum_device;
+    double *energySum_host;
 
     int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
     int threadsPerBlock = 128;
@@ -90,30 +94,30 @@ double calcEnergyWrapper(Atom *atoms, Environment enviro){
     //The number of bytes of shared memory per block of
     size_t sharedSize = sizeof(double) * threadsPerBlock;
 
-    //allocate memory on the device
-    Atom *atoms_device;
-    double *energySum_device;
-    double *energySum_host;
 
     size_t atomSize = enviro.numOfAtoms * sizeof(Atom);
     size_t energySumSize = blocks * sizeof(double);
-
+    
+    //allocate memory on the device
     energySum_host = (double *) malloc(energySumSize);
     cudaMalloc((void **) &atoms_device, atomSize);
     cudaMalloc((void **) &energySum_device, energySumSize);
 
+    //copy data to the device
     cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice);
 
     calcEnergy <<<blocks, threadsPerBlock, sharedSize>>>(atoms_device, enviro, energySum_device);
     
     cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
 
+    //find the total sum from the block sums
     for(int i = 0; i < blocks; i++){
         totalEnergy += energySum_host[i];
     }
 
     cudaFree(atoms_device);
     cudaFree(energySum_device);
+    free(energySum_host);
 
     return totalEnergy;
 }

@@ -1,3 +1,6 @@
+#ifndef METROCUDAUTIL_CUH
+#define METROCUDAUTIL_CUH
+
 #include <cuda.h>
 #include <curand_kernel.h>
 #include <math.h>
@@ -60,7 +63,7 @@ __global__ void generatePoints(curandState *globalState, Atom *atom, Environment
   @param enviro - the environmental variables
   @return - the total energy of the system.
 */
-double calcEnergySetup(Atom *atoms, Environment enviro);
+double calcEnergyWrapper(Atom *atoms, Environment enviro);
 
 /**
   Calculates the energy between n atoms where n is the
@@ -72,3 +75,5 @@ double calcEnergySetup(Atom *atoms, Environment enviro);
 */
 __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum);
 
+
+#endif //METROCUDAUTIL_H

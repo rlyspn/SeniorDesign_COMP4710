@@ -10,7 +10,7 @@
 Tests the getXFromIndex function. The global Kernel is used to setup the tests.
 */
 void setupGetXFromIndex();
-__global__ void testGetXKernel();
+__global__ void testGetXKernel(int *xValues);
 
 /**
 Tests the getYFromIndex function. The global Kernel is used to setup the tests.
