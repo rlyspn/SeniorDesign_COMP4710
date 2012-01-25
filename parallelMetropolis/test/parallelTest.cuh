@@ -9,32 +9,32 @@
 /**
 Tests the getXFromIndex function. The global Kernel is used to setup the tests.
 */
-void testGetXFromIndex();
+void setupGetXFromIndex();
 __global__ void testGetXKernel();
 
 /**
 Tests the getYFromIndex function. The global Kernel is used to setup the tests.
 */
-void testGetYFromIndex();
+void setupGetYFromIndex();
 __global__ void testGetXKernel();
 
 /**
 Tests the makePeriodic function. The global Kernel is used to setup the tests.
 */
-void testMakePeriodic();
+void setupMakePeriodic();
 __global__ void testGetYKernel();
 
 /**
 Tests the wrapBox Function. The global Kernel is used to setup the tests.
 */
-void testWrapBox();
+void setupWrapBox();
 __global__ void testMakePeriodicKernel();
 
 /**
 Tests the calc_lj Function. The global Kernel is used to setup the tests.
 */
-void testCalc_lj();
-__global__ void calcLJKernel();
+void setupCalc_lj();
+__global__ void testCalcLJKernel();
 
 void testGeneratePoints();
 
