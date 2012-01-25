@@ -65,7 +65,25 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     return energy;
 }
 
-__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, const int threadsPerBlock){
+__global__ void setup_generator(curandState *globalState, unsigned long seed)
+{
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        curand_init(seed, idx, 0, &globalState[idx]);
+} 
+
+__global__ void generatePoints(curandState *globalState, Atom *atoms, Environment *enviro){
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    curandState localState = globalState[idx];
+
+    atoms[idx].id = idx;
+    atoms[idx].x = enviro->x * curand_uniform_double(&localState);
+    atoms[idx].y = enviro->y * curand_uniform_double(&localState);
+    atoms[idx].z = enviro->z * curand_uniform_double(&localState);
+    globalState[idx] = localState; 
+
+}
+
+__global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, int threadsPerBlock){
 
 	//need to figure out how many threads per block will be executed
 	// must be a power of 2
@@ -114,5 +132,3 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, c
         energySum[blockIdx.x] = cache[0];
 		
 }
-
-
