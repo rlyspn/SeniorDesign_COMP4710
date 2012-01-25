@@ -44,7 +44,7 @@ void testGeneratePoints(){
     int numberOfAtoms = 10;
     Atom *atoms = new Atom[numberOfAtoms];
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, 0.0, 0.0, 0.0);
+        atoms[i] = createAtom(i, -1.0, -1.0, -1.0);
     }
     Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 122.0, numberOfAtoms);
 
