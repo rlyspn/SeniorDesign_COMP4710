@@ -42,6 +42,5 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro);
   @param *atoms - the array of atoms
   @param enviro - the environmental variables
   @param *energySum - the array of block sums
-  @param threadsPerBlock - the nember of threads runing in parallel per each block 
 */
-__global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, int threadsPerBlock);
+__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, const int threadsPerBlock);

@@ -65,23 +65,23 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     return energy;
 }
 
-__global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, int threadsPerBlock){
+__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, const int threadsPerBlock){
 
 	//need to figure out how many threads per block will be executed
 	// must be a power of 2
-	__shared__ double cache[threadsPerBlock];	
+    __shared__ double cache[128];	
 	
 	int cacheIndex = threadIdx.x;
 	int idx =  blockIdx.x * blockDim.x + threadIdx.x;
 	double lj_energy;
 	
-	int N = ( pow(enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
+	int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
 	
 	if(idx < N ){
 		//calculate the x and y positions in the Atom array
 		int xAtom_pos, yAtom_pos;
 		xAtom_pos =  getXFromIndex(idx);
-		yAtom_pos =  getYFromIndex(xAtom_pos);
+		yAtom_pos =  getYFromIndex(xAtom_pos, idx);
 		
 		Atom xAtom, yAtom;
 		xAtom = atoms[xAtom_pos];
@@ -111,7 +111,7 @@ __global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, in
 	// copy this block's sum to the enrgySums array
 	// at its block index postition
 	if (cacheIndex == 0)
-        energySums[blockIdx.x] = cache[0];
+        energySum[blockIdx.x] = cache[0];
 		
 }
 
