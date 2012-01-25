@@ -1,3 +1,6 @@
+#ifndef METROPARALLELUTIL_H
+#define METROPARALLELUTIL_H
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,3 +39,5 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
   @param count - number of atoms
 */
 void printAtoms(Atom *atoms, int count);
+
+#endif //METROPARALLELUTIL_H
