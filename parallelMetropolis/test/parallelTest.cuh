@@ -16,19 +16,19 @@ __global__ void testGetXKernel();
 Tests the getYFromIndex function. The global Kernel is used to setup the tests.
 */
 void setupGetYFromIndex();
-__global__ void testGetXKernel();
+__global__ void testGetYKernel();
 
 /**
 Tests the makePeriodic function. The global Kernel is used to setup the tests.
 */
 void setupMakePeriodic();
-__global__ void testGetYKernel();
+__global__ void testMakePeriodicKernel();
 
 /**
 Tests the wrapBox Function. The global Kernel is used to setup the tests.
 */
 void setupWrapBox();
-__global__ void testMakePeriodicKernel();
+__global__ void testWrapBoxKernel();
 
 /**
 Tests the calc_lj Function. The global Kernel is used to setup the tests.
