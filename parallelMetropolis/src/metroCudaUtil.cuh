@@ -55,6 +55,14 @@ __global__ void setup_generator(curandState *globalState, unsigned long seed);
 __global__ void generatePoints(curandState *globalState, Atom *atom, Environment *enviro);
 
 /**
+  This is a wrapper function for the calcEnergy kernel.
+  @param *atoms - the array of atoms
+  @param enviro - the environmental variables
+  @return - the total energy of the system.
+*/
+double calcEnergySetup(Atom *atoms, Environment enviro);
+
+/**
   Calculates the energy between n atoms where n is the
   the number of threads in the block. The block's sum is then stored 
   in the energySum array at its block index position.
@@ -62,4 +70,5 @@ __global__ void generatePoints(curandState *globalState, Atom *atom, Environment
   @param enviro - the environmental variables
   @param *energySum - the array of block sums
 */
-__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, int threadsPerBlock);
+__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum);
+

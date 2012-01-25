@@ -57,9 +57,6 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     const double sig2OverR2 = pow(sigma, 2) / r2;
     const double sig6OverR6 = pow(sig2OverR2, 3);
     const double sig12OverR12 = pow(sig6OverR6, 2);
-    //printf("%f\n", sig2OverR2); 
-    //printf("%f\n", sig6OverR6);
-    //printf("%f\n", sig12OverR12);
     const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
 
     return energy;
@@ -83,14 +80,54 @@ __global__ void generatePoints(curandState *globalState, Atom *atoms, Environmen
 
 }
 
-__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, int threadsPerBlock){
+double calcEnergyWrapper(Atom *atoms, Environment enviro){
+    double totalEnergy = 0.0;
+
+    int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
+    int threadsPerBlock = 128;
+    int blocks = N / threadsPerBlock + (N % threadsPerBlock == 0 ? 0 : 1);
+
+    //The number of bytes of shared memory per block of
+    size_t sharedSize = sizeof(double) * threadsPerBlock;
+
+    //allocate memory on the device
+    Atom *atoms_device;
+    double *energySum_device;
+    double *energySum_host;
+
+    size_t atomSize = enviro.numOfAtoms * sizeof(Atom);
+    size_t energySumSize = blocks * sizeof(double);
+
+    energySum_host = (double *) malloc(energySumSize);
+    cudaMalloc((void **) &atoms_device, atomSize);
+    cudaMalloc((void **) &energySum_device, energySumSize);
+
+    cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice);
+
+    calcEnergy <<<blocks, threadsPerBlock, sharedSize>>>(atoms_device, enviro, energySum_device);
+    
+    cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
+
+    for(int i = 0; i < blocks; i++){
+        totalEnergy += energySum_host[i];
+    }
+
+    cudaFree(atoms_device);
+    cudaFree(energySum_device);
+
+    return totalEnergy;
+}
+
+__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
 
 	//need to figure out how many threads per block will be executed
 	// must be a power of 2
-    __shared__ double cache[128];	
+    extern __shared__ double cache[];	
 	
 	int cacheIndex = threadIdx.x;
-	int idx =  blockIdx.x * blockDim.x + threadIdx.x;
+	
+    
+    int idx =  blockIdx.x * blockDim.x + threadIdx.x;
 	double lj_energy;
 	
 	int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
