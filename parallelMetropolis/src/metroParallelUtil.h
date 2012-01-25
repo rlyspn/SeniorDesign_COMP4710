@@ -23,9 +23,11 @@ struct Environment{
 
     double maxTranslation; // the maximum distance that an atom can move
     double temperature; // the temperature of the box
+
+    int numOfAtoms; // the number of atoms in the environment
 };
 
-Environment createEnvironment(double x, double y, double z, double maxTrans, double temp);
+Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms);
 
 
 /**
