@@ -30,7 +30,7 @@ void setupGetXFromIndex(){
 __global__ void testGetXKernel(int *xValues){
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;
     
-    xValues[idx] = getXFromIndex(idx); 
+    //xValues[idx] = getXFromIndex(idx); 
 }
 
 void setupGetYFromIndex(){
