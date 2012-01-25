@@ -25,13 +25,16 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     return atom;
 }
 
-Environment createEnvironment(double x, double y, double z, double maxTrans, double temp){
+Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms){
     Environment enviro;
     enviro.x = x;
     enviro.y = y;
     enviro.z = z;
     enviro.maxTranslation = maxTrans;
     enviro.temperature = temp;
+    enviro.numOfAtoms = numOfAtoms;
+
+    return enviro;
 }
 
 void printAtoms(Atom *atoms, int count){
