@@ -2,43 +2,38 @@
 #include <curand_kernel.h>
 #include <stdio.h>
 
-__global__ void setup_kernel ( curandState * state, unsigned long seed )
+__global__ void generate( curandState* globalState, double* dev_storage ) 
 {
-        int id = threadIdx.x;
-        curand_init ( seed, id, 0, &state[id] );
-} 
+        int idx = threadIdx.x + blockDim.x * blockIdx.x;
 
-__global__ void generate( curandState* globalState, float* dev_storage ) 
-{
-        int ind = threadIdx.x;
-        curandState localState = globalState[ind];
-        float stable_storage = curand_uniform( &globalState )[ind];
+        curand_init ( 1234, idx, 0, &globalState[idx] );
+
+        curandState localState = globalState[idx];
+        double stable_storage = curand_uniform_double( &globalState[idx] );
         dev_storage = &stable_storage;
-        globalState[ind] = localState; 
+        globalState[idx] = localState; 
 }
 
 int main( int argc, char** argv) 
 { 
         int N = 1;
         curandState* devStates;
-        cudaMalloc ( &devStates, N*sizeof( curandState ) );
+        cudaMalloc ((void**) &devStates, N*sizeof( curandState ) );
         
-        float *host_storage; 
-        float *dev_storage;
+        double *host_storage; 
+        double *dev_storage;
 
-        host_storage = (float *) malloc(sizeof(float));
+        host_storage = (double *) malloc(sizeof(double));
 
         *host_storage = -1.0;
         printf("host_storage before = %f\n", *host_storage);
-        cudaMalloc(&dev_storage, sizeof(*dev_storage));
-
-        // setup seeds
-        setup_kernel <<< 1, 1 >>> ( devStates, time(NULL) );
+        
+        cudaMalloc((void**) &dev_storage, sizeof(double));
 
         // generate random numbers
         generate <<< 1, 1 >>> ( devStates, dev_storage );
 
-        cudaMemcpy(host_storage, dev_storage, sizeof(*host_storage), cudaMemcpyDeviceToHost);
+        cudaMemcpy(host_storage, dev_storage, sizeof(double), cudaMemcpyDeviceToHost);
 
         printf("host_storage = %f\n", *host_storage);
 
