@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <cuda.h>
 #include "baseTests.h"
-#include "metroCudaUtil.cuh"
+#include "../src/metroCudaUtil.cuh"
 
 /**
 Tests the getXFromIndex function. The global Kernel is used to setup the tests.
