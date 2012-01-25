@@ -64,3 +64,21 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
 
     return energy;
 }
+
+__global__ void setup_generator(curandState *globalState, unsigned long seed)
+{
+        int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        curand_init(seed, idx, 0, &globalState[idx]);
+} 
+
+__global__ void generatePoints(curandState *globalState, Atom *atoms, Environment *enviro){
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    curandState localState = globalState[idx];
+
+    atoms[idx].id = idx;
+    atoms[idx].x = enviro->x * curand_uniform_double(&localState);
+    atoms[idx].y = enviro->y * curand_uniform_double(&localState);
+    atoms[idx].z = enviro->z * curand_uniform_double(&localState);
+    globalState[idx] = localState; 
+
+}

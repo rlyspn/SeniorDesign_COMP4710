@@ -1,4 +1,5 @@
 #include <cuda.h>
+#include <curand_kernel.h>
 #include <math.h>
 #include "metroParallelUtil.h"
 
@@ -34,3 +35,21 @@ __device__ double wrapBox(double x, double box);
   @param enviro - the environmental variables
 */
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro); 
+
+/**
+  Initializes CURAND random number generator
+  Borrowed from: http://aresio.blogspot.com/2011/05/cuda-random-numbers-inside-kernels.html
+  @param globalState - state of the generator
+  @param seed - seed for the generator
+*/
+__global__ void setup_generator(curandState *globalState, unsigned long seed);
+
+/**
+  Generate random positions for atoms in the box
+  Some code borrowed from: http://aresio.blogspot.com/2011/05/cuda-random-numbers-inside-kernels.html
+  nVidia CURAND reference: http://developer.download.nvidia.com/compute/cuda/5_0/toolkit/docs/CURAND_Library.pdf
+  @param globalState - the state of the generator
+  @param atoms - array of atoms to generate positions
+  @param enviro - enviroment structure defining the box
+*/
+__global__ void generatePoints(curandState *globalState, Atom *atom, Environment *enviro);
