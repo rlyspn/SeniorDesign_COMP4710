@@ -62,4 +62,4 @@ __global__ void generatePoints(curandState *globalState, Atom *atom, Environment
   @param enviro - the environmental variables
   @param *energySum - the array of block sums
 */
-__global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, int threadsPerBlock);
+__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, int threadsPerBlock);

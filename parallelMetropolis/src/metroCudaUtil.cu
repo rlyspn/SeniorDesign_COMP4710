@@ -83,7 +83,7 @@ __global__ void generatePoints(curandState *globalState, Atom *atoms, Environmen
 
 }
 
-__global__ void calcEnergy(Atom *atoms, Enviroment enviro, double *energySum, int threadsPerBlock){
+__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum, int threadsPerBlock){
 
 	//need to figure out how many threads per block will be executed
 	// must be a power of 2
