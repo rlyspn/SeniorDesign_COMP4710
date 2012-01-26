@@ -4,14 +4,10 @@
 
 //calculates X (larger indexed atom) for energy calculation based on index in atom array
 __device__ int getXFromIndex(int idx){
-    if(idx == 0)
-        return 0;
-    else{
-        int c = -2 * idx;
-        int discriminant = 1 - 4 * c;
-        int qv = (-1 + sqrtf(discriminant)) / 2;
-        return qv;
-    }
+    int c = -2 * idx;
+    int discriminant = 1 - 4 * c;
+    int qv = (-1 + sqrtf(discriminant)) / 2;
+    return qv + 1;
 }
 
 //calculates Y (smaller indexed atom) for energy calculation based on index in atom array
