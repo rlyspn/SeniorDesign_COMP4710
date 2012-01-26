@@ -1,17 +1,28 @@
 #include "parallelTest.cuh"
 
-void setupGetXFromIndex(){
+/**
+    Wrapper function that will call the global function used to 
+    test the functions that calculate indexes in the half array
+    used to hold the energies.
+*/
+void setupGetIndexTest(){
     int numberOfBlocks = 3;
     int threadsPerBlock = 2;
+    int totalTests = numberOfBlocks * threadsPerBlock;
 
     int *xValues;
+    int *yValues;
+    int *yValues_device;
     int *xValues_device;
     
-    size_t xSize = numberOfBlocks * threadsPerBlock * sizeof(int);
+    size_t xSize = totalTests * sizeof(int);
+    
+    yValues = (int *) malloc(xSize);
     xValues = (int *)malloc(xSize);
+    cudaMalloc((void **) &yValues_device, xSize);
     cudaMalloc((void **) &xValues_device, xSize);
     
-    testGetXKernel <<<numberOfBlocks, threadsPerBlock>>>(xValues_device);
+    testGetXKernel <<<numberOfBlocks, threadsPerBlock>>>(xValues_device, totalTests);
 
     cudaMemcpy(xValues, xValues_device, xSize, cudaMemcpyDeviceToHost);
 
@@ -24,14 +35,26 @@ void setupGetXFromIndex(){
 
     printf("getXFromIndex Correct\n");
 
+    //test getYFromIndex)
+    testGetYKernel <<<numberOfBlocks, threadsPerBlock>>> (xValues_device,
+            yValues_device, totalTests);
+
+    cudaMemcpy(yValues, yValues_device, xSize, cudaMemcpyDeviceToHost);
+
+    assert(yValues[0] == 0);
+    assert(yValues[1] == 0);
+    assert(yValues[2] == 1);
+    assert(yValues[3] == 0);
+    assert(yValues[4] == 1);
+    assert(yValues[5] == 2);
+
     cudaFree(xValues_device);
+    cudaFree(yValues_device);
+    free(yValues);
     free(xValues);
 }
 
 
-void setupGetYFromIndex(){
-    //TODO
-}
 
 
 void setupMakePeriodic(){
@@ -47,7 +70,7 @@ void setupWrapBox(){
     
     double *inputs_host;
     double *inputs_device;
-    double *outputs_host:
+    double *outputs_host;
     size_t inputSize = sizeof(double) * numberOfTests;
 
     inputs_host = (double *) malloc(inputSize);
@@ -73,11 +96,11 @@ void setupWrapBox(){
 
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
-        assert(outputs_host == wrap_into_box(inputs_host[i], box);
+        assert(outputs_host[i] == wrap_into_box(inputs_host[i], box));
     }
 
     free(inputs_host);
-    free(outpus_host);
+    free(outputs_host);
     cudaFree(inputs_device);
 
     printf("__device__ wrapBox tested correctly");

@@ -11,13 +11,7 @@
 /**
 Tests the getXFromIndex function. The global Kernel is used to setup the tests.
 */
-void setupGetXFromIndex();
-
-
-/**
-Tests the getYFromIndex function. The global Kernel is used to setup the tests.
-*/
-void setupGetYFromIndex();
+void setupGetIndexTest();
 
 /**
 Tests the makePeriodic function. The global Kernel is used to setup the tests.

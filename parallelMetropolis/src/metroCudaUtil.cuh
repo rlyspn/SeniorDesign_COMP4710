@@ -81,22 +81,22 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum);
     Kernel call that will be used to test the getXFromIndexFunction
     @apram xValues - a series of xValues used to test
 */
-__global__ void testGetXKernel(int *xValues);
+__global__ void testGetXKernel(int *xValues, int totalTests);
 
 /**
   Kernel function that will be used to test getYFromIndex device function
 */
-__global__ void testGetYKernel();
+__global__ void testGetYKernel(int *xValues, int *yValues, int numberOfTests);
 
 /**
   Kernel function used to facilitate tests of the makePeriodic device function
 */
-__global__ void testMakePeriodicKernel();
+__global__ void testMakePeriodicKernel(double *x, double *box, int numberOfTests);
 
 /**
   Kernel function used to facilitate tess of the wrap box device function
 */
-__global__ void testWrapBoxKernel();
+__global__ void testWrapBoxKernel(double *x, double *box, int numberOfTests);
 
 #endif //DEBUG
 

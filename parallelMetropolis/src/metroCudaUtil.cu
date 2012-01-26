@@ -221,7 +221,7 @@ __global__ void testMakePeriodicKernel(double *x, double *box, int n){
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;
 
     if (idx < n){
-        x[idx] = makePeriodic(x[idx], box)
+        x[idx] = makePeriodic(x[idx], *box);
     }   
 }
 
