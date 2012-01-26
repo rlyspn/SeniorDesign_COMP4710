@@ -98,6 +98,7 @@ int main(int argc, char ** argv){
         }
         else{
             rejected++;
+            //restore previous configuration
             atoms[atomIndex] = oldAtom;
         }
 
