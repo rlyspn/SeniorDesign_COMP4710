@@ -73,34 +73,7 @@ void testGeneratePoints(){
 
     Environment *enviro = &stableEnviro;
 
-    //calculate size of atoms and environemnt structs
-    size_t atomsSize = sizeof(*atoms);
-    size_t enviroSize = sizeof(*enviro);
-
-    //declare device structs
-    Atom *dev_atoms = new Atom[numberOfAtoms];
-    Environment *dev_enviro;
-
-    //allocate memory for device structs
-    cudaMalloc( (void**) &dev_atoms, atomsSize);
-    cudaMalloc( (void**) &dev_enviro, enviroSize);
-
-    //copy local structs to device structs on device
-    cudaMemcpy(dev_atoms, atoms, atomsSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_enviro, enviro, enviroSize, cudaMemcpyHostToDevice);
-
-    //allocate memory on device for random number generator state
-    curandState* devStates;
-    cudaMalloc ( &devStates, numberOfAtoms*sizeof( curandState ) );
-                
-    // setup seeds
-    setup_generator <<<5, 2>>> ( devStates, time(NULL) );
-
-    // generate random numbers
-    generatePoints <<<5, 2>>> ( devStates, dev_atoms, dev_enviro );
-
-    //copy atoms back to host
-    cudaMemcpy(atoms, dev_atoms, atomsSize, cudaMemcpyDeviceToHost);
+    generatePoints(atoms, enviro);
 
     //assert that all atoms positions are in range of the box
     for (int i = 0; i < numberOfAtoms; i++){

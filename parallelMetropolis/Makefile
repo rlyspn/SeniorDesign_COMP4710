@@ -2,7 +2,7 @@ NV=nvcc
 SRC=src/
 TST=test/
 TSTEXE=parallelTest
-FLAGS=-arch sm_13
+FLAGS=-arch sm_13 -lcurand
 
 all: tests
 

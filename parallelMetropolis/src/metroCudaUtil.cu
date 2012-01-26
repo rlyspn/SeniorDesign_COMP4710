@@ -1,5 +1,6 @@
 #include "metroCudaUtil.cuh"
 
+#define THREADS_PER_BLOCK 128
 
 __device__ int getXFromIndex(int idx){
     int c = -2 * idx;
@@ -62,22 +63,53 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     return energy;
 }
 
-__global__ void setup_generator(curandState *globalState, unsigned long seed)
-{
-        int idx = blockIdx.x * blockDim.x + threadIdx.x;
-        curand_init(seed, idx, 0, &globalState[idx]);
-} 
-
-__global__ void generatePoints(curandState *globalState, Atom *atoms, Environment *enviro){
+__global__ void assignAtomPositions(double *dev_doubles, Atom *atoms, Environment *enviro){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    curandState localState = globalState[idx];
+    if (idx < enviro->numOfAtoms * 3){
+        int atomIndex = idx / 3;
+        int dim_select = idx % 3;
 
-    atoms[idx].id = idx;
-    atoms[idx].x = enviro->x * curand_uniform_double(&localState);
-    atoms[idx].y = enviro->y * curand_uniform_double(&localState);
-    atoms[idx].z = enviro->z * curand_uniform_double(&localState);
-    globalState[idx] = localState; 
+        if (dim_select == 0){
+            atoms[atomIndex].x = enviro->x * dev_doubles[idx];
+        }
+        else if (dim_select == 1){
+            atoms[atomIndex].y = enviro->y * dev_doubles[idx];
+        }
+        else{
+            atoms[atomIndex].z = enviro->z * dev_doubles[idx];
+        }
+    }
 
+}
+
+void generatePoints(Atom *atoms, Environment *enviro){
+    int N = enviro->numOfAtoms * 3;
+    curandGenerator_t generator;
+    double *devDoubles;
+    Atom *devAtoms;
+    Environment *devEnviro;
+
+    cudaMalloc((void**)&devDoubles, N * sizeof(double));
+    cudaMalloc((void**)&devAtoms, enviro->numOfAtoms * sizeof(Atom));
+    cudaMalloc((void**)&devEnviro, sizeof(Environment));
+
+    cudaMemcpy(devAtoms, atoms, enviro->numOfAtoms * sizeof(Atom), cudaMemcpyHostToDevice);
+    cudaMemcpy(devEnviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
+
+    curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(generator, (unsigned int) time(NULL));
+    curandGenerateUniformDouble(generator, devDoubles, N);
+
+    int numOfBlocks = enviro->numOfAtoms / THREADS_PER_BLOCK + (enviro->numOfAtoms % THREADS_PER_BLOCK == 0 ? 0 : 1);
+
+    assignAtomPositions <<< numOfBlocks, THREADS_PER_BLOCK >>> (devDoubles, devAtoms, devEnviro);
+
+    cudaMemcpy(atoms, devAtoms, enviro->numOfAtoms * sizeof(Atom), cudaMemcpyDeviceToHost);
+
+    curandDestroyGenerator(generator);
+    cudaFree(devDoubles);
+    cudaFree(devAtoms);
+    cudaFree(devEnviro);
 }
 
 double calcEnergyWrapper(Atom *atoms, Environment enviro){

@@ -5,6 +5,7 @@
 #include <curand_kernel.h>
 #include <math.h>
 #include "metroParallelUtil.h"
+#include <curand.h>
 
 /**
   @param idx - the index in the 1 dimensional array of energies
@@ -40,22 +41,20 @@ __device__ double wrapBox(double x, double box);
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro); 
 
 /**
-  Initializes CURAND random number generator
-  Borrowed from: http://aresio.blogspot.com/2011/05/cuda-random-numbers-inside-kernels.html
-  @param globalState - state of the generator
-  @param seed - seed for the generator
+    Global function for GPU to assign random doubles to atom positions.
+    @param dev_doubles - array of randomly generated doubles 0.0 to 1.0
+    @param atoms - array of atoms to be positioned
+    @param enviro - Environment of the simulation
 */
-__global__ void setup_generator(curandState *globalState, unsigned long seed);
+__global__ void assignAtomPositions(double *dev_doubles, Atom *atoms, Environment *enviro);
 
 /**
   Generate random positions for atoms in the box
-  Some code borrowed from: http://aresio.blogspot.com/2011/05/cuda-random-numbers-inside-kernels.html
   nVidia CURAND reference: http://developer.download.nvidia.com/compute/cuda/5_0/toolkit/docs/CURAND_Library.pdf
-  @param globalState - the state of the generator
   @param atoms - array of atoms to generate positions
   @param enviro - enviroment structure defining the box
 */
-__global__ void generatePoints(curandState *globalState, Atom *atom, Environment *enviro);
+void generatePoints(Atom *atoms, Environment *enviro);
 
 /**
   This is a wrapper function for the calcEnergy kernel.
