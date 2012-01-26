@@ -12,7 +12,7 @@ __device__ int getXFromIndex(int idx){
 
 //calculates Y (smaller indexed atom) for energy calculation based on index in atom array
 __device__ int getYFromIndex(int x, int idx){
-    return idx - x;
+    return idx - (x * x - x) / 2;
 }
 
 //apply periodic boundaries
