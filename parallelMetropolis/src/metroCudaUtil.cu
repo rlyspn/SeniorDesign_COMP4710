@@ -13,7 +13,7 @@ __device__ int getYFromIndex(int x, int idx){
     return idx - x;
 }
 
-__device__ double makePeriodic(double x, const double box){
+__device__ double makePeriodic(double x, double box){
     
     while(x < -0.5 * box){
         x += box;
@@ -208,22 +208,37 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
 
 
 #ifdef DEBUG
-__global__ void testWrapBoxKernel(){
-    //TODO    
+
+__global__ void testWrapBoxKernel(double *x, double *box, int n){ 
+    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (idx < n){
+        x[idx] = wrapBox(x[idx], *box);
+    }
 }
 
-__global__ void testMakePeriodicKernel(){
-    //TODO
+__global__ void testMakePeriodicKernel(double *x, double *box, int n){ 
+    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (idx < n){
+        x[idx] = makePeriodic(x[idx], box)
+    }   
 }
 
-__global__ void testGetYKernel(){
-    //TODO
-}
-
-__global__ void testGetXKernel(int *xValues){
+__global__ void testGetYKernel(int *xValues, int *yValues, int n){ 
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;
     
-    //xValues[idx] = getXFromIndex(idx); 
+    if (idx < n){
+        yValues[idx] = getYFromIndex(xValues[idx], idx);
+    }
+}
+
+__global__ void testGetXKernel(int *xValues, int n){
+    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
+    
+    if (idx < n){
+        xValues[idx] = getXFromIndex(idx); 
+    }
 }
 
 #endif //DEBUG
