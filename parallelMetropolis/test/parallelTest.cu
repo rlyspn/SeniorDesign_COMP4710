@@ -190,6 +190,10 @@ void testCalcEnergy(){
 }
 
 int main(){
-    testGeneratePoints();    
+    testGeneratePoints();
+    setupWrapBox();
+    setupMakePeriodic();
+    setupGetIndexTest();
+
     return 0;
 }
