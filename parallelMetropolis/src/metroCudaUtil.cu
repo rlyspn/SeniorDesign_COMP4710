@@ -2,6 +2,7 @@
 
 #define THREADS_PER_BLOCK 128
 
+//calculates X (larger indexed atom) for energy calculation based on index in atom array
 __device__ int getXFromIndex(int idx){
     int c = -2 * idx;
     int discriminant = 1 - 4 * c;
@@ -9,10 +10,12 @@ __device__ int getXFromIndex(int idx){
     return qv;
 }
 
+//calculates Y (smaller indexed atom) for energy calculation based on index in atom array
 __device__ int getYFromIndex(int x, int idx){
     return idx - x;
 }
 
+//apply periodic boundaries
 __device__ double makePeriodic(double x, double box){
     
     while(x < -0.5 * box){
@@ -27,6 +30,7 @@ __device__ double makePeriodic(double x, double box){
 
 }
 
+//keep coordinates with box
 __device__ double wrapBox(double x, double box){
 
     while(x > box){
@@ -39,14 +43,18 @@ __device__ double wrapBox(double x, double box){
     return x;
 }
 
+//calculate Lennard-Jones energy between two atoms
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
+    //store LJ constants locally
     double sigma = atom1.sigma;
     double epsilon = atom2.epsilon;
     
+    //calculate difference in coordinates
     double deltaX = atom1.x - atom2.x;
     double deltaY = atom1.y - atom2.y;
     double deltaZ = atom1.z - atom2.z;
 
+    //magic chemistry
     deltaX = makePeriodic(deltaX, enviro.x);
     deltaY = makePeriodic(deltaY, enviro.y);
     deltaZ = makePeriodic(deltaZ, enviro.z);
@@ -63,12 +71,17 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     return energy;
 }
 
+//asisgn positions for the atoms in parallel
 __global__ void assignAtomPositions(double *dev_doubles, Atom *atoms, Environment *enviro){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    //for each randomly generated double...
     if (idx < enviro->numOfAtoms * 3){
+        //...assign a single dimension of a single atom...
         int atomIndex = idx / 3;
         int dim_select = idx % 3;
 
+        //...and scale the double to the boundary and map it to the dimension.
         if (dim_select == 0){
             atoms[atomIndex].x = enviro->x * dev_doubles[idx];
         }
@@ -82,30 +95,39 @@ __global__ void assignAtomPositions(double *dev_doubles, Atom *atoms, Environmen
 
 }
 
+//generate coordinate data for the atoms
 void generatePoints(Atom *atoms, Environment *enviro){
+    //setup CUDA storage
     int N = enviro->numOfAtoms * 3;
     curandGenerator_t generator;
     double *devDoubles;
     Atom *devAtoms;
     Environment *devEnviro;
 
+    //allocate memory on device
     cudaMalloc((void**)&devDoubles, N * sizeof(double));
     cudaMalloc((void**)&devAtoms, enviro->numOfAtoms * sizeof(Atom));
     cudaMalloc((void**)&devEnviro, sizeof(Environment));
 
+    //copy local data to device
     cudaMemcpy(devAtoms, atoms, enviro->numOfAtoms * sizeof(Atom), cudaMemcpyHostToDevice);
     cudaMemcpy(devEnviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
 
+    //generate doubles for all coordinates
     curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(generator, (unsigned int) time(NULL));
     curandGenerateUniformDouble(generator, devDoubles, N);
 
+    //calculate number of blocks required
     int numOfBlocks = enviro->numOfAtoms / THREADS_PER_BLOCK + (enviro->numOfAtoms % THREADS_PER_BLOCK == 0 ? 0 : 1);
 
+    //assign the doubles to the coordinates
     assignAtomPositions <<< numOfBlocks, THREADS_PER_BLOCK >>> (devDoubles, devAtoms, devEnviro);
 
+    //copy the atoms back to host
     cudaMemcpy(atoms, devAtoms, enviro->numOfAtoms * sizeof(Atom), cudaMemcpyDeviceToHost);
 
+    //cleanup
     curandDestroyGenerator(generator);
     cudaFree(devDoubles);
     cudaFree(devAtoms);
@@ -113,12 +135,13 @@ void generatePoints(Atom *atoms, Environment *enviro){
 }
 
 double calcEnergyWrapper(Atom *atoms, Environment enviro){
+    //setup CUDA storage
     double totalEnergy = 0.0;
-    
     Atom *atoms_device;
     double *energySum_device;
     double *energySum_host;
 
+    //calculate CUDA thread mgmt
     int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
     int threadsPerBlock = 128;
     int blocks = N / threadsPerBlock + (N % threadsPerBlock == 0 ? 0 : 1);
@@ -147,6 +170,7 @@ double calcEnergyWrapper(Atom *atoms, Environment enviro){
         totalEnergy += energySum_host[i];
     }
 
+    //cleanup
     cudaFree(atoms_device);
     cudaFree(energySum_device);
     free(energySum_host);
@@ -208,6 +232,8 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
 
 
 #ifdef DEBUG
+
+//these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
 
 __global__ void testWrapBoxKernel(double *x, double *box, int n){ 
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;
