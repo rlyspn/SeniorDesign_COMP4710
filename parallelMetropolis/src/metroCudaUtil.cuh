@@ -1,6 +1,8 @@
 #ifndef METROCUDAUTIL_CUH
 #define METROCUDAUTIL_CUH
 
+#define DEBUG
+
 #include <cuda.h>
 #include <curand_kernel.h>
 #include <math.h>
@@ -74,5 +76,28 @@ double calcEnergyWrapper(Atom *atoms, Environment enviro);
 */
 __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum);
 
+#ifdef DEBUG
+/**
+    Kernel call that will be used to test the getXFromIndexFunction
+    @apram xValues - a series of xValues used to test
+*/
+__global__ void testGetXKernel(int *xValues);
+
+/**
+  Kernel function that will be used to test getYFromIndex device function
+*/
+__global__ void testGetYKernel();
+
+/**
+  Kernel function used to facilitate tests of the makePeriodic device function
+*/
+__global__ void testMakePeriodicKernel();
+
+/**
+  Kernel function used to facilitate tess of the wrap box device function
+*/
+__global__ void testWrapBoxKernel();
+
+#endif //DEBUG
 
 #endif //METROCUDAUTIL_H

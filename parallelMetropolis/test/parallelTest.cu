@@ -27,40 +27,28 @@ void setupGetXFromIndex(){
     cudaFree(xValues_device);
     free(xValues);
 }
-__global__ void testGetXKernel(int *xValues){
-    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
-    
-    //xValues[idx] = getXFromIndex(idx); 
-}
+
 
 void setupGetYFromIndex(){
     //TODO
 }
-__global__ void testGetYKernel(){
-    //TODO
-}
+
 
 void setupMakePeriodic(){
     //TODO
 }
 
-__global__ void testMakePeriodicKernel(){
-    //TODO
-}
+
 
 void setupWrapBox(){
     //TODO
 }
-__global__ void testWrapBoxKernel(){
-    //TODO    
-}
+
 
 void setupCalc_lj(){
     //TODO
 }
-__global__ void testCalcLJKernel(){
-    //TODO
-}
+
 
 void testGeneratePoints(){
     //init atoms, environment
