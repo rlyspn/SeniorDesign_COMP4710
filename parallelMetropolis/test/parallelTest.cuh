@@ -3,6 +3,8 @@
 
 #include <assert.h>
 #include <cuda.h>
+#include <stdlib.h>
+#include <time.h>
 #include "baseTests.h"
 #include "../src/metroCudaUtil.cuh"
 
