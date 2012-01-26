@@ -3,8 +3,12 @@ SRC=src/
 TST=test/
 TSTEXE=parallelTest
 FLAGS=-arch sm_13 -lcurand
+EXE=kryptonSim
 
-all: tests
+all: tests kryptonSim
+
+kryptonSim: cudaUtil metroUtil $(SRC)kryptonSimulation.cu
+	$(NV) $(FLAGS) metroCudaUtil.o metroParallelUtil.o $(SRC)kryptonSimulation.cu -o $(EXE)	
 
 tests: cudaUtil metroUtil baseTest $(TST)parallelTest.cu $(TST)parallelTest.cuh
 	$(NV) $(FLAGS) baseTests.o metroCudaUtil.o  metroParallelUtil.o $(TST)parallelTest.cu -o $(TSTEXE)
@@ -21,3 +25,4 @@ metroUtil: $(SRC)metroParallelUtil.h $(SRC)metroParallelUtil.cpp
 clean:
 	rm -f -R *.o
 	rm -f $(TSTEXE)
+	rm -f $(EXE)
