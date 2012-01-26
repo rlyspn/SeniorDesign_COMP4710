@@ -27,12 +27,12 @@ void setupGetIndexTest(){
     cudaMemcpy(xValues, xValues_device, xSize, cudaMemcpyDeviceToHost);
 
     printf("Testing getting x index\n");
-    printf("%f\n", xValues[0]);
-    printf("%f\n", xValues[1]);
-    printf("%f\n", xValues[2]);
-    printf("%f\n", xValues[3]);
-    printf("%f\n", xValues[4]);
-    printf("%f\n", xValues[5]);
+    printf("%d\n", xValues[0]);
+    printf("%d\n", xValues[1]);
+    printf("%d\n", xValues[2]);
+    printf("%d\n", xValues[3]);
+    printf("%d\n", xValues[4]);
+    printf("%d\n", xValues[5]);
 
     assert(xValues[0] == 1);
     assert(xValues[1] == 2);
@@ -50,12 +50,12 @@ void setupGetIndexTest(){
     cudaMemcpy(yValues, yValues_device, xSize, cudaMemcpyDeviceToHost);
     
     printf("Testing getting y index\n");
-    printf("%f\n", yValues[0]);
-    printf("%f\n", yValues[1]);
-    printf("%f\n", yValues[2]);
-    printf("%f\n", yValues[3]);
-    printf("%f\n", yValues[4]);
-    printf("%f\n", yValues[5]);
+    printf("%d\n", yValues[0]);
+    printf("%d\n", yValues[1]);
+    printf("%d\n", yValues[2]);
+    printf("%d\n", yValues[3]);
+    printf("%d\n", yValues[4]);
+    printf("%d\n", yValues[5]);
 
 
     assert(yValues[0] == 0);
