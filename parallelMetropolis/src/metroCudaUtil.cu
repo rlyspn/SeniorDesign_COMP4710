@@ -205,3 +205,25 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
         energySum[blockIdx.x] = cache[0];
 		
 }
+
+
+#ifdef DEBUG
+__global__ void testWrapBoxKernel(){
+    //TODO    
+}
+
+__global__ void testMakePeriodicKernel(){
+    //TODO
+}
+
+__global__ void testGetYKernel(){
+    //TODO
+}
+
+__global__ void testGetXKernel(int *xValues){
+    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
+    
+    //xValues[idx] = getXFromIndex(idx); 
+}
+
+#endif //DEBUG
