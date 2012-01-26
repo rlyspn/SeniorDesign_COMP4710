@@ -41,9 +41,48 @@ void setupMakePeriodic(){
 
 
 void setupWrapBox(){
-    //TODO
-}
+    srand(time(NULL));
+    int numberOfTests = 128;
+    double box = 10;
+    
+    double *inputs_host;
+    double *inputs_device;
+    double *outputs_host:
+    size_t inputSize = sizeof(double) * numberOfTests;
 
+    inputs_host = (double *) malloc(inputSize);
+    outputs_host = (double *) malloc(inputSize);
+    cudaMalloc((void  **) &inputs_device, inputSize);
+    
+    //generate random numbers
+    for(int i = 0; i < numberOfTests; i++){
+        inputs_host[i] = ((double) rand());
+    }
+
+    //copy data to device
+    cudaMemcpy(inputs_device, inputs_host, inputSize, cudaMemcpyHostToDevice);
+    
+    int threadsPerBlock = numberOfTests / 2;
+    int blocks = numberOfTests / threadsPerBlock +
+        (numberOfTests % threadsPerBlock == 0 ? 0 : 1);
+
+    //run test on device
+    testWrapBoxKernel <<<blocks, threadsPerBlock>>> (inputs_device, &box, numberOfTests);
+
+    cudaMemcpy(outputs_host, inputs_device, inputSize, cudaMemcpyDeviceToHost);
+
+    //check that values are the same as known correct function
+    for(int i = 0; i < numberOfTests; i++){
+        assert(outputs_host == wrap_into_box(inputs_host[i], box);
+    }
+
+    free(inputs_host);
+    free(outpus_host);
+    cudaFree(inputs_device);
+
+    printf("__device__ wrapBox tested correctly");
+
+}
 
 void setupCalc_lj(){
     //TODO
