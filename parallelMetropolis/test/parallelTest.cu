@@ -26,6 +26,14 @@ void setupGetIndexTest(){
 
     cudaMemcpy(xValues, xValues_device, xSize, cudaMemcpyDeviceToHost);
 
+    printf("Testing getting x index\n");
+    printf("%f\n", xValues[0]);
+    printf("%f\n", xValues[1]);
+    printf("%f\n", xValues[2]);
+    printf("%f\n", xValues[3]);
+    printf("%f\n", xValues[4]);
+    printf("%f\n", xValues[5]);
+
     assert(xValues[0] == 1);
     assert(xValues[1] == 2);
     assert(xValues[2] == 2);
@@ -40,6 +48,15 @@ void setupGetIndexTest(){
             yValues_device, totalTests);
 
     cudaMemcpy(yValues, yValues_device, xSize, cudaMemcpyDeviceToHost);
+    
+    printf("Testing getting y index\n");
+    printf("%f\n", yValues[0]);
+    printf("%f\n", yValues[1]);
+    printf("%f\n", yValues[2]);
+    printf("%f\n", yValues[3]);
+    printf("%f\n", yValues[4]);
+    printf("%f\n", yValues[5]);
+
 
     assert(yValues[0] == 0);
     assert(yValues[1] == 0);
@@ -92,7 +109,10 @@ void setupMakePeriodic(){
 
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
-        assert(outputs_host[i] == make_periodic(inputs_host[i], box));
+        double test_output = make_periodic(inputs_host[i], box);
+        
+        printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
+        assert(outputs_host[i] == test_output);
     }
 
     printf("makePeriodic passed Tests\n");
@@ -139,14 +159,16 @@ void setupWrapBox(){
 
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
-        assert(outputs_host[i] == wrap_into_box(inputs_host[i], box));
+        double test_output = wrap_into_box(inputs_host[i], box);
+        printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
+        assert(outputs_host[i] == test_output);
     }
 
     free(inputs_host);
     free(outputs_host);
     cudaFree(inputs_device);
 
-    printf("__device__ wrapBox tested correctly");
+    printf("__device__ wrapBox tested correctly\n");
 
 }
 
@@ -191,10 +213,9 @@ void testCalcEnergy(){
 }
 
 int main(){
-    testGeneratePoints();
-    setupWrapBox();
-    setupMakePeriodic();
     setupGetIndexTest();
-
+    setupMakePeriodic();
+    setupWrapBox();
+    testGeneratePoints();
     return 0;
 }
