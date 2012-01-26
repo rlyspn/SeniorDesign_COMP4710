@@ -85,7 +85,8 @@ void setupMakePeriodic(){
     int blocks = numberOfTests / threadsPerBlock +
         (numberOfTests % threadsPerBlock == 0 ? 0 : 1);
 
-    testMakePeriodicKernel <<< blocks, threadsPerBlock >>> (inputs_device, &box, numberOfTest);
+    testMakePeriodicKernel <<< blocks, threadsPerBlock >>> (inputs_device,
+            &box, numberOfTests);
 
     cudaMemcpy(outputs_host, inputs_device, inputSize, cudaMemcpyDeviceToHost);
 
