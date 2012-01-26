@@ -63,19 +63,22 @@ void testGeneratePoints(){
 
     generatePoints(atoms, enviro);
 
+    printf("Box limits{x:%f, y:%f, z:%f}\n", enviro->x, enviro->y, enviro->z);
+
     //assert that all atoms positions are in range of the box
     for (int i = 0; i < numberOfAtoms; i++){
         double dim_x = atoms[i].x;
         double dim_y = atoms[i].y;
         double dim_z = atoms[i].z;
+
         
-        printf("%f, %f, %f\n", dim_x, dim_y, dim_z);
+        printf("Atom %d{x:%f, y:%f, z:%f}\n", i, dim_x, dim_y, dim_z);
 
         assert(dim_x >= 0.0 && dim_x <= enviro->x &&
                dim_y >= 0.0 && dim_y <= enviro->y &&
                dim_z >= 0.0 && dim_z <= enviro->z);
     }
-    printf("testGeneratePoints successful.");
+    printf("testGeneratePoints successful.\n");
 }
 
 void testCalcEnergy(){
