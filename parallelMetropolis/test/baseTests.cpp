@@ -38,6 +38,49 @@ double calculate_energy(double **coords,  int n_atoms,  double *box_size,
     return total_energy;
 }
 
+//Same as above but uses the new enviorment struct
+double calculate_energy(Atom *atoms, Environment enviro){
+    int atomNumber = enviro.numOfAtoms;
+    double sigma = atoms[0].sigma;
+    double epsilon = atoms[0].epsilon;
+
+    double totalEnergy = 0;
+
+    int i;
+    for(i = 0; i < atomNumber - 1; i++){
+        int j;
+        for(j = i + 1; j < atomNumber; j++){
+            double deltaX = atoms[i].x - atoms[j].x;
+            double deltaY = atoms[i].y - atoms[j].y;
+            double deltaZ = atoms[i].z - atoms[j].z;
+
+  //          //printf("preperiodic: %f\n", deltaX);
+            deltaX = make_periodic(deltaX, enviro.x);
+            deltaY = make_periodic(deltaY, enviro.y);
+            deltaZ = make_periodic(deltaZ, enviro.z);
+//            //printf("postperiodic: %f\n\n", deltaX);
+
+            const double r2 = (deltaX * deltaX) +
+                              (deltaY * deltaY) + 
+                              (deltaZ * deltaZ);
+
+            const double sig2OverR2 = pow(sigma, 2) / r2;
+            const double sig6OverR6 = pow(sig2OverR2, 3);
+            const double sig12OverR12 = pow(sig6OverR6, 2);
+            //printf("%f\n", sig2OverR2); 
+            //printf("%f\n", sig6OverR6);
+            //printf("%f\n", sig12OverR12);
+            const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
+            //printf("%f\n", energy);
+            totalEnergy += energy;
+            //printf("%f\n\n", totalEnergy); 
+        }
+    }
+    return totalEnergy;
+
+}
+
+
 // Subroutine to apply periodic boundaries
 double make_periodic(double x,  double box)
 {
@@ -68,4 +111,11 @@ double wrap_into_box(double x, double box)
     }
 
     return x;
+}
+long timevaldiff(struct timeval *starttime, struct timeval *finishtime)
+{
+    long msec;
+    msec = (finishtime->tv_sec - starttime->tv_sec)*1000;
+    msec += (finishtime->tv_usec - starttime->tv_usec)/1000;
+    return msec;
 }
