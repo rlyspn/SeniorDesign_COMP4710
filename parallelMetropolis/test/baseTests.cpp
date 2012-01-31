@@ -54,19 +54,9 @@ double calculate_energy(Atom *atoms, Environment *enviro){
             double deltaY = atoms[j].y - atoms[i].y;
             double deltaZ = atoms[j].z - atoms[i].z;
           
-           // printf("J: %d\nI: %d\n", i, j);
-            //printf("atoms[j].x: %f\n", atoms[j].x);
-            //printf("atoms[i].x: %f\n", atoms[i].x);
-            //printf("deltaX: %f\n", deltaX);
-            //printf("deltaY: %f\n", deltaY);
-            //printf("deltaZ: %f\n", deltaZ);
-
-
-  //          //printf("preperiodic: %f\n", deltaX);
             deltaX = make_periodic(deltaX, enviro->x);
             deltaY = make_periodic(deltaY, enviro->y);
             deltaZ = make_periodic(deltaZ, enviro->z);
-//            //printf("postperiodic: %f\n\n", deltaX);
 
             const double r2 = (deltaX * deltaX) +
                               (deltaY * deltaY) + 
@@ -75,14 +65,14 @@ double calculate_energy(Atom *atoms, Environment *enviro){
             const double sig2OverR2 = pow(sigma, 2) / r2;
             const double sig6OverR6 = pow(sig2OverR2, 3);
             const double sig12OverR12 = pow(sig6OverR6, 2);
-            //printf("%f\n", sig2OverR2); 
-            //printf("%f\n", sig6OverR6);
-            //printf("%f\n", sig12OverR12);
             const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
-            printf("energy[%d]: %f\n",j, energy);
+            
+            int N = (j * j - j ) / 2 + i;
+
+            //printf("energy[%d]: %f | r2 = %f ", N, energy, r2);
+            //printf(" | atomX = {id:%d, x:%f, y:%f, z:%f} ", atoms[j].id, atoms[j].x, atoms[j].y, atoms[j].z);
+            //printf(" | atomY = {id:%d, x:%f, y:%f, z:%f}\n", atoms[i].id, atoms[i].x, atoms[i].y, atoms[i].z);
             totalEnergy += energy;
-            //printf("%f\n\n", totalEnergy); 
-            //printf("AtomNumber: %d\n", atomNumber);
         }
     }
     printf("number of atoms: %d", atomNumber);

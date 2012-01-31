@@ -66,8 +66,13 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     const double sig6OverR6 = pow(sig2OverR2, 3);
     const double sig12OverR12 = pow(sig6OverR6, 2);
     const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
-
-    return energy;
+    
+    if (r2 == 0){
+        return 0;
+    }
+    else{
+        return energy;
+    }
 }
 
 //asisgn positions for the atoms in parallel
@@ -118,7 +123,7 @@ void generatePoints(Atom *atoms, Environment *enviro){
     curandGenerateUniformDouble(generator, devDoubles, N);
 
     //calculate number of blocks required
-    int numOfBlocks = enviro->numOfAtoms / THREADS_PER_BLOCK + (enviro->numOfAtoms % THREADS_PER_BLOCK == 0 ? 0 : 1);
+    int numOfBlocks = N / THREADS_PER_BLOCK + (N % THREADS_PER_BLOCK == 0 ? 0 : 1);
 
     //assign the doubles to the coordinates
     assignAtomPositions <<< numOfBlocks, THREADS_PER_BLOCK >>> (devDoubles, devAtoms, devEnviro);
@@ -132,7 +137,7 @@ void generatePoints(Atom *atoms, Environment *enviro){
     cudaFree(devAtoms);
     cudaFree(devEnviro);
 }
-
+ 
 double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     //setup CUDA storage
     double totalEnergy = 0.0;
@@ -147,8 +152,6 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
 
     //The number of bytes of shared memory per block of
     size_t sharedSize = sizeof(double) * threadsPerBlock;
-
-
     size_t atomSize = enviro->numOfAtoms * sizeof(Atom);
     size_t energySumSize = N * sizeof(double);
     
@@ -162,23 +165,14 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice);
     cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
 
-    printf("Threads: %d\n", blocks * threadsPerBlock);
     calcEnergy <<<blocks, threadsPerBlock>>>(atoms_device, enviro_device, energySum_device);
     
     cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
-  
-    for(int i = 0; i < N; i++){
-        printf("energySum_host[%d]: %f\n",i,  energySum_host[i]);
-        totalEnergy += energySum_host[i];
-    }
 
-    /**
-    //find the total sum from the block sums
-    for(int i = 0; i < blocks; i++){
-        printf("energySum: %f\n", energySum_host[i]);
+    for(int i = 0; i < N; i++){
         totalEnergy += energySum_host[i];
+        //printf("energySum_host[%d] = %f\n", i, energySum_host[i]);
     }
-    */
 
     //cleanup
     cudaFree(atoms_device);

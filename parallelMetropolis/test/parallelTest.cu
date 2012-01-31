@@ -26,14 +26,6 @@ void setupGetIndexTest(){
 
     cudaMemcpy(xValues, xValues_device, xSize, cudaMemcpyDeviceToHost);
 
-    printf("Testing getting x index\n");
-    printf("%d\n", xValues[0]);
-    printf("%d\n", xValues[1]);
-    printf("%d\n", xValues[2]);
-    printf("%d\n", xValues[3]);
-    printf("%d\n", xValues[4]);
-    printf("%d\n", xValues[5]);
-
     assert(xValues[0] == 1);
     assert(xValues[1] == 2);
     assert(xValues[2] == 2);
@@ -48,15 +40,6 @@ void setupGetIndexTest(){
             yValues_device, totalTests);
 
     cudaMemcpy(yValues, yValues_device, xSize, cudaMemcpyDeviceToHost);
-    
-    printf("Testing getting y index\n");
-    printf("%d\n", yValues[0]);
-    printf("%d\n", yValues[1]);
-    printf("%d\n", yValues[2]);
-    printf("%d\n", yValues[3]);
-    printf("%d\n", yValues[4]);
-    printf("%d\n", yValues[5]);
-
 
     assert(yValues[0] == 0);
     assert(yValues[1] == 0);
@@ -117,7 +100,6 @@ void setupMakePeriodic(){
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
         double test_output = make_periodic(inputs_host[i], *box);
-        //printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
         assert(outputs_host[i] == test_output);
     }
 
@@ -171,8 +153,6 @@ void setupWrapBox(){
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
         double test_output = wrap_into_box(inputs_host[i], *box);
-        
-     //   printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
         assert(outputs_host[i] == test_output);
     }
 
@@ -211,16 +191,12 @@ void setupCalc_lj(){
 
     cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
     cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
-    printf("cuda energy: %f\n",*energy);
 
     testCalcLJ<<<1,1>>>(atoms_device, enviro_device, energy_device);
 
     cudaMemcpy(energy, energy_device, sizeof(double), cudaMemcpyDeviceToHost);
 
     double baseEnergy = calculate_energy(atoms, enviro);
-    printf("Atom1: %f, %f\n", atoms[0].x, atoms[0].x);
-    printf("Atom2: %f, %f\n", atoms[1].x, atoms[1].x);
-    printf("cuda energy: %f\nbase energy: %f\n", *energy, baseEnergy);
     assert((int)(*energy * pow(10.f, 6.f)) == (int)( baseEnergy * pow(10.f,6.f))); 
    
     printf("Calc_lj is correct\n");
@@ -229,9 +205,6 @@ void setupCalc_lj(){
     cudaFree(atoms_device);
     cudaFree(enviro_device);
     cudaFree(energy_device);
-    //TODO
-
-    //TOFINISH
 }
 
 
@@ -242,22 +215,17 @@ void testGeneratePoints(){
     for (int i = 0; i < numberOfAtoms; i++){
         atoms[i] = createAtom(i, -1.0, -1.0, -1.0);
     }
-    Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 122.0, numberOfAtoms);
+    Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
     Environment *enviro = &stableEnviro;
 
     generatePoints(atoms, enviro);
-
-    printf("Box limits{x:%f, y:%f, z:%f}\n", enviro->x, enviro->y, enviro->z);
 
     //assert that all atoms positions are in range of the box
     for (int i = 0; i < numberOfAtoms; i++){
         double dim_x = atoms[i].x;
         double dim_y = atoms[i].y;
         double dim_z = atoms[i].z;
-
-        
-        printf("Atom %d{x:%f, y:%f, z:%f}\n", i, dim_x, dim_y, dim_z);
 
         assert(dim_x >= 0.0 && dim_x <= enviro->x &&
                dim_y >= 0.0 && dim_y <= enviro->y &&
@@ -272,66 +240,48 @@ void testCalcEnergy(){
     // the epsilon value of krypton used in the LJ simulation
     double kryptonEpsilon = 0.317;
 
-	struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
+    struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
-	//Generate enviorment and atoms
-	 int numberOfAtoms = 10;
-	 Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
+    //Generate enviorment and atoms
+    int numberOfAtoms = 50;
+    Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
-     Environment *enviro = &stableEnviro;
+    Environment *enviro = &stableEnviro;
 
     Atom *atoms = new Atom[numberOfAtoms];
-	 for (int i = 0; i < numberOfAtoms; i++){
+    for (int i = 0; i < numberOfAtoms; i++){
         atoms[i] = createAtom(i, -1.0, -1.0, -1.0, kryptonSigma, kryptonEpsilon);
-     }
+    }
 
     generatePoints(atoms, enviro);
-	 
-	 //make copies atoms for 
-	 //parallel portion
-	 
-	 Atom *atoms2 = new Atom[numberOfAtoms];
-	 memcpy(atoms2,atoms,numberOfAtoms*sizeof(Atom) );
-	 
-	 	 
-	 /*
-	 ** Run the Calculation as Linear.
-	 */
-	 
-	  gettimeofday(&le_tvBegin,NULL); //start clock for execution time
-	 
-	  double te_linear = calculate_energy(atoms, enviro);
-	  
-	  gettimeofday(&le_tvEnd,NULL); //stop clock for execution time
-	  long le_runTime = timevaldiff(&le_tvBegin,&le_tvEnd); //get difference in time in milli seconds
+     
+    //calculate energy linearly
+    gettimeofday(&le_tvBegin,NULL); //start clock for execution time
 
-	 	 	 
-	 
-	 /*
-	 ** Run the Calculation as Parallel
-	 */
-	 
-	 gettimeofday(&pl_tvBegin,NULL); //start clock for execution time
-	  
-	 double te_parallel =  calcEnergyWrapper(atoms, enviro);	 
-	 
-	 gettimeofday(&pl_tvEnd,NULL); //start clock for execution time
-	 long pl_runTime = timevaldiff(&pl_tvBegin,&pl_tvEnd); //get difference in time in milli seconds
+    double te_linear = calculate_energy(atoms, enviro);
 
-	 
-	 /*
-	 ** Print out Results
-	 */
-	 
+    gettimeofday(&le_tvEnd,NULL); //stop clock for execution time
+    long le_runTime = timevaldiff(&le_tvBegin,&le_tvEnd); //get difference in time in milli seconds
+
+    //calculate energy in parallel
+    gettimeofday(&pl_tvBegin,NULL); //start clock for execution time
+
+    double te_parallel =  calcEnergyWrapper(atoms, enviro);	 
+
+    gettimeofday(&pl_tvEnd,NULL); //start clock for execution time
+    long pl_runTime = timevaldiff(&pl_tvBegin,&pl_tvEnd); //get difference in time in milli seconds
+
+
+    //Print out Results
     printf("Number of elements: %d\n", numberOfAtoms);
-	 printf("Linear Total Energy: %f \n", te_linear);
-	 printf("In %d ms\n", le_runTime);
-	 printf("Parallel Total Energy: %f \n", te_parallel);
-	 printf("In %d ms\n", pl_runTime);
-     assert(  (int) (pow(10, 6) * te_parallel) == (int) (pow(10, 6) * te_linear));
-	printf("testCalcEnergy sucessful\n Both total energies equate to the same value.\n");
+    printf("Linear Total Energy: %f \n", te_linear);
+    printf("In %d ms\n", le_runTime);
+    printf("Parallel Total Energy: %f \n", te_parallel);
+    printf("In %d ms\n", pl_runTime);
+    assert((long long) (pow(10, 6) * te_parallel) == (long long) (pow(10, 6) * te_linear));
+    printf("testCalcEnergy successful.");
 
-    
+
 }
 
 int main(){
