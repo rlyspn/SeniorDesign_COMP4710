@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <time.h>
 #include "metroCudaUtil.cuh"
 #include "metroParallelUtil.h"
 
@@ -13,10 +14,6 @@ Date: 1/26/2012
 Author(s): Riley Spahn, Seth Wooten, Alexander Luchs
 */
 
-// number of atoms in the simulation
-const int numberOfAtoms = 25;
-// number of moves to run the simulation
-const int numberOfMoves = 10000;
 // maximum translation of an atom per move in any direction
 const double maxTranslation = 0.5;
 // the tempeature of the simulation (Kelvin)
@@ -39,28 +36,12 @@ double randomFloat(const double start, const double end)
     return (end-start) * (double(rand()) / RAND_MAX) + start;
 }
 
+void runParallel(Atom *atoms, Environment *enviro, int numberOfSteps){
+    int accepted = 0; // number of accepted moves
+    int rejected = 0; // number of rejected moves
+    int numberOfAtoms = enviro->numOfAtoms;
 
-int main(int argc, char ** argv){
-    //initialize random number generator;
-    srand(time(NULL));
-
-    //Generate Environment
-    Environment enviro = createEnvironment(xLength, yLength, zLength,
-            maxTranslation, temperature, numberOfAtoms);
-    //Generate atoms with random positions
-    Atom atoms[numberOfAtoms];
-    generatePoints(atoms, &enviro);
-
-    printf("Generated Atoms: \n");
-    printAtoms(atoms, numberOfAtoms);
-
-    int accepted; // number of accepted moves
-    int rejected; // number of rejected moves
-   
-    atoms[0].sigma = kryptonSigma;
-    atoms[0].epsilon = kryptonEpsilon;
-
-    for(int move = 0; move < numberOfMoves; move++){
+    for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
 
         int atomIndex = randomFloat(0, numberOfAtoms);
@@ -102,8 +83,51 @@ int main(int argc, char ** argv){
             atoms[atomIndex] = oldAtom;
         }
 
-        printf("accepted: %d\nrejected: %d\n\n", accepted, rejected);
 
     }
+
+}
+
+int main(int argc, char ** argv){
+    int atomSizes[] = {10, 50, 100, 500, 1000, 5000, 10000};
+    int numberOfMoves = 1000;
+
+    //initialize random number generator;
+    srand(time(NULL));
+
+    for(int i = 0; i < 7; i++){
+       int numberOfAtoms = atomSizes[i];
+
+        //Generate Environment
+        Environment enviro = createEnvironment(xLength, yLength, zLength,
+                maxTranslation, temperature, numberOfAtoms);
+        //Generate atoms with random positions
+        Atom atoms[numberOfAtoms];
+        printf("Generating %d atoms.\n", numberOfAtoms);
+        generatePoints(atoms, &enviro);
+        atoms[0].sigma = kryptonSigma;
+        atoms[0].epsilon = kryptonEpsilon;
+
+        //Run the simulation parallel
+
+        clock_t startTime, endTime;
+        printf("Simulating %d atoms for %d steps\n", numberOfAtoms, numberOfMoves);
+        
+        startTime = clock();
+        runParallel(atoms, &enviro, numberOfMoves);
+        endTime = clock();
+
+        double diffTime = difftime(endTime, startTime) / CLOCKS_PER_SEC;
+        printf("Time = %f seconds.\n\n", diffTime);
+
+
+    
+    }
+
+
+
+   
+
+
     
 }
