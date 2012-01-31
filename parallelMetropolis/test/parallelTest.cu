@@ -337,10 +337,10 @@ void testCalcEnergy(){
 
 int main(){
     setupCalc_lj();
-//    setupGetIndexTest();
- //   setupMakePeriodic();
-  //  setupWrapBox();
-   // testGeneratePoints();
-    //testCalcEnergy();
+    setupGetIndexTest();
+    setupMakePeriodic();
+    setupWrapBox();
+    testGeneratePoints();
+    testCalcEnergy();
     return 0;
 }
