@@ -186,7 +186,52 @@ void setupWrapBox(){
 }
 
 void setupCalc_lj(){
+    double kryptonSigma = 3.624;
+    double kryptonEpsilon = 0.317;
+    int numberOfAtoms = 2;
+
+    Atom *atoms = new Atom[numberOfAtoms];
+    double *energy = (double *) malloc(sizeof(double));
+    *energy = 1000.f;
+    Atom *atoms_device;
+    Environment *enviro_device;
+    double *energy_device;
+
+    cudaMalloc((void **) &atoms_device, sizeof(Atom) * numberOfAtoms);
+    cudaMalloc((void **) &enviro_device, sizeof(Environment));
+    cudaMalloc((void **) &energy_device, sizeof(double));
+
+    Environment stableEnviro = createEnvironment(10, 10, 10, .5,
+            298.15, numberOfAtoms);
+
+    Environment *enviro = &stableEnviro;
+    generatePoints(atoms, enviro);
+    atoms[0].sigma = kryptonSigma;
+    atoms[0].epsilon = kryptonEpsilon; 
+
+    cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
+    cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
+    printf("cuda energy: %f\n",*energy);
+
+    testCalcLJ<<<1,1>>>(atoms_device, enviro_device, energy_device);
+
+    cudaMemcpy(energy, energy_device, sizeof(double), cudaMemcpyDeviceToHost);
+
+    double baseEnergy = calculate_energy(atoms, enviro);
+    printf("Atom1: %f, %f\n", atoms[0].x, atoms[0].x);
+    printf("Atom2: %f, %f\n", atoms[1].x, atoms[1].x);
+    printf("cuda energy: %f\nbase energy: %f\n", *energy, baseEnergy);
+    assert((int)(*energy * pow(10.f, 6.f)) == (int)( baseEnergy * pow(10.f,6.f))); 
+   
+    printf("Calc_lj is correct\n");
+    free(atoms);
+    free(energy);
+    cudaFree(atoms_device);
+    cudaFree(enviro_device);
+    cudaFree(energy_device);
     //TODO
+
+    //TOFINISH
 }
 
 
@@ -231,18 +276,16 @@ void testCalcEnergy(){
 
 	//Generate enviorment and atoms
 	 int numberOfAtoms = 10;
-	 Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 122.0, numberOfAtoms);
+	 Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
      Environment *enviro = &stableEnviro;
 
     Atom *atoms = new Atom[numberOfAtoms];
 	 for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, -1.0, -1.0, -1.0);
+        atoms[i] = createAtom(i, -1.0, -1.0, -1.0, kryptonSigma, kryptonEpsilon);
      }
 
     generatePoints(atoms, enviro);
-    atoms[0].epsilon = kryptonEpsilon;
-    atoms[0].sigma = kryptonSigma;
 	 
 	 //make copies atoms for 
 	 //parallel portion
@@ -270,7 +313,7 @@ void testCalcEnergy(){
 	 
 	 gettimeofday(&pl_tvBegin,NULL); //start clock for execution time
 	  
-	 double te_parallel =  calcEnergyWrapper(atoms2, enviro);	 
+	 double te_parallel =  calcEnergyWrapper(atoms, enviro);	 
 	 
 	 gettimeofday(&pl_tvEnd,NULL); //start clock for execution time
 	 long pl_runTime = timevaldiff(&pl_tvBegin,&pl_tvEnd); //get difference in time in milli seconds
@@ -285,13 +328,14 @@ void testCalcEnergy(){
 	 printf("In %d ms\n", le_runTime);
 	 printf("Parallel Total Energy: %f \n", te_parallel);
 	 printf("In %d ms\n", pl_runTime);
-     assert(te_parallel == te_linear);
+     assert(  (int) (pow(10, 6) * te_parallel) == (int) (pow(10, 6) * te_linear));
 	printf("testCalcEnergy sucessful\n Both total energies equate to the same value.\n");
 
     
 }
 
 int main(){
+    setupCalc_lj();
     setupGetIndexTest();
     setupMakePeriodic();
     setupWrapBox();

@@ -79,12 +79,13 @@ double calculate_energy(Atom *atoms, Environment *enviro){
             //printf("%f\n", sig6OverR6);
             //printf("%f\n", sig12OverR12);
             const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
-            //printf("%f\n", energy);
+            printf("energy[%d]: %f\n",j, energy);
             totalEnergy += energy;
             //printf("%f\n\n", totalEnergy); 
             //printf("AtomNumber: %d\n", atomNumber);
         }
     }
+    printf("number of atoms: %d", atomNumber);
     //printf("Sigma: %f\n", sigma);
     //printf("Epsilon: %f\n", epsilon);
     return totalEnergy;
