@@ -186,7 +186,51 @@ void setupWrapBox(){
 }
 
 void setupCalc_lj(){
+    double kryptonSigma = 3.624;
+    double kryptonEpsilon = 0.317;
+    int numberOfAtoms = 2;
+
+    Atom *atoms = new Atom[numberOfAtoms];
+    double *energy = (double *) malloc(sizeof(double));
+
+    Atom *atoms_device;
+    Environment *enviro_device;
+    double *energy_device;
+
+    cudaMalloc((void **) &atoms_device, sizeof(Atom) * numberOfAtoms);
+    cudaMalloc((void **) &enviro_device, sizeof(Environment));
+    cudaMalloc((void **) &energy_device, sizeof(double));
+
+    Environment stableEnviro = createEnvironment(10, 10, 10, .5,
+            298.15, numberOfAtoms);
+
+    Environment *enviro = &stableEnviro;
+    generatePoints(atoms, enviro);
+    atoms[0].sigma = kryptonSigma;
+    atoms[1].epsilon = kryptonEpsilon; 
+
+    cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
+    cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
+
+    testCalcLJ<<<1,1>>>(atoms_device, enviro_device, energy_device);
+
+    cudaMemcpy(energy, energy_device, sizeof(double), cudaMemcpyDeviceToHost);
+
+    double baseEnergy = calculate_energy(atoms, enviro);
+    printf("Atom1: %f, %f\n", atoms[0].x, atoms[0].x);
+    printf("Atom2: %f, %f\n", atoms[1].x, atoms[1].x);
+    printf("cuda energy: %f\nbase energy: %f\n", energy, baseEnergy);
+    
+   
+    printf("Calc_lj is correct\n");
+    free(atoms);
+    free(energy);
+    cudaFree(atoms_device);
+    cudaFree(enviro_device);
+    cudaFree(energy_device);
     //TODO
+
+    //TOFINISH
 }
 
 
@@ -292,10 +336,11 @@ void testCalcEnergy(){
 }
 
 int main(){
-    setupGetIndexTest();
-    setupMakePeriodic();
-    setupWrapBox();
-    testGeneratePoints();
-    testCalcEnergy();
+    setupCalc_lj();
+//    setupGetIndexTest();
+ //   setupMakePeriodic();
+  //  setupWrapBox();
+   // testGeneratePoints();
+    //testCalcEnergy();
     return 0;
 }

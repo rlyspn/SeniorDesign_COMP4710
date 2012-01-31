@@ -100,6 +100,11 @@ __global__ void testMakePeriodicKernel(double *x, double *box, int numberOfTests
 */
 __global__ void testWrapBoxKernel(double *x, double *box, int numberOfTests);
 
+/**
+  Kernel to test the calc_lj device function
+*/
+__global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy);
+
 #endif //DEBUG
 
 #endif //METROCUDAUTIL_H

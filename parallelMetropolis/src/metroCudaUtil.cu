@@ -280,4 +280,13 @@ __global__ void testGetXKernel(int *xValues, int n){
     }
 }
 
+__global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy){
+    Atom atom1 = atoms[0];
+    Atom atom2 = atoms[1];
+
+    double testEnergy = calc_lj(atom1, atom2, *enviro);
+    energy[0] = testEnergy;
+
+}
+
 #endif //DEBUG
