@@ -8,6 +8,8 @@
 #include <math.h>
 #include "metroParallelUtil.h"
 #include <curand.h>
+#define THREADS_PER_BLOCK 128
+const int threadsPerBlock = 128;
 
 /**
   @param idx - the index in the 1 dimensional array of energies
