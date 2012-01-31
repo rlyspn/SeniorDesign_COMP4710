@@ -1,8 +1,8 @@
 #include "baseTests.h"
 
 double calculate_energy(double **coords,  int n_atoms,  double *box_size,
-                         double sigma,  double epsilon)
-{
+                         double sigma,  double epsilon){
+
     // Loop over all pairs of atoms and calculate
     // the LJ energy
     double total_energy = 0;
@@ -39,8 +39,8 @@ double calculate_energy(double **coords,  int n_atoms,  double *box_size,
 }
 
 //Same as above but uses the new enviorment struct
-double calculate_energy(Atom *atoms, Environment enviro){
-    int atomNumber = enviro.numOfAtoms;
+double calculate_energy(Atom *atoms, Environment *enviro){
+    int atomNumber = enviro->numOfAtoms;
     double sigma = atoms[0].sigma;
     double epsilon = atoms[0].epsilon;
 
@@ -50,14 +50,14 @@ double calculate_energy(Atom *atoms, Environment enviro){
     for(i = 0; i < atomNumber - 1; i++){
         int j;
         for(j = i + 1; j < atomNumber; j++){
-            double deltaX = atoms[i].x - atoms[j].x;
-            double deltaY = atoms[i].y - atoms[j].y;
-            double deltaZ = atoms[i].z - atoms[j].z;
+            double deltaX = atoms[j].x - atoms[i].x;
+            double deltaY = atoms[j].y - atoms[i].y;
+            double deltaZ = atoms[j].z - atoms[i].z;
 
   //          //printf("preperiodic: %f\n", deltaX);
-            deltaX = make_periodic(deltaX, enviro.x);
-            deltaY = make_periodic(deltaY, enviro.y);
-            deltaZ = make_periodic(deltaZ, enviro.z);
+            deltaX = make_periodic(deltaX, enviro->x);
+            deltaY = make_periodic(deltaY, enviro->y);
+            deltaZ = make_periodic(deltaZ, enviro->z);
 //            //printf("postperiodic: %f\n\n", deltaX);
 
             const double r2 = (deltaX * deltaX) +

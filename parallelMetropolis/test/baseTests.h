@@ -18,7 +18,7 @@ double calculate_energy(double **coords, int n_atoms, double *box_size, double s
   @param boxSize- the length of one side of the box
 */
 
-double calculate_energy(Atom *atoms, Environment enviro);
+double calculate_energy(Atom *atoms, Environment *enviro);
 
 //retrieves the difference in time
 long timevaldiff(struct timeval *starttime, struct timeval *finishtime);

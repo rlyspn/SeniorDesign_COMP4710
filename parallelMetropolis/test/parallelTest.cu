@@ -65,6 +65,8 @@ void setupGetIndexTest(){
     assert(yValues[4] == 1);
     assert(yValues[5] == 2);
 
+    printf("getYFromIndex Correct.\n");
+
     cudaFree(xValues_device);
     cudaFree(yValues_device);
     free(yValues);
@@ -116,7 +118,7 @@ void setupMakePeriodic(){
     for(int i = 0; i < numberOfTests; i++){
         double test_output = make_periodic(inputs_host[i], *box);
         
-        printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
+        //printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
         assert(outputs_host[i] == test_output);
     }
 
@@ -219,16 +221,19 @@ void testCalcEnergy(){
 
 	//Generate enviorment and atoms
 	 int numberOfAtoms = 10;
-	 Environment enviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 122.0, numberOfAtoms);
-	 
+	 Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 122.0, numberOfAtoms);
+
+     Environment *enviro = &stableEnviro;
+
     Atom *atoms = new Atom[numberOfAtoms];
-    for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, rand()*enviro.x, rand()*enviro.y, rand()*enviro.z);
-    }
+	 for (int i = 0; i < numberOfAtoms; i++){
+        atoms[i] = createAtom(i, -1.0, -1.0, -1.0);
+     }
+
+    generatePoints(atoms, enviro);
 	 
-	 //make copies of enviornment and atoms for 
+	 //make copies atoms for 
 	 //parallel portion
-	 Environment enviro2 = enviro;
 	 
 	 Atom *atoms2 = new Atom[numberOfAtoms];
 	 memcpy(atoms2,atoms,numberOfAtoms*sizeof(Atom) );
@@ -242,7 +247,7 @@ void testCalcEnergy(){
 	 
 	  double te_linear = calculate_energy(atoms, enviro);
 	  
-	  gettimeofday(&le_tvEnd,NULL); //start clock for execution time
+	  gettimeofday(&le_tvEnd,NULL); //stop clock for execution time
 	  long le_runTime = timevaldiff(&le_tvBegin,&le_tvEnd); //get difference in time in milli seconds
 
 	 	 	 
@@ -253,7 +258,7 @@ void testCalcEnergy(){
 	 
 	 gettimeofday(&pl_tvBegin,NULL); //start clock for execution time
 	  
-	 double te_parallel =  calcEnergyWrapper(atoms2, enviro2);	 
+	 double te_parallel =  calcEnergyWrapper(atoms2, enviro);	 
 	 
 	 gettimeofday(&pl_tvEnd,NULL); //start clock for execution time
 	 long pl_runTime = timevaldiff(&pl_tvBegin,&pl_tvEnd); //get difference in time in milli seconds
@@ -262,16 +267,14 @@ void testCalcEnergy(){
 	 /*
 	 ** Print out Results
 	 */
-	 if( te_parallel == te_linear)
-	    printf("testCalcEnergy sucessful\n Both total energies equate to the same value.\n");
-	 else
-	 	 printf("testCalcEnergy failed\n Both total energies equate to different values.\n");
 	 
-         printf("Number of elements: %d", numberOfAtoms);
+    printf("Number of elements: %d\n", numberOfAtoms);
 	 printf("Linear Total Energy: %f \n", te_linear);
-	 printf("In %d ms", le_runTime);
+	 printf("In %d ms\n", le_runTime);
 	 printf("Parallel Total Energy: %f \n", te_parallel);
-	 printf("In %d ms", pl_runTime);
+	 printf("In %d ms\n", pl_runTime);
+     assert(te_parallel == te_linear);
+	printf("testCalcEnergy sucessful\n Both total energies equate to the same value.\n");
 
     
 }
@@ -279,7 +282,8 @@ void testCalcEnergy(){
 int main(){
     setupGetIndexTest();
     setupMakePeriodic();
-    setupWrapBox();
+    //setupWrapBox();
     testGeneratePoints();
+    testCalcEnergy();
     return 0;
 }

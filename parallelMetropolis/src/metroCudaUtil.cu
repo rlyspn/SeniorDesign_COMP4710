@@ -134,15 +134,16 @@ void generatePoints(Atom *atoms, Environment *enviro){
     cudaFree(devEnviro);
 }
 
-double calcEnergyWrapper(Atom *atoms, Environment enviro){
+double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     //setup CUDA storage
     double totalEnergy = 0.0;
     Atom *atoms_device;
     double *energySum_device;
     double *energySum_host;
+    Environment *enviro_device;
 
     //calculate CUDA thread mgmt
-    int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
+    int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
     int threadsPerBlock = 128;
     int blocks = N / threadsPerBlock + (N % threadsPerBlock == 0 ? 0 : 1);
 
@@ -150,18 +151,20 @@ double calcEnergyWrapper(Atom *atoms, Environment enviro){
     size_t sharedSize = sizeof(double) * threadsPerBlock;
 
 
-    size_t atomSize = enviro.numOfAtoms * sizeof(Atom);
+    size_t atomSize = enviro->numOfAtoms * sizeof(Atom);
     size_t energySumSize = blocks * sizeof(double);
     
     //allocate memory on the device
     energySum_host = (double *) malloc(energySumSize);
     cudaMalloc((void **) &atoms_device, atomSize);
     cudaMalloc((void **) &energySum_device, energySumSize);
+    cudaMalloc((void **) &enviro_device, sizeof(Environment));
 
     //copy data to the device
     cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
 
-    calcEnergy <<<blocks, threadsPerBlock, sharedSize>>>(atoms_device, enviro, energySum_device);
+    calcEnergy <<<blocks, threadsPerBlock, sharedSize>>>(atoms_device, enviro_device, energySum_device);
     
     cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
 
@@ -178,7 +181,7 @@ double calcEnergyWrapper(Atom *atoms, Environment enviro){
     return totalEnergy;
 }
 
-__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
+__global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 
 	//need to figure out how many threads per block will be executed
 	// must be a power of 2
@@ -190,7 +193,7 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
     int idx =  blockIdx.x * blockDim.x + threadIdx.x;
 	double lj_energy;
 	
-	int N =(int) ( pow( (float) enviro.numOfAtoms,2)-enviro.numOfAtoms)/2;
+	int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
 	
 	if(idx < N ){
 		//calculate the x and y positions in the Atom array
@@ -202,7 +205,7 @@ __global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum){
 		xAtom = atoms[xAtom_pos];
 		yAtom = atoms[yAtom_pos];
 		
-		lj_energy = calc_lj(xAtom,yAtom,enviro);	
+		lj_energy = calc_lj(xAtom,yAtom,*enviro);	
 	}
 	else {
 		lj_energy = 0;

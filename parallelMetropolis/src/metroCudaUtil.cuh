@@ -64,7 +64,7 @@ void generatePoints(Atom *atoms, Environment *enviro);
   @param enviro - the environmental variables
   @return - the total energy of the system.
 */
-double calcEnergyWrapper(Atom *atoms, Environment enviro);
+double calcEnergyWrapper(Atom *atoms, Environment *enviro);
 
 /**
   Calculates the energy between n atoms where n is the
@@ -74,7 +74,7 @@ double calcEnergyWrapper(Atom *atoms, Environment enviro);
   @param enviro - the environmental variables
   @param *energySum - the array of block sums
 */
-__global__ void calcEnergy(Atom *atoms, Environment enviro, double *energySum);
+__global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
 
 #ifdef DEBUG
 /**
