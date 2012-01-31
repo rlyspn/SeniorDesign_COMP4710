@@ -222,7 +222,11 @@ void testGeneratePoints(){
 }
 
 void testCalcEnergy(){
-        
+    // the sigma value of krypton used in the LJ simulation
+    double kryptonSigma = 3.624;
+    // the epsilon value of krypton used in the LJ simulation
+    double kryptonEpsilon = 0.317;
+
 	struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
 	//Generate enviorment and atoms
@@ -237,6 +241,8 @@ void testCalcEnergy(){
      }
 
     generatePoints(atoms, enviro);
+    atoms[0].epsilon = kryptonEpsilon;
+    atoms[0].sigma = kryptonSigma;
 	 
 	 //make copies atoms for 
 	 //parallel portion

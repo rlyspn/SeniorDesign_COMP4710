@@ -45,7 +45,7 @@ double calculate_energy(Atom *atoms, Environment *enviro){
     double epsilon = atoms[0].epsilon;
 
     double totalEnergy = 0;
-
+    
     int i;
     for(i = 0; i < atomNumber - 1; i++){
         int j;
@@ -53,6 +53,14 @@ double calculate_energy(Atom *atoms, Environment *enviro){
             double deltaX = atoms[j].x - atoms[i].x;
             double deltaY = atoms[j].y - atoms[i].y;
             double deltaZ = atoms[j].z - atoms[i].z;
+          
+           // printf("J: %d\nI: %d\n", i, j);
+            //printf("atoms[j].x: %f\n", atoms[j].x);
+            //printf("atoms[i].x: %f\n", atoms[i].x);
+            //printf("deltaX: %f\n", deltaX);
+            //printf("deltaY: %f\n", deltaY);
+            //printf("deltaZ: %f\n", deltaZ);
+
 
   //          //printf("preperiodic: %f\n", deltaX);
             deltaX = make_periodic(deltaX, enviro->x);
@@ -74,8 +82,11 @@ double calculate_energy(Atom *atoms, Environment *enviro){
             //printf("%f\n", energy);
             totalEnergy += energy;
             //printf("%f\n\n", totalEnergy); 
+            //printf("AtomNumber: %d\n", atomNumber);
         }
     }
+    //printf("Sigma: %f\n", sigma);
+    //printf("Epsilon: %f\n", epsilon);
     return totalEnergy;
 
 }
