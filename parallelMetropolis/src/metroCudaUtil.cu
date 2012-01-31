@@ -46,7 +46,7 @@ __device__ double wrapBox(double x, double box){
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     //store LJ constants locally
     double sigma = atom1.sigma;
-    double epsilon = atom2.epsilon;
+    double epsilon = atom1.epsilon;
     
     //calculate difference in coordinates
     double deltaX = atom1.x - atom2.x;
@@ -150,7 +150,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
 
 
     size_t atomSize = enviro->numOfAtoms * sizeof(Atom);
-    size_t energySumSize = enviro->numOfAtoms * sizeof(double);
+    size_t energySumSize = N * sizeof(double);
     
     //allocate memory on the device
     energySum_host = (double *) malloc(energySumSize);
@@ -162,13 +162,13 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice);
     cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
 
-    printf("%d\n", blocks * threadsPerBlock);
+    printf("Threads: %d\n", blocks * threadsPerBlock);
     calcEnergy <<<blocks, threadsPerBlock>>>(atoms_device, enviro_device, energySum_device);
     
     cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
-   
-    for(int i = 0; i < enviro->numOfAtoms; i++){
-        printf("%f\n", energySum_host[i]);
+  
+    for(int i = 0; i < N; i++){
+        printf("energySum_host[%d]: %f\n",i,  energySum_host[i]);
         totalEnergy += energySum_host[i];
     }
 
@@ -183,7 +183,6 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     //cleanup
     cudaFree(atoms_device);
     cudaFree(energySum_device);
-    cudaFree(enviro_device);
     free(energySum_host);
 
     return totalEnergy;
@@ -286,8 +285,8 @@ __global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy){
     Atom atom2 = atoms[1];
 
     double testEnergy = calc_lj(atom1, atom2, *enviro);
-    energy[0] = testEnergy;
-
+    
+    *energy = testEnergy;
 }
 
 #endif //DEBUG
