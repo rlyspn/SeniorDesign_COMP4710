@@ -98,7 +98,7 @@ void setupMakePeriodic(){
     
     //generate random numbers
     for(int i = 0; i < numberOfTests; i++){
-        inputs_host[i] = ((double) rand());
+        inputs_host[i] = ((double) (rand() % 100));
     }
 
     //copy data to device
@@ -117,7 +117,6 @@ void setupMakePeriodic(){
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
         double test_output = make_periodic(inputs_host[i], *box);
-        
         //printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
         assert(outputs_host[i] == test_output);
     }
@@ -134,48 +133,55 @@ void setupMakePeriodic(){
 
 
 void setupWrapBox(){
-    srand(time(NULL));
+ srand(time(NULL));
     int numberOfTests = 128;
-    double box = 10;
+    double *box;;
     
     double *inputs_host;
     double *inputs_device;
     double *outputs_host;
+    double *dev_box;
     size_t inputSize = sizeof(double) * numberOfTests;
 
+    box = (double *) malloc(sizeof(double));
+    *box = 10.0;
     inputs_host = (double *) malloc(inputSize);
     outputs_host = (double *) malloc(inputSize);
-    cudaMalloc((void  **) &inputs_device, inputSize);
+    cudaMalloc((void **) &inputs_device, inputSize);
+    cudaMalloc((void **) &dev_box, sizeof(double));
     
     //generate random numbers
     for(int i = 0; i < numberOfTests; i++){
-        inputs_host[i] = ((double) rand());
+        inputs_host[i] = ((double) (rand() % 100));
     }
 
     //copy data to device
     cudaMemcpy(inputs_device, inputs_host, inputSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_box, box, sizeof(double), cudaMemcpyHostToDevice);
     
     int threadsPerBlock = numberOfTests / 2;
     int blocks = numberOfTests / threadsPerBlock +
         (numberOfTests % threadsPerBlock == 0 ? 0 : 1);
 
-    //run test on device
-    testWrapBoxKernel <<<blocks, threadsPerBlock>>> (inputs_device, &box, numberOfTests);
+    testWrapBoxKernel <<< blocks, threadsPerBlock >>> (inputs_device,
+            dev_box, numberOfTests);
 
     cudaMemcpy(outputs_host, inputs_device, inputSize, cudaMemcpyDeviceToHost);
 
     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
-        double test_output = wrap_into_box(inputs_host[i], box);
-        printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
+        double test_output = wrap_into_box(inputs_host[i], *box);
+        
+     //   printf("inputs_host[%d] = %f | outputs_host[%d] = %f | test_output = %f\n", i, inputs_host[i], i, outputs_host[i], test_output);
         assert(outputs_host[i] == test_output);
     }
+
+    printf("wrapBox passed Tests\n");
 
     free(inputs_host);
     free(outputs_host);
     cudaFree(inputs_device);
 
-    printf("__device__ wrapBox tested correctly\n");
 
 }
 
@@ -282,7 +288,7 @@ void testCalcEnergy(){
 int main(){
     setupGetIndexTest();
     setupMakePeriodic();
-    //setupWrapBox();
+    setupWrapBox();
     testGeneratePoints();
     testCalcEnergy();
     return 0;
