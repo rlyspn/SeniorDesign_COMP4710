@@ -216,7 +216,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         energySum[idx] = lj_energy;
 	}
 	else {
-		lj_energy = 0;
+		lj_energy = 0.0;
 	}		
 	
 
