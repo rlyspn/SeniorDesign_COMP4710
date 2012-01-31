@@ -183,6 +183,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     //cleanup
     cudaFree(atoms_device);
     cudaFree(energySum_device);
+    cudaFree(enviro_device);
     free(energySum_host);
 
     return totalEnergy;
