@@ -1,5 +1,6 @@
 CC=g++
 EXE=metro
+DEMOEXE=LinearDemo
 TSTEXE=linearTest
 SRC=src/
 TST=test/
@@ -11,6 +12,9 @@ runtest: test
 
 test: util baseTest $(TST)linearTest.cpp
 	$(CC) $(TST)linearTest.cpp metroUtil.o baseTests.o -o $(TSTEXE)
+
+demo: util
+	$(CC) $(SRC)inClassLinearDemo.cpp metroUtil.o -o $(DEMOEXE)
 
 metro: util
 	$(CC) $(SRC)kryptonMetropolis.cpp metroUtil.o -o $(EXE)
@@ -25,3 +29,4 @@ clean:
 	rm -f -R *.o
 	rm -f -R $(EXE)
 	rm -f -R $(TSTEXE)
+	rm -f -R $(DEMOEXE)

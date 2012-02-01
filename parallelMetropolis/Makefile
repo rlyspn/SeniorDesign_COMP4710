@@ -4,8 +4,12 @@ TST=test/
 TSTEXE=parallelTest
 FLAGS=-arch sm_13 -lcurand
 EXE=kryptonSim
+DEMOEXE=parallelDemo
 
 all: tests kryptonSim
+
+demo: cudaUtil metroUtil $(SRC)inClassDemo.cu
+	$(NV) $(FLAGS) metroCudaUtil.o metroParallelUtil.o $(SRC)inClassDemo.cu -o $(DEMOEXE)	
 
 kryptonSim: cudaUtil metroUtil $(SRC)kryptonSimulation.cu
 	$(NV) $(FLAGS) metroCudaUtil.o metroParallelUtil.o $(SRC)kryptonSimulation.cu -o $(EXE)	
@@ -26,3 +30,4 @@ clean:
 	rm -f -R *.o
 	rm -f $(TSTEXE)
 	rm -f $(EXE)
+	rm -f $(DEMOEXE)
