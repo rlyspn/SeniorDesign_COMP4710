@@ -243,7 +243,7 @@ void testCalcEnergy(){
     struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
     //Generate enviorment and atoms
-    int numberOfAtoms = 50;
+    int numberOfAtoms = 100;
     Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
     Environment *enviro = &stableEnviro;
