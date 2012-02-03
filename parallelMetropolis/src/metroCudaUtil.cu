@@ -1,5 +1,6 @@
 #include "metroCudaUtil.cuh"
 
+//const int THREADS_PER_BLOCK = 128;
 
 //calculates X (larger indexed atom) for energy calculation based on index in atom array
 __device__ int getXFromIndex(int idx){
@@ -148,12 +149,12 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
 
     //calculate CUDA thread mgmt
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
-    int blocks = N / threadsPerBlock + (N % threadsPerBlock == 0 ? 0 : 1);
+    int blocks = N / THREADS_PER_BLOCK + (N % THREADS_PER_BLOCK == 0 ? 0 : 1);
 
     //The number of bytes of shared memory per block of
-    size_t sharedSize = sizeof(double) * threadsPerBlock;
+    //size_t sharedSize = sizeof(double) * THREADS_PER_BLOCK;
     size_t atomSize = enviro->numOfAtoms * sizeof(Atom);
-    size_t energySumSize = N * sizeof(double);
+    size_t energySumSize = blocks * sizeof(double);
     
     //allocate memory on the device
     energySum_host = (double *) malloc(energySumSize);
@@ -161,15 +162,19 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     cudaMalloc((void **) &energySum_device, energySumSize);
     cudaMalloc((void **) &enviro_device, sizeof(Environment));
 
+    for(int i = 0; i < blocks; i++){
+        energySum_host[i] = 100.f;
+    }
+
     //copy data to the device
     cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice);
     cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
 
-    calcEnergy <<<blocks, threadsPerBlock>>>(atoms_device, enviro_device, energySum_device);
+    calcEnergy <<<blocks, THREADS_PER_BLOCK>>>(atoms_device, enviro_device, energySum_device);
     
     cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
 
-    for(int i = 0; i < N; i++){
+    for(int i = 0; i < blocks; i++){
         totalEnergy += energySum_host[i];
         //printf("energySum_host[%d] = %f\n", i, energySum_host[i]);
     }
@@ -186,7 +191,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 
 	//need to figure out how many threads per block will be executed
 	// must be a power of 2
-    __shared__ double cache[threadsPerBlock];	
+    __shared__ double cache[THREADS_PER_BLOCK];	
 	
 	int cacheIndex = threadIdx.x;
     int idx =  blockIdx.x * blockDim.x + threadIdx.x;
@@ -206,14 +211,13 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 		yAtom = atoms[yAtom_pos];
 		
 		lj_energy = calc_lj(xAtom,yAtom,*enviro);
-        energySum[idx] = lj_energy;
+    //    cache[cacheIndex] = lj_energy;
 	}
 	else {
 		lj_energy = 0.0;
 	}		
 	
 
-    /**
 	 // set the cache values
     cache[cacheIndex] = lj_energy;
 	
@@ -233,7 +237,6 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 	// at its block index postition
 	if (cacheIndex == 0)
         energySum[blockIdx.x] = cache[0];
-        */
 		
 }
 
