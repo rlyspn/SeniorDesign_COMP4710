@@ -49,7 +49,7 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro);
     @param atoms - array of atoms to be positioned
     @param enviro - Environment of the simulation
 */
-__global__ void assignAtomPositions(double *dev_doubles, Atom *atoms, Environment *enviro);
+__global__ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, double *dev_doublesZ, Atom *atoms, Environment *enviro);
 
 /**
   Generate random positions for atoms in the box

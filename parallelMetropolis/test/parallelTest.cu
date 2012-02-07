@@ -210,16 +210,15 @@ void setupCalc_lj(){
 
 void testGeneratePoints(){
     //init atoms, environment
-    int numberOfAtoms = 10;
-    Atom *atoms = new Atom[numberOfAtoms];
+    int numberOfAtoms = 3000;
+    Atom *atoms = (Atom *) malloc(numberOfAtoms * sizeof(Atom));
+
     for (int i = 0; i < numberOfAtoms; i++){
         atoms[i] = createAtom(i, -1.0, -1.0, -1.0);
     }
-    Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
+    Environment enviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
-    Environment *enviro = &stableEnviro;
-
-    generatePoints(atoms, enviro);
+    generatePoints(atoms, &enviro);
 
     //assert that all atoms positions are in range of the box
     for (int i = 0; i < numberOfAtoms; i++){
@@ -227,11 +226,13 @@ void testGeneratePoints(){
         double dim_y = atoms[i].y;
         double dim_z = atoms[i].z;
 
-        assert(dim_x >= 0.0 && dim_x <= enviro->x &&
-               dim_y >= 0.0 && dim_y <= enviro->y &&
-               dim_z >= 0.0 && dim_z <= enviro->z);
+        assert(dim_x >= 0.0 && dim_x <= enviro.x &&
+               dim_y >= 0.0 && dim_y <= enviro.y &&
+               dim_z >= 0.0 && dim_z <= enviro.z);
     }
     printf("testGeneratePoints successful.\n");
+
+    free(atoms);
 }
 
 void testCalcEnergy(){
@@ -278,10 +279,10 @@ void testCalcEnergy(){
     printf("In %d ms\n", le_runTime);
     printf("Parallel Total Energy: %f \n", te_parallel);
     printf("In %d ms\n", pl_runTime);
-    assert((long long) (pow(10, 6) * te_parallel) == (long long) (pow(10, 6) * te_linear));
+    assert((long long) ((pow(10, -6) * te_parallel)) == (long long) ((pow(10, -6) * te_linear)));
     printf("testCalcEnergy successful.");
 
-
+    
 }
 
 int main(){

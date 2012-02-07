@@ -76,28 +76,15 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     }
 }
 
-//asisgn positions for the atoms in parallel
-__global__ void assignAtomPositions(double *dev_doubles, Atom *atoms, Environment *enviro){
+__global__ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, double *dev_doublesZ, Atom *atoms, Environment *enviro){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    //for each randomly generated double...
-    if (idx < enviro->numOfAtoms * 3){
-        //...assign a single dimension of a single atom...
-        int atomIndex = idx / 3;
-        int dim_select = idx % 3;
-
-        //...and scale the double to the boundary and map it to the dimension.
-        if (dim_select == 0){
-            atoms[atomIndex].x = enviro->x * dev_doubles[idx];
-        }
-        else if (dim_select == 1){
-            atoms[atomIndex].y = enviro->y * dev_doubles[idx];
-        }
-        else{
-            atoms[atomIndex].z = enviro->z * dev_doubles[idx];
-        }
+    //for each atom...
+    if (idx < enviro->numOfAtoms){
+        atoms[idx].x = dev_doublesX[idx] * enviro->x;
+        atoms[idx].y = dev_doublesY[idx] * enviro->y;
+        atoms[idx].z = dev_doublesZ[idx] * enviro->z;
     }
-
 }
 
 //generate coordinate data for the atoms
@@ -105,12 +92,19 @@ void generatePoints(Atom *atoms, Environment *enviro){
     //setup CUDA storage
     int N = enviro->numOfAtoms * 3;
     curandGenerator_t generator;
-    double *devDoubles;
+    double *devXDoubles;
+    double *devYDoubles;
+    double *devZDoubles;
+    //double *hostDoubles;
     Atom *devAtoms;
     Environment *devEnviro;
+    
+    //hostDoubles = (double *) malloc(sizeof(double) * N);
 
     //allocate memory on device
-    cudaMalloc((void**)&devDoubles, N * sizeof(double));
+    cudaMalloc((void**)&devXDoubles, enviro->numOfAtoms * sizeof(double));
+    cudaMalloc((void**)&devYDoubles, enviro->numOfAtoms * sizeof(double));
+    cudaMalloc((void**)&devZDoubles, enviro->numOfAtoms * sizeof(double));
     cudaMalloc((void**)&devAtoms, enviro->numOfAtoms * sizeof(Atom));
     cudaMalloc((void**)&devEnviro, sizeof(Environment));
 
@@ -121,22 +115,45 @@ void generatePoints(Atom *atoms, Environment *enviro){
     //generate doubles for all coordinates
     curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);
     curandSetPseudoRandomGeneratorSeed(generator, (unsigned int) time(NULL));
-    curandGenerateUniformDouble(generator, devDoubles, N);
+    curandGenerateUniformDouble(generator, devXDoubles, enviro->numOfAtoms);
+    curandGenerateUniformDouble(generator, devYDoubles, enviro->numOfAtoms);
+    curandGenerateUniformDouble(generator, devZDoubles, enviro->numOfAtoms);
+   /* 
+    srand((unsigned int) time(NULL));
+    for (int i = 0; i < N; i = i + 3){
+        double newDouble = ((double) rand()) / ((double) (RAND_MAX));
+        hostDoubles[i] = newDouble;
+        newDouble = ((double) rand()) / ((double) (RAND_MAX));
+        hostDoubles[i+1] = newDouble;
+        newDouble = ((double) rand()) / ((double) (RAND_MAX));
+        hostDoubles[i+2] = newDouble;
+    }
+    
+    for (int i = 0; i < N; i++){
+        hostDoubles[i] = 1.0;
+
+    }
+    cudaMemcpy(devDoubles, hostDoubles, N * sizeof(double), cudaMemcpyHostToDevice);
+    */
 
     //calculate number of blocks required
-    int numOfBlocks = N / THREADS_PER_BLOCK + (N % THREADS_PER_BLOCK == 0 ? 0 : 1);
+    int numOfBlocks = enviro->numOfAtoms / THREADS_PER_BLOCK + (enviro->numOfAtoms % THREADS_PER_BLOCK == 0 ? 0 : 1);
 
     //assign the doubles to the coordinates
-    assignAtomPositions <<< numOfBlocks, THREADS_PER_BLOCK >>> (devDoubles, devAtoms, devEnviro);
+    assignAtomPositions <<< numOfBlocks, THREADS_PER_BLOCK >>> (devXDoubles, devYDoubles, devZDoubles, devAtoms, devEnviro);
 
     //copy the atoms back to host
     cudaMemcpy(atoms, devAtoms, enviro->numOfAtoms * sizeof(Atom), cudaMemcpyDeviceToHost);
 
     //cleanup
     curandDestroyGenerator(generator);
-    cudaFree(devDoubles);
+    cudaFree(devXDoubles);
+    cudaFree(devYDoubles);
+    cudaFree(devZDoubles);
     cudaFree(devAtoms);
     cudaFree(devEnviro);
+
+    //free(hostDoubles);
 }
  
 double calcEnergyWrapper(Atom *atoms, Environment *enviro){
