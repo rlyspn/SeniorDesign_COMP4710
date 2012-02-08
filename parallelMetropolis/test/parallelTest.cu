@@ -198,7 +198,7 @@ void setupCalc_lj(){
 
     double baseEnergy = calculate_energy(atoms, enviro);
     assert((int)(*energy * pow(10.f, 6.f)) == (int)( baseEnergy * pow(10.f,6.f))); 
-   
+    printf("\nparallelEnergy = %2.10f\nlinearEnergy = %2.10f\n", *energy, baseEnergy); 
     printf("Calc_lj is correct\n");
     free(atoms);
     free(energy);
@@ -244,7 +244,7 @@ void testCalcEnergy(){
     struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
     //Generate enviorment and atoms
-    int numberOfAtoms = 100;
+    int numberOfAtoms = 1000;
     Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
     Environment *enviro = &stableEnviro;
@@ -275,7 +275,7 @@ void testCalcEnergy(){
 
     //Print out Results
     printf("Number of elements: %d\n", numberOfAtoms);
-    printf("Linear Total Energy: %f \n", te_linear);
+    printf("Linear Total Energy:   %f \n", te_linear);
     printf("In %d ms\n", le_runTime);
     printf("Parallel Total Energy: %f \n", te_parallel);
     printf("In %d ms\n", pl_runTime);
