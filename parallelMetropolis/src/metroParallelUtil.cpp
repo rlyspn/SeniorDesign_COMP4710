@@ -2,6 +2,19 @@
 
 
 //create an instance of an Atom struct
+Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge){
+    Atom atom;
+    atom.id = id;
+    atom.x = x;
+    atom.y = y;
+    atom.z = z;
+    atom.sigma = sigma;
+    atom.epsilon = epsilon;
+    atom.charge = charge;
+
+    return atom;
+}
+//create an instance of an Atom struct
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon){
     Atom atom;
     atom.id = id;

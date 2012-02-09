@@ -14,8 +14,10 @@ struct Atom{
 
     double sigma; // sigma value for the atom for the LJ calculations
     double epsilon; // epsilon value for the atom for the LJ calculation
+    double charge; // epsilon value for the atom for the LJ calculation
 };
 
+Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge);
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon);
 Atom createAtom(unsigned long id, double x, double y, double z);
 
