@@ -39,6 +39,19 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     return atom;
 }
 
+Atom createAtom(string name, unsigned long id, double x, double y, double z){
+    Atom atom;
+    atom.id = id;
+    atom.x = x;
+    atom.y = y;
+    atom.z = z;
+    atom.sigma = 0.0;
+    atom.epsilon = 0.0;
+    atom.name = name;
+
+    return atom;
+}
+
 //create an instance of the Environment struct
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms){
     Environment enviro;
@@ -58,3 +71,15 @@ void printAtoms(Atom *atoms, int count){
         printf("%f, %f, %f\n", atoms[i].x, atoms[i].y, atoms[i].z);
     }
 }
+
+// writes atom information to a file.  Based on the siremol files.
+void writeOutAtoms(Atom *atoms, Environment *enviro, string filename){
+    FILE *atomOutput = fopen(filename.c_str(), "w");
+
+    for(int i = 0; i < enviro->numOfAtoms; i++){
+       fprintf(atomOutput, "ATOM  %5d  %s   %s    1    %8.3f%8.3f%8.3f  1.00  0.00          %s\n",
+               i+1, atoms[i].name.c_str(), atoms[i].name.c_str(), atoms[i].x, atoms[i].y, atoms[i].z, atoms[i].name.c_str());
+    }
+    fclose(atomOutput);
+}
+

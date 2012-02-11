@@ -4,6 +4,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fstream>
+#include <iostream>
+
+using namespace std;
 
 struct Atom{
     double x; // x coord of the atom
@@ -11,6 +15,7 @@ struct Atom{
     double z; // z coord of the atom
 
     unsigned long id; // unique id of the atom
+    string name; // name of the atom or it's symbol or some other id.
 
     double sigma; // sigma value for the atom for the LJ calculations
     double epsilon; // epsilon value for the atom for the LJ calculation
@@ -19,6 +24,7 @@ struct Atom{
 
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge);
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon);
+Atom createAtom(string newName, unsigned long id, double x, double y, double z);
 Atom createAtom(unsigned long id, double x, double y, double z);
 
 struct Environment{
@@ -41,5 +47,13 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
   @param count - number of atoms
 */
 void printAtoms(Atom *atoms, int count);
+
+/**
+  Writes the list of atoms to the file named filename
+  @param atoms - list of atoms to be written
+  @param enviro - environmental information
+  @param filename - name of the file to be written
+*/
+void writeOutAtoms(Atom *atoms, Environment *enviro, string filename);
 
 #endif //METROPARALLELUTIL_H
