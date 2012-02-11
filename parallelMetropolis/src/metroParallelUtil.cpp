@@ -65,6 +65,28 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
     return enviro;
 }
 
+//returns a instance of a bond structure
+Bond createBond(Atom *atom1, Atom *atom2, int bondCount){
+    Bond bond;
+    bond.bondCount = bondCount;
+    bond.atom1 = atom1;
+    bond.atom2 = atom2;
+    return bond;
+}
+
+//returns an instance of a molecule object
+Molecule createMolecule(string name, Atom *atoms, Bond *bonds, int atomCount, int bondCount){
+    Molecule molecule;
+    molecule.name = name;
+    molecule.atoms = atoms;
+    molecule.bonds = bonds;
+    molecule.atomCount = atomCount;
+    molecule.bondCount = bondCount;
+
+    return molecule;
+}
+
+
 //utility to print off Atom coordinate data
 void printAtoms(Atom *atoms, int count){
     for(int i = 0; i < count; i++){
