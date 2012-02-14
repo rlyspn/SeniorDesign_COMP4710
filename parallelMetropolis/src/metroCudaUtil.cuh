@@ -6,7 +6,7 @@
 #include <cuda.h>
 #include <curand_kernel.h>
 #include <math.h>
-#include "metroParallelUtil.h"
+#include "../../Utilities/src/metroUtil.h"
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
 

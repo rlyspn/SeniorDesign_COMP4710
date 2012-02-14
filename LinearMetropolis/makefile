@@ -3,6 +3,7 @@ EXE=metro
 DEMOEXE=LinearDemo
 TSTEXE=linearTest
 SRC=src/
+UTIL=../Utilities/src/
 TST=test/
 
 all: runtest metro
@@ -19,8 +20,8 @@ demo: util
 metro: util
 	$(CC) $(SRC)kryptonMetropolis.cpp metroUtil.o -o $(EXE)
 
-util: $(SRC)metroUtil.h $(SRC)metroUtil.cpp
-	$(CC) -c $(SRC)metroUtil.cpp
+util: $(UTIL)metroUtil.h $(UTIL)metroUtil.cpp
+	$(CC) -c $(UTIL)metroUtil.cpp
 
 baseTest: $(TST)baseTests.h $(TST)baseTests.cpp
 	$(CC) -c $(TST)baseTests.cpp

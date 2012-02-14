@@ -1,5 +1,6 @@
 NV=nvcc
 SRC=src/
+UTIL=../Utilities/src/
 TST=test/
 TSTEXE=parallelTest
 FLAGS=-arch sm_13 -lcurand
@@ -23,8 +24,8 @@ baseTest: $(TST)baseTests.h $(TST)baseTests.cpp
 cudaUtil: metroUtil $(SRC)metroCudaUtil.cuh $(SRC)metroCudaUtil.cu
 	$(NV) $(FLAGS) -c $(SRC)metroCudaUtil.cu
 
-metroUtil: $(SRC)metroParallelUtil.h $(SRC)metroParallelUtil.cpp
-	$(NV) $(FLAGS) -c $(SRC)metroParallelUtil.cpp
+metroUtil: $(UTIL)metroUtil.h $(UTIL)metroUtil.cpp
+	$(NV) $(FLAGS) -c $(UTIL)metroUtil.cpp
 	
 clean:
 	rm -f -R *.o

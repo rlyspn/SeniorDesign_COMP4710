@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include <sys/time.h>
-#include "../src/metroParallelUtil.h"
+#include "../../Utilities/src/metroUtil.h"
 
 double make_periodic(double x, double box);
 

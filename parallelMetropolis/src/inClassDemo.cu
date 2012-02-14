@@ -4,7 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include "metroCudaUtil.cuh"
-#include "metroParallelUtil.h"
+#include "../../Utilities/src/metroUtil.h"
 
 /**
 Monte Carlo molecular dynamic simulation of krypton based on code from
