@@ -61,6 +61,7 @@ Molecule createMolecule(int id,
     molecule.id = id;
 
     molecule.atoms = atoms;
+    molecule.angles = angles;
     molecule.bonds = bonds;
     molecule.dihedrals = dihedrals;
 
