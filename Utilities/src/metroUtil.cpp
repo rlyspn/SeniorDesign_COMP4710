@@ -55,8 +55,8 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
 
 //returns an instance of a molecule object
 Molecule createMolecule(int id, 
-                        Atom *atoms, Bond *bonds, Dihedral *dihedrals, 
-                        int atomCount, int bondCount, int dihedralCount){
+                        Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals, 
+                        int atomCount, int angleCount, int bondCount, int dihedralCount){
     Molecule molecule;
     molecule.id = id;
 
@@ -64,9 +64,10 @@ Molecule createMolecule(int id,
     molecule.bonds = bonds;
     molecule.dihedrals = dihedrals;
 
-    molecule.atomCount = atomCount;
-    molecule.bondCount = bondCount;
-    molecule.dihedralCount = dihedralCount;
+    molecule.numOfAtoms = atomCount;
+    molecule.numOfAngles = angleCount;
+    molecule.numOfBonds = bondCount;
+    molecule.numOfDihedrals = dihedralCount;
 
     return molecule;
 }
@@ -76,7 +77,7 @@ Molecule createMolecule(int id, Atom *atoms, int atomCount){
     Molecule molecule;
     molecule.id = id;
     molecule.atoms = atoms;
-    molecule.atomCount = atomCount;
+    molecule.numOfAtoms = atomCount;
 
     return molecule;
 }
@@ -133,5 +134,65 @@ void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accept
            << " " << currentAtom.z << " " << endl;
    }
    outputFile.close();
+}
+
+void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, string filename){
+    ofstream outFile;
+    outFile.open(filename.c_str());
+    //print the environment
+    outFile << enviro->x << " " << enviro->y << " " << enviro->z << " " << enviro->numOfAtoms << endl;
+    outFile << endl; // blank line
+    for(int i = 0; i < numOfMolecules; i++){
+        Molecule currentMol = molecules[i];
+        outFile << currentMol.id << endl;
+        outFile << "=" << endl; // delimiter
+    
+        //write atoms
+        for(int j = 0; j < currentMol.numOfAtoms; j++){
+            Atom currentAtom = currentMol.atoms[j];
+            outFile << currentAtom.id << " "
+                << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z
+                << currentAtom.sigma << " " << currentAtom.epsilon << endl;
+        }
+        outFile << "=" << endl; // delimiter
+        
+        //write bonds
+        for(int j = 0; j < currentMol.numOfBonds; j++){
+            Bond currentBond = currentMol.bonds[j];
+            outFile << currentBond.atom1 << " " << currentBond.atom2 << " "
+                << currentBond.distance << " ";
+            if(currentBond.variable)
+                outFile << "1" << endl;
+            else
+                outFile << "0" << endl;
+
+        }
+
+        for(int j = 0; j < currentMol.numOfDihedrals; j++){
+            Dihedral currentDi = currentMol.dihedrals[j];
+            outFile << currentDi.atom1 << " " << currentDi.atom2 << " "
+                << currentDi.distance << " ";
+            if(currentDi.variable)
+                outFile << "1" << endl;
+            else
+                outFile << "0" << endl;
+        }
+
+        //print angles
+        for(int j = 0; j < currentMol.numOfAngles; j++){
+            Angle currentAngle = currentMol.angles[j];
+
+            outFile << currentAngle.atom1 << " " << currentAngle.atom2 << " "
+                << currentAngle.value << " ";
+            if(currentAngle.variable)
+                outFile << "1" << endl;
+            else
+                outFile << "0" << endl;
+        }
+
+        //write a blank line
+        outFile << endl;
+    }
+    outFile.close();
 }
 
