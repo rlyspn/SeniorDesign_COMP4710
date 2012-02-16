@@ -279,7 +279,7 @@ void testCalcEnergy(){
     printf("In %d ms\n", le_runTime);
     printf("Parallel Total Energy: %f \n", te_parallel);
     printf("In %d ms\n", pl_runTime);
-    assert((long long) ((pow(10, -6) * te_parallel)) == (long long) ((pow(10, -6) * te_linear)));
+    assert((long long) ((pow(10.f, -6.f) * te_parallel)) == (long long) ((pow(10.f, -6.f) * te_linear)));
     printf("testCalcEnergy successful.");
 
     
