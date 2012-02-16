@@ -37,14 +37,6 @@ struct Environment{
 };
 
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms);
-
-/**
-  Prints the position of all the atoms in an array.
-  @param atoms - array of atoms
-  @param count - number of atoms
-*/
-void printAtoms(Atom *atoms, int count);
-
 /**
   Writes the list of atoms to the file named filename
   @param atoms - list of atoms to be written
@@ -112,10 +104,10 @@ struct Molecule{
     Angle *angles; // angles in the molecule between atoms
     Dihedral *dihedrals; // array of dihedrals in the molecule
 
-    int atomCount; // the number of atoms in the molecule
-    int bondCount; // the number of bonds in the molecule
-    int angleCount; // the number of angles in the molecule
-    int dihedralCount; // the number of dihedrals in the atom
+    int numOfAtoms; // the number of atoms in the molecule
+    int numOfBonds; // the number of bonds in the molecule
+    int numOfAngles; // the number of angles in the molecule
+    int numOfDihedrals; // the number of dihedrals in the atom
 };
 
 /**
@@ -129,8 +121,8 @@ struct Molecule{
     @param dihedralCount - the number of dihedrals in the molecule
 */
 Molecule createMolecule(int id,
-                        Atom *atoms, Angle *angles, Dihedral *dihedrals,
-                        int atomCount, int angleCount, int dihedralCount );
+                        Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals,
+                        int atomCount, int angleCount, int bondCount, int dihedralCount );
 /**
     @param id - the integer id of the molecule
     @param name - the name of the molecule
@@ -141,4 +133,18 @@ Molecule createMolecule(int id,
                         Atom *atoms,
                         int atomCount);
 
+/**
+  Prints the position of all the atoms in an array.
+  @param atoms - array of atoms
+  @param count - number of atoms
+*/
+void printAtoms(Atom *atoms, int count);
+
+/**
+  @param enviro - the environment state
+  @param molecules - array of molecules to be printed out
+  @param numOfMolecules - the number of molecules to be written out
+  @param fileName - the name of the file to be written
+*/
+void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, string filename);
 #endif //METROPARALLELUTIL_H
