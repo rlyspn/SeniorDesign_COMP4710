@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 #include <map>
-#include "../../parallelMetropolis/src/metroParallelUtil.h"
+#include "metroUtil.h"
 using namespace std;
 
 
