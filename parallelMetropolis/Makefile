@@ -10,13 +10,13 @@ DEMOEXE=parallelDemo
 all: tests kryptonSim
 
 demo: cudaUtil metroUtil $(SRC)inClassDemo.cu
-	$(NV) $(FLAGS) metroCudaUtil.o metroParallelUtil.o $(SRC)inClassDemo.cu -o $(DEMOEXE)	
+	$(NV) $(FLAGS) metroCudaUtil.o metroUtil.o $(SRC)inClassDemo.cu -o $(DEMOEXE)	
 
 kryptonSim: cudaUtil metroUtil $(SRC)kryptonSimulation.cu
-	$(NV) $(FLAGS) metroCudaUtil.o metroParallelUtil.o $(SRC)kryptonSimulation.cu -o $(EXE)	
+	$(NV) $(FLAGS) metroCudaUtil.o metroUtil.o $(SRC)kryptonSimulation.cu -o $(EXE)	
 
 tests: cudaUtil metroUtil baseTest $(TST)parallelTest.cu $(TST)parallelTest.cuh
-	$(NV) $(FLAGS) baseTests.o metroCudaUtil.o  metroParallelUtil.o $(TST)parallelTest.cu -o $(TSTEXE)
+	$(NV) $(FLAGS) baseTests.o metroCudaUtil.o  metroUtil.o $(TST)parallelTest.cu -o $(TSTEXE)
 
 baseTest: $(TST)baseTests.h $(TST)baseTests.cpp
 	$(NV) $(FLAGS) -c $(TST)baseTests.cpp

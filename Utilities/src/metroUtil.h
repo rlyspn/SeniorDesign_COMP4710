@@ -15,7 +15,6 @@ struct Atom{
     double z; // z coord of the atom
 
     unsigned long id; // unique id of the atom
-    string name; // name of the atom or it's symbol or some other id.
 
     double sigma; // sigma value for the atom for the LJ calculations
     double epsilon; // epsilon value for the atom for the LJ calculation
@@ -24,7 +23,6 @@ struct Atom{
 
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge);
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon);
-Atom createAtom(string newName, unsigned long id, double x, double y, double z, double sigma, double epsilon);
 Atom createAtom(unsigned long id, double x, double y, double z);
 
 struct Environment{
@@ -106,7 +104,6 @@ Dihedral createDihedral(int atom1, int atom2, double distance, bool variable);
 // Structure to represent 
 struct Molecule{
     int id; // the name of the molecule
-    string name;
     
     Atom *atoms; // array of atoms in the molecule
     Bond *bonds; // array of bonds of the atoms in the molecule.
@@ -129,7 +126,7 @@ struct Molecule{
     @param bondCount - the number of bonds in the atom
     @param dihedralCount - the number of dihedrals in the molecule
 */
-Molecule createMolecule(int id, string name,
+Molecule createMolecule(int id,
                         Atom *atoms, Angle *angles, Dihedral *dihedrals,
                         int atomCount, int angleCount, int dihedralCount );
 /**
@@ -138,7 +135,7 @@ Molecule createMolecule(int id, string name,
     @param atoms - an array of the atoms in the molecule
     @param atomCount - the number of atoms in the molecule
 */
-Molecule createMolecule(int id, string name,
+Molecule createMolecule(int id, 
                         Atom *atoms,
                         int atomCount);
 

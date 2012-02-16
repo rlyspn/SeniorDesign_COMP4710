@@ -223,7 +223,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         yAtom = atoms[yAtom_pos];
 
         lj_energy = calc_lj(xAtom,yAtom,*enviro);
-                energySum[idx] = lj_energy;
+        energySum[idx] = lj_energy;
     }
     else {
         lj_energy = 0.0;

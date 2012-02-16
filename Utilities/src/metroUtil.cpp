@@ -39,19 +39,6 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     return atom;
 }
 
-// create an instance of atom that includes a name
-Atom createAtom(string name, unsigned long id, double x, double y, double z){
-    Atom atom;
-    atom.id = id;
-    atom.x = x;
-    atom.y = y;
-    atom.z = z;
-    atom.sigma = 0.0;
-    atom.epsilon = 0.0;
-    atom.name = name;
-
-    return atom;
-}
 
 //create an instance of the Environment struct
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms){
@@ -75,11 +62,10 @@ Bond createBond(int atom1, int atom2, int bondCount){
 }
 
 //returns an instance of a molecule object
-Molecule createMolecule(int id, string name,
+Molecule createMolecule(int id, 
                         Atom *atoms, Bond *bonds, Dihedral *dihedrals, 
                         int atomCount, int bondCount, int dihedralCount){
     Molecule molecule;
-    molecule.name = name;
     molecule.id = id;
 
     molecule.atoms = atoms;
@@ -94,10 +80,9 @@ Molecule createMolecule(int id, string name,
 }
 
 // returns an instance of the molecule struct
-Molecule createMolecule(int id, string name, Atom *atoms, int atomCount){
+Molecule createMolecule(int id, Atom *atoms, int atomCount){
     Molecule molecule;
     molecule.id = id;
-    molecule.name = name;
     molecule.atoms = atoms;
     molecule.atomCount = atomCount;
 
@@ -147,11 +132,11 @@ void printAtoms(Atom *atoms, int count){
 // writes atom information to a file.  Based on the siremol files.
 void writeOutAtoms(Atom *atoms, Environment *enviro, string filename){
     FILE *atomOutput = fopen(filename.c_str(), "w");
-
+/*
     for(int i = 0; i < enviro->numOfAtoms; i++){
        fprintf(atomOutput, "ATOM  %5d  %s   %s    1    %8.3f%8.3f%8.3f  1.00  0.00          %s\n",
                i+1, atoms[i].name.c_str(), atoms[i].name.c_str(), atoms[i].x, atoms[i].y, atoms[i].z, atoms[i].name.c_str());
-    }
+    }*/
     fclose(atomOutput);
 }
 

@@ -10,6 +10,7 @@
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
 
+
 /**
   @param idx - the index in the 1 dimensional array of energies
   @return - the id of the X atom
