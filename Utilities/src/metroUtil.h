@@ -24,7 +24,7 @@ struct Atom{
 
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge);
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon);
-Atom createAtom(string newName, unsigned long id, double x, double y, double z);
+Atom createAtom(string newName, unsigned long id, double x, double y, double z, double sigma, double epsilon);
 Atom createAtom(unsigned long id, double x, double y, double z);
 
 struct Environment{
@@ -57,34 +57,89 @@ void writeOutAtoms(Atom *atoms, Environment *enviro, string filename);
 
 // Structure to respresent bonds between atoms in a 
 struct Bond{
-    Atom *atom1; // the first bond involved in the bond
-    Atom *atom2; // the second atom involved in the bond
-    int bondCount; // can be single double or triple bond if i remember my chemistry.
+    int atom1;
+    int atom2;
+
+    double distance;
+    bool variable;
 };
 
 /**
-    @param atom1 - the first atom in the bond
-    @param atom2 - the second atom in the bond
-    @param bondCount - the number of bonds between the atoms
+  @param atom1 - the id of the first atom in the bond
+  @param atom2 - the id of the second atom in the bond
+  @param distance - the distance between the the two atoms
+  @param variable - boolean if distance is variable
 */
-Bond createBond(Atom *atom1, Atom *atom2, int bondCount);
+Bond createBond(int atom1, int atom2, double distance, bool variable);
+
+struct Angle{
+    int atom1; // the first atom in the angle
+    int atom2; // the second atom in the angle
+    double value; // the angle between the atoms
+    bool variable; // if the angle is variable
+};
+
+/**
+  @param atom1 - the first atom in the angle
+  @param atom2 - the second atom in the angle
+  @param value - the value of the angle in degrees
+  @param variable - if the angle between the atoms can change
+*/
+Angle createAngle(int atom1, int atom2, double value, bool variable);
+
+struct Dihedral{
+    int atom1; // the first atom in the dihedral
+    int atom2; // the second atom in the dihedral
+    double distance; // the distance between the atoms
+    bool variable; // if the distance between atoms is variable
+};
+
+/**
+  @param atom1 - the first atom in the dihedral
+  @param atom2 - the second atom in the dihedral
+  @param distance - the distance between the atoms
+  @param variable - if the dihedral is variable
+*/
+Dihedral createDihedral(int atom1, int atom2, double distance, bool variable);
+
 
 // Structure to represent 
 struct Molecule{
-    string name; // the name of the molecule
+    int id; // the name of the molecule
+    string name;
+    
     Atom *atoms; // array of atoms in the molecule
     Bond *bonds; // array of bonds of the atoms in the molecule.
+    Angle *angles; // angles in the molecule between atoms
+    Dihedral *dihedrals; // array of dihedrals in the molecule
+
     int atomCount; // the number of atoms in the molecule
     int bondCount; // the number of bonds in the molecule
+    int angleCount; // the number of angles in the molecule
+    int dihedralCount; // the number of dihedrals in the atom
 };
 
 /**
+    @param id - the integer id of the molecule
     @param name - the name of the molecule
     @param atoms - an array of the atoms in the molecule
     @param bonds - an array of the bonds in the atom
+    @pararm dihedrals - array of dihedrals in the atom
     @param atomCount - the number of atoms in the molecule
     @param bondCount - the number of bonds in the atom
+    @param dihedralCount - the number of dihedrals in the molecule
 */
-Molecule createMolecule(string name, Atom *atoms, Bond *bonds, int atomCount, int bondCount);
+Molecule createMolecule(int id, string name,
+                        Atom *atoms, Angle *angles, Dihedral *dihedrals,
+                        int atomCount, int angleCount, int dihedralCount );
+/**
+    @param id - the integer id of the molecule
+    @param name - the name of the molecule
+    @param atoms - an array of the atoms in the molecule
+    @param atomCount - the number of atoms in the molecule
+*/
+Molecule createMolecule(int id, string name,
+                        Atom *atoms,
+                        int atomCount);
 
 #endif //METROPARALLELUTIL_H

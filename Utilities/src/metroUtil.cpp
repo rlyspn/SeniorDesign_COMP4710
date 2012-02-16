@@ -1,4 +1,4 @@
-#include "metroParallelUtil.h"
+#include "metroUtil.h"
 
 
 //create an instance of an Atom struct
@@ -39,6 +39,7 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     return atom;
 }
 
+// create an instance of atom that includes a name
 Atom createAtom(string name, unsigned long id, double x, double y, double z){
     Atom atom;
     atom.id = id;
@@ -66,26 +67,75 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
 }
 
 //returns a instance of a bond structure
-Bond createBond(Atom *atom1, Atom *atom2, int bondCount){
+Bond createBond(int atom1, int atom2, int bondCount){
     Bond bond;
-    bond.bondCount = bondCount;
     bond.atom1 = atom1;
     bond.atom2 = atom2;
     return bond;
 }
 
 //returns an instance of a molecule object
-Molecule createMolecule(string name, Atom *atoms, Bond *bonds, int atomCount, int bondCount){
+Molecule createMolecule(int id, string name,
+                        Atom *atoms, Bond *bonds, Dihedral *dihedrals, 
+                        int atomCount, int bondCount, int dihedralCount){
     Molecule molecule;
     molecule.name = name;
+    molecule.id = id;
+
     molecule.atoms = atoms;
     molecule.bonds = bonds;
+    molecule.dihedrals = dihedrals;
+
     molecule.atomCount = atomCount;
     molecule.bondCount = bondCount;
+    molecule.dihedralCount = dihedralCount;
 
     return molecule;
 }
 
+// returns an instance of the molecule struct
+Molecule createMolecule(int id, string name, Atom *atoms, int atomCount){
+    Molecule molecule;
+    molecule.id = id;
+    molecule.name = name;
+    molecule.atoms = atoms;
+    molecule.atomCount = atomCount;
+
+    return molecule;
+}
+
+//returns an instance of a bond
+Bond createBond(int atom1, int atom2, double distance, bool variable){
+    Bond bond;
+    bond.atom1 = atom1;
+    bond.atom2 = atom2;
+    bond.distance = distance;
+    bond.variable = variable;
+
+    return bond;
+}
+
+//returns an instance of a dihedral
+Dihedral createDihedral(int atom1, int atom2, double distance, bool variable){
+    Dihedral dihedral;
+
+    dihedral.atom1 = atom1;
+    dihedral.atom2 = atom2;
+    dihedral.distance = distance;
+    dihedral.variable = variable;
+
+    return dihedral;
+}
+
+Angle createAngle(int atom1, int atom2, double value, bool variable){
+    Angle angle;
+    angle.atom1 = atom1;
+    angle.atom2 = atom2;
+    angle.value = value;
+    angle.variable = variable;
+
+    return angle;
+}
 
 //utility to print off Atom coordinate data
 void printAtoms(Atom *atoms, int count){
