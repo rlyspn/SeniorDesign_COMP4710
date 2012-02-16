@@ -50,8 +50,10 @@ void printAtoms(Atom *atoms, int count);
   @param atoms - list of atoms to be written
   @param enviro - environmental information
   @param filename - name of the file to be written
+  @pararm accepts - the number of moves accepted by the system.
+  @param rejects - the number of moves rejected by the system.
 */
-void writeOutAtoms(Atom *atoms, Environment *enviro, string filename);
+void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy);
 
 // Structure to respresent bonds between atoms in a 
 struct Bond{

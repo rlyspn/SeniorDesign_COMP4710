@@ -130,13 +130,16 @@ void printAtoms(Atom *atoms, int count){
 }
 
 // writes atom information to a file.  Based on the siremol files.
-void writeOutAtoms(Atom *atoms, Environment *enviro, string filename){
-    FILE *atomOutput = fopen(filename.c_str(), "w");
-/*
-    for(int i = 0; i < enviro->numOfAtoms; i++){
-       fprintf(atomOutput, "ATOM  %5d  %s   %s    1    %8.3f%8.3f%8.3f  1.00  0.00          %s\n",
-               i+1, atoms[i].name.c_str(), atoms[i].name.c_str(), atoms[i].x, atoms[i].y, atoms[i].z, atoms[i].name.c_str());
-    }*/
-    fclose(atomOutput);
+void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy){
+   ofstream outputFile;
+   outputFile.open(filename.c_str());
+   outputFile << "Total Energy: " << totalEnergy << endl;
+   outputFile << "Acceptance Rate: " << (double)((double) accepts / (double) rejects) << endl;
+   for(int i = 0; i < enviro->numOfAtoms; i++){
+       Atom currentAtom = atoms[i];
+       outputFile <<  currentAtom.id << " " << currentAtom.x << " " << currentAtom. y
+           << " " << currentAtom.z << " " << endl;
+   }
+   outputFile.close();
 }
 
