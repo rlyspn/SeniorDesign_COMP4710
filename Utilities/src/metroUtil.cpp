@@ -53,14 +53,6 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
     return enviro;
 }
 
-//returns a instance of a bond structure
-Bond createBond(int atom1, int atom2, int bondCount){
-    Bond bond;
-    bond.atom1 = atom1;
-    bond.atom2 = atom2;
-    return bond;
-}
-
 //returns an instance of a molecule object
 Molecule createMolecule(int id, 
                         Atom *atoms, Bond *bonds, Dihedral *dihedrals, 
@@ -101,12 +93,12 @@ Bond createBond(int atom1, int atom2, double distance, bool variable){
 }
 
 //returns an instance of a dihedral
-Dihedral createDihedral(int atom1, int atom2, double distance, bool variable){
+Dihedral createDihedral(int atom1, int atom2, double value, bool variable){
     Dihedral dihedral;
 
     dihedral.atom1 = atom1;
     dihedral.atom2 = atom2;
-    dihedral.distance = distance;
+    dihedral.value = value;
     dihedral.variable = variable;
 
     return dihedral;

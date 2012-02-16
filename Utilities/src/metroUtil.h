@@ -1,5 +1,5 @@
-#ifndef METROPARALLELUTIL_H
-#define METROPARALLELUTIL_H
+#ifndef METROUTIL_H
+#define METROUTIL_H
 
 #include <math.h>
 #include <stdio.h>
@@ -90,17 +90,17 @@ Angle createAngle(int atom1, int atom2, double value, bool variable);
 struct Dihedral{
     int atom1; // the first atom in the dihedral
     int atom2; // the second atom in the dihedral
-    double distance; // the distance between the atoms
+    double value; // the distance between the atoms
     bool variable; // if the distance between atoms is variable
 };
 
 /**
   @param atom1 - the first atom in the dihedral
   @param atom2 - the second atom in the dihedral
-  @param distance - the distance between the atoms
+  @param value - the distance between the atoms
   @param variable - if the dihedral is variable
 */
-Dihedral createDihedral(int atom1, int atom2, double distance, bool variable);
+Dihedral createDihedral(int atom1, int atom2, double value, bool variable);
 
 
 // Structure to represent 
@@ -141,4 +141,4 @@ Molecule createMolecule(int id,
                         Atom *atoms,
                         int atomCount);
 
-#endif //METROPARALLELUTIL_H
+#endif //METRUTIL_H

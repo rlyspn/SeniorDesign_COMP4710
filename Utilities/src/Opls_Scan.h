@@ -10,7 +10,7 @@ using namespace std;
 
 class Opls_Scan{
    private:
-      map<int,Atom> oplsTable; //"HashTable" the holds all opls ref.
+      map<string,Atom> oplsTable; //"HashTable" the holds all opls ref.
       string fileName;
    public:
       Opls_Scan(string filename); // constructor
@@ -44,25 +44,25 @@ class Opls_Scan{
 		sigma, epsilon, charges
 		@param hashNum -  the hash number (1st col) in Z matrix file
 		*/
-		Atom getAtom(int hashNum);
+		Atom getAtom(string hashNum);
 		
 		/**
 		Returns the sigma value based on the hashNum (1st col) in Z matrix filee
 		@param hashNum -  the hash number (1st col) in Z matrix file
 		*/
-		double getSigma(int hashNum);
+		double getSigma(string hashNum);
 		
 		/**
 		Returns the epsilon value based on the hashNum (1st col) in Z matrix filee
 		@param hashNum -  the hash number (1st col) in Z matrix file
 		*/
-		double getEpsilon(int hashNum);
+		double getEpsilon(string hashNum);
 		
 		/**
 		Returns the charge value based on the hashNum (1st col) in Z matrix filee
 		@param hashNum -  the hash number (1st col) in Z matrix file
 		*/
-		double getCharge(int hashNum);
+		double getCharge(string hashNum);
 };
 
 

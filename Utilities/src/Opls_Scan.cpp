@@ -35,7 +35,8 @@ int Opls_Scan::scanInOpls(string filename){
 // adds a string line into the table
 void Opls_Scan::addLineToTable(string line, int numOfLines){
 
-    int hashNum, secCol;
+    string hashNum;
+    int secCol;
 	 double charge,sigma,epsilon;
 	 string name,extra;
 	 
@@ -45,10 +46,10 @@ void Opls_Scan::addLineToTable(string line, int numOfLines){
         ss << line;    	
         ss >> hashNum >> secCol >> name >> charge >> sigma >> epsilon >> extra;
 	 
-	     Atom temp = createAtom(hashNum, -1, -1, -1, sigma, epsilon, charge);
+	     Atom temp = createAtom(-1, -1, -1, -1, sigma, epsilon, charge);
 	 
-	     pair<map<int,Atom>::iterator,bool> ret;
-	 	  ret = oplsTable.insert( pair<int,Atom>(hashNum,temp) );
+	     pair<map<string,Atom>::iterator,bool> ret;
+	 	  ret = oplsTable.insert( pair<string,Atom>(hashNum,temp) );
 	     if (ret.second==false)
         {
            cerr << "Err Opls Scanner: element "<< hashNum << "already existed" <<endl;
@@ -69,7 +70,7 @@ bool Opls_Scan::checkFormat(string line){
 }
 
 //return an Atom struct of the given hash value
-Atom Opls_Scan::getAtom(int hashNum){
+Atom Opls_Scan::getAtom(string hashNum){
     if(oplsTable.count(hashNum)>0 ){
 	     return oplsTable[hashNum];
 	 }
@@ -82,7 +83,7 @@ Atom Opls_Scan::getAtom(int hashNum){
 
 
 //return the Sigma value associated with that hashNum/ atom number
-double Opls_Scan::getSigma(int hashNum){
+double Opls_Scan::getSigma(string hashNum){
     if(oplsTable.count(hashNum)>0 ){
 	     Atom temp = oplsTable[hashNum];
 		  return temp.sigma;
@@ -94,7 +95,7 @@ double Opls_Scan::getSigma(int hashNum){
 }
 
 //return the Epsilon value associated with the  hashNum/ Atom number
-double Opls_Scan::getEpsilon(int hashNum){
+double Opls_Scan::getEpsilon(string hashNum){
     if(oplsTable.count(hashNum)>0 ){
 	     Atom temp = oplsTable[hashNum];
 		  return temp.epsilon;
@@ -106,7 +107,7 @@ double Opls_Scan::getEpsilon(int hashNum){
 }
 
 //return the Charge value associated with the  hashNum/ Atom number
-double Opls_Scan::getCharge(int hashNum){
+double Opls_Scan::getCharge(string hashNum){
     if(oplsTable.count(hashNum)>0 ){
 	     Atom temp = oplsTable[hashNum];
 		  return temp.charge;
