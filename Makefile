@@ -13,7 +13,7 @@ EXE=kryptonSim
 DEMOEXE=parallelDemo
 UTILTESTEXE=utilTest
 
-all: tests kryptonSim utilTests
+all: tests kryptonSim utilTest
 
 demo: cudaUtil metroUtil $(PARA)$(SRC)inClassDemo.cu
 	$(NV) $(FLAGS) metroCudaUtil.o metroUtil.o $(PARA)$(SRC)inClassDemo.cu -o $(DEMOEXE)	
@@ -36,15 +36,15 @@ metroUtil: OPLSScan zMatrix $(UTIL)$(SRC)metroUtil.h $(UTIL)$(SRC)metroUtil.cpp
 zMatrix: $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Zmatrix_Scan.cpp
 
-
 OPLSScan: $(UTIL)$(SRC)Opls_Scan.cpp $(UTIL)$(SRC)Opls_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Opls_Scan.cpp
 
-utilTests: metroUtil zMatrix OPLSScan
-	$(NV) metroUtil.o Zmatrix_Scan.o Opls_Scan.o Utilities/test/utilityTests.cpp -o $(UTILTESTEXE)
+utilTest: metroUtil zMatrix OPLSScan
+	$(NV) metroUtil.o Zmatrix_Scan.o Opls_Scan.o $(UTIL)$(TST)utilityTests.cpp -o $(UTILTESTEXE)
 
 clean:
 	rm -f -R *.o
 	rm -f $(TSTEXE)
 	rm -f $(EXE)
 	rm -f $(DEMOEXE)
+	rm -f $(UTILTESTEXE)
