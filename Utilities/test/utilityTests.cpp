@@ -26,6 +26,7 @@ void testGetAtom(Opls_Scan scan){
     Atom atom2 = scan.getAtom(atomNumber2);
     Atom atom3 = scan.getAtom(atomNumber3);
     
+    printf("%f, %f, %f\n", atom1.charge, atom1.sigma, atom1.epsilon);
     assert(atom1.charge == atom1Charge);
     assert(atom1.sigma == atom1Sigma);
     assert(atom1.epsilon == atom1Epsilon);
@@ -67,6 +68,7 @@ void testGetCharge(Opls_Scan scan){
 int main(){
     string fileName = "../bossFiles/oplsua.par";
     Opls_Scan scanner(fileName);
+    cout << scanner.scanInOpls(fileName) << endl;
     cout << "Reading file: " << fileName << endl;
     
     testGetAtom(scanner);

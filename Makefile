@@ -37,7 +37,6 @@ $(BIN)metroUtil: $(BIN)OPLSScan $(BIN)zMatrix $(UTIL)$(SRC)metroUtil.h $(UTIL)$(
 $(BIN)zMatrix: $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Zmatrix_Scan.cpp -o $(BIN)Zmatrix_Scan.o
 
-
 $(BIN)OPLSScan: $(UTIL)$(SRC)Opls_Scan.cpp $(UTIL)$(SRC)Opls_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Opls_Scan.cpp -o $(BIN)Opls_Scan.o
 
