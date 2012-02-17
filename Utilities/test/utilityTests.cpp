@@ -1,11 +1,11 @@
-#include "../src/Opls_scan.h"
+#include "../src/Opls_Scan.h"
 #include <assert.h>
 #include <iostream>
 
 using namespace std;
-int atomNumber1 = 420;
-int atomNumber2 = 1;
-int atomNumber3 = 53;
+string atomNumber1 = "420";
+string atomNumber2 = "1";
+string atomNumber3 = "53";
 
 double atom1Charge = -2.0;
 double atom1Sigma = 0.5;
@@ -19,7 +19,9 @@ double atom3Charge = .640;
 double atom3Sigma = 2.250;
 double atom3Epsilon = 0.50;
 
-void testGetAtom(Opls_scan scan){
+void testGetAtom(Opls_Scan scan){
+
+    cout << "Testing Opls_Scan.getAtom\n" << endl;
     Atom atom1 = scan.getAtom(atomNumber1);
     Atom atom2 = scan.getAtom(atomNumber2);
     Atom atom3 = scan.getAtom(atomNumber3);
@@ -35,30 +37,38 @@ void testGetAtom(Opls_scan scan){
     assert(atom3.charge == atom3Charge);
     assert(atom3.sigma == atom3Sigma);
     assert(atom3.epsilon == atom3Epsilon);
+    cout << "Testing Opls_Scan.getAtom Completed\n" << endl;
 }
 
-void testGetSigma(Opls_scan scan){
+void testGetSigma(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getSigma\n" << endl;
     assert(scan.getSigma(atomNumber1) == atom1Sigma); 
     assert(scan.getSigma(atomNumber2) == atom2Sigma); 
     assert(scan.getSigma(atomNumber3) == atom3Sigma); 
+    cout << "Testing Opls_Scan.getSigma Completed\n" << endl;
 }
 
-void testGetEpsilon(Opls_scan scan){
+void testGetEpsilon(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getEpsilon\n" << endl;
     assert(scan.getEpsilon(atomNumber1) == atom1Epsilon);
     assert(scan.getEpsilon(atomNumber2) == atom2Epsilon);
     assert(scan.getEpsilon(atomNumber3) == atom3Epsilon);
+    cout << "Testing Opls_Scan.getEpsilon Completed\n" << endl;
 }
 
-void testGetCharge(Opls_scan scan){
+void testGetCharge(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getCharge\n" << endl;
     assert(scan.getCharge(atomNumber1) == atom1Charge);
     assert(scan.getCharge(atomNumber2) == atom2Charge);
     assert(scan.getCharge(atomNumber3) == atom3Charge);
+    cout << "Testing Opls_Scan.getCharge Completed\n" << endl;
 }
 
 int main(){
     string fileName = "../bossFiles/oplsua.par";
     Opls_Scan scanner(fileName);
-
+    cout << "Reading file: " << fileName << endl;
+    
     testGetAtom(scanner);
     testGetSigma(scanner);
     testGetEpsilon(scanner);

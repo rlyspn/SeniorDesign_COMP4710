@@ -172,7 +172,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
         for(int j = 0; j < currentMol.numOfDihedrals; j++){
             Dihedral currentDi = currentMol.dihedrals[j];
             outFile << currentDi.atom1 << " " << currentDi.atom2 << " "
-                << currentDi.distance << " ";
+                << currentDi.value << " ";
             if(currentDi.variable)
                 outFile << "1" << endl;
             else
