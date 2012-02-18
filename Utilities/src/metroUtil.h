@@ -178,7 +178,7 @@ Atom getAtomFromLine(string line);
   @param line - the line to be parsed
   @return - Environment read from the line
 */
-Environment getEnvironmentFromLIne(string line);
+Environment getEnvironmentFromLine(string line);
 
 /**
   expected input line:

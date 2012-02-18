@@ -202,7 +202,7 @@ Environment getEnvironmentFromLine(string line){
     Environment enviro;
     //tokenize input line
     char *tokens; 
-    char *charLine;
+    char *charLine = (char *) malloc(sizeof(char) * line.size());
     strcpy(charLine, line.c_str());
     tokens = strtok(charLine, " ");
     //extract data from line
@@ -235,7 +235,9 @@ Environment getEnvironmentFromLine(string line){
 Atom getAtomFromLine(string line){
     Atom returnAtom = createAtom(-1, -1, -1, -1, -1, -1);
     char *tokens;
-    char *charLine;
+    char *charLine = (char *)malloc(sizeof(char) * line.size());
+    strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
     strcpy(charLine, line.c_str());
     tokens = strtok(charLine, " ");
     
@@ -273,7 +275,9 @@ Bond getBondFromLine(string line){
     Bond bond = createBond( -1, -1, -1, false);
 
     char *tokens;
-    char *charLine;
+    char *charLine = (char *)malloc(sizeof(char) * line.size());
+    strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
     strcpy(charLine, line.c_str());
     int tokenNumber = 0;
     
@@ -305,7 +309,9 @@ Angle getAngleFromLine(string line){
     Angle angle = createAngle(-1, -1, -1, false);
 
     char *tokens;
-    char *charLine;
+    char *charLine = (char *)malloc(sizeof(char) * line.size());
+    strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
     strcpy(charLine, line.c_str());
     int tokenNumber = 0;
 
@@ -336,10 +342,10 @@ Dihedral getDihedralFromLine(string line){
     Dihedral dihedral = createDihedral(-1, -1, -1, false);
 
     char *tokens;
-    char *charLine;
+    char *charLine = (char *)malloc(sizeof(char) * line.size());
     strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
     int tokenNumber = 0;
-
     while(tokens != NULL){
         switch(tokenNumber){
             case 0:
