@@ -162,7 +162,7 @@ Environment readInEnvironment(string filename);
   @pararm filename - the name of the state file
   @return - an array of molecules
 */
-Molecule* readInMolecules(string filename);
+vector<Molecule> readInMolecules(string filename);
 
 /**
   input line is of the format:

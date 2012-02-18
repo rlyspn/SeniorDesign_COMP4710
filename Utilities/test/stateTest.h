@@ -39,4 +39,9 @@ void testGetEnvironmentFromLine();
   runs the tests associated with the state reading/writing
 */
 void runStateRead_WriteTests();
+
+/**
+  tests the functionality that writes out and reads in the state.
+*/
+void testWriteOutReadInState();
 #endif //STATETEST_H

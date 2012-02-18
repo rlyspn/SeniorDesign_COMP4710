@@ -168,7 +168,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
                 outFile << "0" << endl;
 
         }
-
+        outFile << "=" << endl; // delimiter
         for(int j = 0; j < currentMol.numOfDihedrals; j++){
             Dihedral currentDi = currentMol.dihedrals[j];
             outFile << currentDi.atom1 << " " << currentDi.atom2 << " "
@@ -178,8 +178,9 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
             else
                 outFile << "0" << endl;
         }
+        outFile << "=" << endl; // delimiter
 
-        //print angles
+        //print angless
         for(int j = 0; j < currentMol.numOfAngles; j++){
             Angle currentAngle = currentMol.angles[j];
 
@@ -388,7 +389,7 @@ Environment readInEnvironment(string filename){
 }
 
 
-Molecule* readInMolecules(string filename){
+vector<Molecule> readInMolecules(string filename){
     vector<Molecule> molecules;
     ifstream inFile(filename.c_str());
     string line;
@@ -406,8 +407,10 @@ Molecule* readInMolecules(string filename){
         Molecule currentMolec;
         int section = 0; // 0 = id, 1 = atom, 2 = bond, 3 = dihedral, 4 = angle
         while(inFile.good()){
+            //printf("bonds: %d\nangles: %d\natoms: %d\ndihedrals: %d\n\n",
+              //      bonds.size(), angles.size(), atoms.size(), dihedrals.size());
+            getline(inFile, line);
             switch(section){
-                getline(inFile, line);
                 case 0: // id
                     if(line.compare("=") == 0)
                         section++;
@@ -467,7 +470,12 @@ Molecule* readInMolecules(string filename){
 
                         currentMolec.dihedrals = dihedralArray;
                         currentMolec.numOfDihedrals = dihedrals.size();
+
+                        molecules.push_back(currentMolec); 
                         
+                        Molecule newMolec;
+                        currentMolec = newMolec;
+
                         dihedrals.clear();
                         atoms.clear();
                         bonds.clear();
@@ -475,24 +483,24 @@ Molecule* readInMolecules(string filename){
 
                     }
                     else{
-                       bonds.push_back(getBondFromLine(line)); 
+                       angles.push_back(getAngleFromLine(line)); 
                     }
                     break;
             }
         }
     }
     else{
-        Molecule *molec;
-        return molec;
+        return molecules;
     }
-
-   Molecule *moleculeArray;
+    
+   return molecules;
+/**   Molecule *moleculeArray;
    moleculeArray = (Molecule *)malloc(sizeof(Molecule) * molecules.size());
    for(int i = 0; i < molecules.size(); i++){
         moleculeArray[i] = molecules[i];
    }
 
-   return moleculeArray;
+   return moleculeArray;*/
 
 }
 
