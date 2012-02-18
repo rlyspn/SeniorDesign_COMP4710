@@ -153,7 +153,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
             Atom currentAtom = currentMol.atoms[j];
             outFile << currentAtom.id << " "
                 << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z
-                << currentAtom.sigma << " " << currentAtom.epsilon << endl;
+                << " " << currentAtom.sigma << " " << currentAtom.epsilon << endl;
         }
         outFile << "=" << endl; // delimiter
         
