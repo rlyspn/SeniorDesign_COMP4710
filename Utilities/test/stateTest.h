@@ -30,4 +30,13 @@ void testGetEnvironmentFromLine();
 */
 void testGetAtomFromLine();
 
+/**
+  tests the getEnvironmentFromLine function
+*/
+void testGetEnvironmentFromLine();
+
+/**
+  runs the tests associated with the state reading/writing
+*/
+void runStateRead_WriteTests();
 #endif //STATETEST_H
