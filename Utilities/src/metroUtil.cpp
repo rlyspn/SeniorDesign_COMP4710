@@ -381,35 +381,6 @@ Environment readInEnvironment(string filename){
         
 }
 
-Molecule readMoleculeSection(ifstream inFile){
-    vector<Bond> bonds;
-    vector<Angle> angles;
-    vector<Atom> atoms;
-    vector<Dihedral> dihedrals;
-    int lines = 0;
-    string line;
-
-    while(inFile.good()){
-        
-    }
-
-    Bond *bondArray = (Bond *) malloc(sizeof(Bond) * bonds.size());
-    Angle *angleArray = (Angle *) malloc(sizeof(Angle) * angles.size());
-    Atom *atomArray = (Atom *) malloc(sizeof(Atom) * atoms.size());
-    Dihedral *dihedralArray = (Dihedral *) malloc(sizeof(Dihedral) * dihedrals.size());
-
-    for(int i = 0; i < bonds.size(); i++)
-        bondArray[i] = bonds[i];
-    for(int i = 0; i < angles.size(); i++)
-        angleArray[i] = angles[i];
-    for(int i = 0; i < atoms.size(); i++)
-        atomArray[i] = atoms[i];
-    for(int i = 0; i < dihedrals.size(); i++)
-        dihedralArray[i] = dihedrals[i];
-
-    return createMolecule(0, atomArray, angleArray, bondArray, dihedralArray,
-            atoms.size(), angles.size(), bonds.size(), dihedrals.size());
-}
 
 Molecule* readInMolecules(string filename){
     vector<Molecule> molecules;
@@ -417,12 +388,92 @@ Molecule* readInMolecules(string filename){
     string line;
     
     if(inFile.is_open()){
+        vector<Bond> bonds;
+        vector<Angle> angles;
+        vector<Atom> atoms;
+        vector<Dihedral> dihedrals;
+
         //the third line starts the first molecule
-        getline(inFile, line);
-        getline(inFile, line);
+        getline(inFile, line); // envrionment
+        getline(inFile, line); //blank
         
-        
-        
+        Molecule currentMolec;
+        int section = 0; // 0 = id, 1 = atom, 2 = bond, 3 = dihedral, 4 = angle
+        while(inFile.good()){
+            switch(section){
+                getline(inFile, line);
+                case 0: // id
+                    if(line.compare("=") == 0)
+                        section++;
+                    else{
+                        currentMolec.id = atoi(line.c_str());
+                    }
+                    break;
+                case 1: // atom
+                    if(line.compare("=") == 0)
+                        section++;
+                    else{
+                       atoms.push_back(getAtomFromLine(line)); 
+                    }
+                    break;
+                case 2: // bond
+                    if(line.compare("=") == 0)
+                        section++;
+                    else{
+                       bonds.push_back(getBondFromLine(line)); 
+                    }
+                    break;
+                case 3: // dihedral
+                    if(line.compare("=") == 0)
+                        section++;
+                    else{
+                       dihedrals.push_back(getDihedralFromLine(line)); 
+                    }
+
+                    break;
+                case 4: // angle
+                    if(line.compare("==") == 0){
+                        section = 0;
+                        
+                        //convert all vectors to arrays
+                        Bond *bondArray = (Bond *) malloc(sizeof(Bond) * bonds.size());
+                        Angle *angleArray = (Angle *) malloc(sizeof(Angle) * angles.size());
+                        Atom *atomArray = (Atom *) malloc(sizeof(Atom) * atoms.size());
+                        Dihedral *dihedralArray = (Dihedral *) malloc(sizeof(Dihedral) * dihedrals.size());
+
+                        for(int i = 0; i < bonds.size(); i++)
+                            bondArray[i] = bonds[i];
+                        for(int i = 0; i < angles.size(); i++)
+                            angleArray[i] = angles[i];
+                        for(int i = 0; i < atoms.size(); i++)
+                            atomArray[i] = atoms[i];
+                        for(int i = 0; i < dihedrals.size(); i++)
+                            dihedralArray[i] = dihedrals[i];
+                        
+                        currentMolec.atoms = atomArray;
+                        currentMolec.numOfAtoms = atoms.size();
+                        
+                        currentMolec.bonds = bondArray;
+                        currentMolec.numOfBonds = bonds.size();
+                        
+                        currentMolec.angles = angleArray;
+                        currentMolec.numOfAngles = angles.size();
+
+                        currentMolec.dihedrals = dihedralArray;
+                        currentMolec.numOfDihedrals = dihedrals.size();
+                        
+                        dihedrals.clear();
+                        atoms.clear();
+                        bonds.clear();
+                        angles.clear();
+
+                    }
+                    else{
+                       bonds.push_back(getBondFromLine(line)); 
+                    }
+                    break;
+            }
+        }
     }
     else{
         Molecule *molec;
