@@ -3,6 +3,9 @@
 #include <iostream>
 
 using namespace std;
+
+string oplsPath = "../Utilities/bossFiles/oplsua.par";
+
 string atomNumber1 = "420";
 string atomNumber2 = "1";
 string atomNumber3 = "53";
@@ -17,7 +20,7 @@ double atom2Epsilon = 0.105;
 
 double atom3Charge = .640;
 double atom3Sigma = 2.250;
-double atom3Epsilon = 0.50;
+double atom3Epsilon = 0.05;
 
 void testGetAtom(Opls_Scan scan){
 
@@ -66,10 +69,9 @@ void testGetCharge(Opls_Scan scan){
 }
 
 int main(){
-    string fileName = "../bossFiles/oplsua.par";
-    Opls_Scan scanner(fileName);
-    cout << scanner.scanInOpls(fileName) << endl;
-    cout << "Reading file: " << fileName << endl;
+    Opls_Scan scanner(oplsPath);
+    cout << scanner.scanInOpls(oplsPath) << endl;
+    cout << "Reading file: " << oplsPath << endl;
     
     testGetAtom(scanner);
     testGetSigma(scanner);
