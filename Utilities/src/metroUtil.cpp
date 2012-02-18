@@ -191,62 +191,188 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
                 outFile << "0" << endl;
         }
 
-        //write a blank line
-        outFile << endl;
+        //write a == line
+        outFile << "==" << endl;
     }
     outFile.close();
 }
 
+// Returns an Environment read from the line of the state file.
+Environment getEnvironmentFromLine(string line){
+    Environment enviro;
+    //tokenize input line
+    char *tokens; 
+    char *charLine;
+    strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
+    //extract data from line
+    int tokenNumber = 0;
+    double x, y, z;
+    int numOfAtoms;
+    while(tokens != NULL){
+        switch(tokenNumber){
+            case 0:
+                enviro.x = atof(tokens);
+                break;
+            case 1:
+                enviro.y = atof(tokens);
+                break;
+            case 2:
+                enviro.z = atof(tokens);
+                break;
+            case 3:
+                enviro.numOfAtoms = atoi(tokens);
+                break;
+        }
+        tokens = strtok(NULL, " ");
+        tokenNumber++;
+    }
 
+    return enviro;
+}
+
+// Returns an Atom read from a line of the state file
+Atom getAtomFromLine(string line){
+    Atom returnAtom = createAtom(-1, -1, -1, -1, -1, -1);
+    char *tokens;
+    char *charLine;
+    strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
+    
+    int tokenNumber = 0;
+    while(tokens != NULL){
+        switch(tokenNumber){
+            case 0: // id
+                returnAtom.id = atoi(tokens);
+                break;
+            case 1: // x
+                returnAtom.x = atof(tokens);
+                break;
+            case 2: // y
+                returnAtom.y = atof(tokens);
+                break;
+            case 3: // z
+                returnAtom.z = atof(tokens);
+                break;
+            case 4: // sigma
+                returnAtom.sigma = atof(tokens);
+                break;
+            case 5: // epsilon
+                returnAtom.epsilon = atof(tokens);
+                break;
+    
+        }
+        tokens = strtok(NULL, " ");
+        tokenNumber++;
+    }
+    return returnAtom;
+}
+
+// reads information about a bond from the line and returns a bond
+Bond getBondFromLine(string line){
+    Bond bond = createBond( -1, -1, -1, false);
+
+    char *tokens;
+    char *charLine;
+    strcpy(charLine, line.c_str());
+    int tokenNumber = 0;
+    
+    while(tokens != NULL){
+        switch(tokenNumber){
+            case 0: // atom 1
+                bond.atom1 = atoi(tokens);
+                break;
+            case 1: // atom 2
+                bond.atom2 = atoi(tokens);
+                break;
+            case 2: // value
+                bond.distance = atof(tokens);
+                break;
+            case 3: // variable
+                if(atoi(tokens) == 1)
+                    bond.variable = true;
+                else
+                    bond.variable = false;
+                break;
+        }
+        tokens = strtok(NULL, " ");
+        tokenNumber++;
+    }
+    return bond;
+}
+
+Angle getAngleFromLine(string line){
+    Angle angle = createAngle(-1, -1, -1, false);
+
+    char *tokens;
+    char *charLine;
+    strcpy(charLine, line.c_str());
+    int tokenNumber = 0;
+
+    while(tokens != NULL){
+       switch(tokenNumber){
+           case 0:
+               angle.atom1 = atoi(tokens);
+               break;
+            case 1:
+               angle.atom2 = atoi(tokens);
+               break;
+            case 2:
+               angle.value = atof(tokens);
+               break;
+            case 3:
+               if(atoi(tokens) == 1)
+                   angle.variable = true;
+               else
+                   angle.variable = false;
+       }
+       tokens = strtok(NULL, " ");
+       tokenNumber++;
+    }
+    return angle;
+}
+
+Dihedral getDihedralFromLine(string line){
+    Dihedral dihedral = createDihedral(-1, -1, -1, false);
+
+    char *tokens;
+    char *charLine;
+    strcpy(charLine, line.c_str());
+    int tokenNumber = 0;
+
+    while(tokens != NULL){
+        switch(tokenNumber){
+            case 0:
+                dihedral.atom1 = atoi(tokens);
+                break;
+            case 1:
+                dihedral.atom2 = atoi(tokens);
+                break;
+            case 2:
+                dihedral.value = atof(tokens);
+                break;
+            case3:
+                if(atoi(tokens) == 1)
+                    dihedral.variable = true;
+                else
+                    dihedral.variable = false;
+        }
+        tokens = strtok(NULL, " ");
+        tokenNumber++;
+    }
+    return dihedral;
+
+}
+
+//Read in the environment from the provided file
 Environment readInEnvironment(string filename){
-    ifstream outFile (filename.c_str());
+    ifstream inFile (filename.c_str());
     string line;
     Environment enviro;
 
-    if(outFile.is_open()){
-        getline(outFile, line);
-        //tokenize input line
-        char *tokens; 
-        char *charLine;
-        strcpy(charLine, line.c_str());
-        tokens = strtok(charLine, " ");
-        //extract data from line
-        int tokenNumber = 0;
-        double x, y, z;
-        int numOfAtoms;
-        while(tokens != NULL){
-            switch(tokenNumber){
-                case 0:
-                    enviro.x = atof(tokens);
-                    break;
-                case 1:
-                    enviro.y = atof(tokens);
-                    break;
-                case 2:
-                    enviro.z = atof(tokens);
-                    break;
-                case 3:
-                    enviro.numOfAtoms = atoi(tokens);
-                    break;
-                tokenNumber++;
-            }
-            tokens = strtok(NULL, " ");
-        }
-
-        /**
-        int startIndex = 0;
-        //get x
-        int endIndex = line.find(" ");
-        double x = atof(line.substr(startIndex, endIndex).c_str());
-        startIndex = endIndex + 1;
-        //get y
-        endIndex = line.find(" ", startIndex);
-        double y = atof(line.substr(startIndex, endIndex).c_str());
-        startIndex = endIndex + 1;
-        //get z
-        double z = atof(line.substr(startIndex, line.size() - startIndex).c_str());
-        //get numOfAtoms
-        */
+    if(inFile.is_open()){
+        getline(inFile, line);
+        enviro = getEnvironmentFromLine(line);    
     }
     else
         return enviro;
@@ -255,5 +381,62 @@ Environment readInEnvironment(string filename){
         
 }
 
+Molecule readMoleculeSection(ifstream inFile){
+    vector<Bond> bonds;
+    vector<Angle> angles;
+    vector<Atom> atoms;
+    vector<Dihedral> dihedrals;
+    int lines = 0;
+    string line;
+
+    while(inFile.good()){
+        
+    }
+
+    Bond *bondArray = (Bond *) malloc(sizeof(Bond) * bonds.size());
+    Angle *angleArray = (Angle *) malloc(sizeof(Angle) * angles.size());
+    Atom *atomArray = (Atom *) malloc(sizeof(Atom) * atoms.size());
+    Dihedral *dihedralArray = (Dihedral *) malloc(sizeof(Dihedral) * dihedrals.size());
+
+    for(int i = 0; i < bonds.size(); i++)
+        bondArray[i] = bonds[i];
+    for(int i = 0; i < angles.size(); i++)
+        angleArray[i] = angles[i];
+    for(int i = 0; i < atoms.size(); i++)
+        atomArray[i] = atoms[i];
+    for(int i = 0; i < dihedrals.size(); i++)
+        dihedralArray[i] = dihedrals[i];
+
+    return createMolecule(0, atomArray, angleArray, bondArray, dihedralArray,
+            atoms.size(), angles.size(), bonds.size(), dihedrals.size());
+}
+
+Molecule* readInMolecules(string filename){
+    vector<Molecule> molecules;
+    ifstream inFile(filename.c_str());
+    string line;
+    
+    if(inFile.is_open()){
+        //the third line starts the first molecule
+        getline(inFile, line);
+        getline(inFile, line);
+        
+        
+        
+    }
+    else{
+        Molecule *molec;
+        return molec;
+    }
+
+   Molecule *moleculeArray;
+   moleculeArray = (Molecule *)malloc(sizeof(Molecule) * molecules.size());
+   for(int i = 0; i < molecules.size(); i++){
+        moleculeArray[i] = molecules[i];
+   }
+
+   return moleculeArray;
+
+}
 
 
