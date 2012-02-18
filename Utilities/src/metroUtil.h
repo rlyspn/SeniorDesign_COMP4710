@@ -4,6 +4,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string>
+#include <string.h>
 #include <fstream>
 #include <iostream>
 
@@ -147,5 +150,17 @@ void printAtoms(Atom *atoms, int count);
   @param fileName - the name of the file to be written
 */
 void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, string filename);
+
+/**
+  @param filename - the name of the state file
+  @return - the environment recorded in the state file.
+*/
+Environment readInEnvironment(string filename);
+
+/**
+  @pararm filename - the name of the state file
+  @return - an array of molecules
+*/
+Molecule* readInMolecules(string filename);
 
 #endif //METROUTIL_H

@@ -197,3 +197,63 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
     outFile.close();
 }
 
+
+Environment readInEnvironment(string filename){
+    ifstream outFile (filename.c_str());
+    string line;
+    Environment enviro;
+
+    if(outFile.is_open()){
+        getline(outFile, line);
+        //tokenize input line
+        char *tokens; 
+        char *charLine;
+        strcpy(charLine, line.c_str());
+        tokens = strtok(charLine, " ");
+        //extract data from line
+        int tokenNumber = 0;
+        double x, y, z;
+        int numOfAtoms;
+        while(tokens != NULL){
+            switch(tokenNumber){
+                case 0:
+                    enviro.x = atof(tokens);
+                    break;
+                case 1:
+                    enviro.y = atof(tokens);
+                    break;
+                case 2:
+                    enviro.z = atof(tokens);
+                    break;
+                case 3:
+                    enviro.numOfAtoms = atoi(tokens);
+                    break;
+                tokenNumber++;
+            }
+            tokens = strtok(NULL, " ");
+        }
+
+        /**
+        int startIndex = 0;
+        //get x
+        int endIndex = line.find(" ");
+        double x = atof(line.substr(startIndex, endIndex).c_str());
+        startIndex = endIndex + 1;
+        //get y
+        endIndex = line.find(" ", startIndex);
+        double y = atof(line.substr(startIndex, endIndex).c_str());
+        startIndex = endIndex + 1;
+        //get z
+        double z = atof(line.substr(startIndex, line.size() - startIndex).c_str());
+        //get numOfAtoms
+        */
+    }
+    else
+        return enviro;
+
+    return enviro;
+        
+}
+
+
+
