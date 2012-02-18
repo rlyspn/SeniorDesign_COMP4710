@@ -1,9 +1,10 @@
 #include "Opls_Scan.h"
+#include <exception>
+#include <stdexcept>
 
 //constructor
 Opls_Scan::Opls_Scan(string filename){
    fileName = filename;
-   scanInOpls(filename);
 }
 
 Opls_Scan::~Opls_Scan(){
@@ -25,8 +26,11 @@ int Opls_Scan::scanInOpls(string filename){
 
         //check if it is a commented line,
 		  //or if it is a title line
-        if(line.at(0) != '#' && numOfLines > 1)
-            addLineToTable(line,numOfLines);
+        try{
+            if(line.at(0) != '#' && numOfLines > 1)
+                addLineToTable(line,numOfLines);
+        }
+        catch (std::out_of_range& e){}
       }
       oplsScanner.close();
    }
@@ -45,7 +49,7 @@ void Opls_Scan::addLineToTable(string line, int numOfLines){
 	     stringstream ss ; 
         ss << line;    	
         ss >> hashNum >> secCol >> name >> charge >> sigma >> epsilon >> extra;
-	 
+
 	     Atom temp = createAtom(-1, -1, -1, -1, sigma, epsilon, charge);
 	 
 	     pair<map<string,Atom>::iterator,bool> ret;
