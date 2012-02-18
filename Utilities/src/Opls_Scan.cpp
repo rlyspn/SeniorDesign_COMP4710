@@ -80,8 +80,6 @@ Atom Opls_Scan::getAtom(string hashNum){
 	 }
 }
 
-
-
 //return the Sigma value associated with that hashNum/ atom number
 double Opls_Scan::getSigma(string hashNum){
     if(oplsTable.count(hashNum)>0 ){

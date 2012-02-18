@@ -66,7 +66,7 @@ void testGetCharge(Opls_Scan scan){
 }
 
 int main(){
-    string fileName = "../bossFiles/oplsua.par";
+    string fileName = "../../Utilities/bossFiles/oplsua.par";
     Opls_Scan scanner(fileName);
     cout << scanner.scanInOpls(fileName) << endl;
     cout << "Reading file: " << fileName << endl;
