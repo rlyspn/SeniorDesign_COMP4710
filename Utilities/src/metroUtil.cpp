@@ -123,6 +123,17 @@ void printAtoms(Atom *atoms, int count){
     }
 }
 
+//writes to the listed filename in the protein databank format
+void writePDB(Atom *atoms, Environment enviro, string filename){
+    ofstream outputFile;
+    outputFile.open(filename.c_str());
+    for(int i = 0; i < enviro.numOfAtoms; i++){
+        Atom currentAtom = atoms[i];
+        outputFile << "ATOM " << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z << endl;
+    }
+    outputFile.close();
+}
+
 // writes atom information to a file.  Based on the siremol files.
 void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy){
    ofstream outputFile;

@@ -212,4 +212,11 @@ Angle getAngleFromLine(string line);
 */
 Dihedral getDihedralFromLine(string line);
 
+/**
+  @param atoms - array of atoms to be written to the file
+  @param enviro - structure holding environmental data.
+  @param filename - the name of the file that is to be written
+*/
+void writePDB(Atom *atoms, Environment enviro, string filename);
+
 #endif //METROUTIL_H
