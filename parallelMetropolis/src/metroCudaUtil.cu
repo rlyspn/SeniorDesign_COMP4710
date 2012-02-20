@@ -251,6 +251,41 @@ energySum[blockIdx.x] = cache[0];
 
 }
 
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventAccessibleSurfaceArea(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventDistributionFunction(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double atomAtomDistributionFunction(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventSolventTotalEnergy(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventTotalEnergy(){
+    return -1.f;
+}
+
 
 #ifdef DEBUG
 

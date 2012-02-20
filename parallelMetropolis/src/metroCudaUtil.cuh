@@ -78,6 +78,35 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro);
 */
 __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
 
+/****************************
+  Begin Stubs for outputs
+****************************/
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventAccessibleSurfaceArea();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventDistributionFunction();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double atomAtomDistributionFunction();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventSolventTotalEnergy();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventTotalEnergy();
+
+
 #ifdef DEBUG
 /**
     Kernel call that will be used to test the getXFromIndexFunction
