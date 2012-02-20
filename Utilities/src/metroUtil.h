@@ -38,6 +38,7 @@ struct Environment{
     double temperature; // the temperature of the box
 
     int numOfAtoms; // the number of atoms in the environment
+    int numOfMolecules; // the number of molecues in the environment
 };
 
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms);
@@ -162,7 +163,7 @@ Environment readInEnvironment(string filename);
   @pararm filename - the name of the state file
   @return - an array of molecules
 */
-Molecule* readInMolecules(string filename);
+vector<Molecule> readInMolecules(string filename);
 
 /**
   input line is of the format:
@@ -211,5 +212,12 @@ Angle getAngleFromLine(string line);
   @return - returns the dihedral represented on the line
 */
 Dihedral getDihedralFromLine(string line);
+
+/**
+  @param atoms - array of atoms to be written to the file
+  @param enviro - structure holding environmental data.
+  @param filename - the name of the file that is to be written
+*/
+void writePDB(Atom *atoms, Environment enviro, string filename);
 
 #endif //METROUTIL_H

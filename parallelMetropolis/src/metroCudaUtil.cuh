@@ -69,6 +69,13 @@ void generatePoints(Atom *atoms, Environment *enviro);
 double calcEnergyWrapper(Atom *atoms, Environment *enviro);
 
 /**
+  Wrapper function for the calcEnergy kernel.
+  @param molecules - array of molecules in the system
+  @param enviro - the environment of the system.
+*/
+double calcEnergyWrapper(Molecule *molecules, Environment *enviro);
+
+/**
   Calculates the energy between n atoms where n is the
   the number of threads in the block. The block's sum is then stored 
   in the energySum array at its block index position.
@@ -77,6 +84,35 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro);
   @param *energySum - the array of block sums
 */
 __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
+
+/****************************
+  Begin Stubs for outputs
+****************************/
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventAccessibleSurfaceArea();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventDistributionFunction();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double atomAtomDistributionFunction();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventSolventTotalEnergy();
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventTotalEnergy();
+
 
 #ifdef DEBUG
 /**

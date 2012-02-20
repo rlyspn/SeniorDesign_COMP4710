@@ -56,6 +56,12 @@ void setupGetIndexTest(){
     free(xValues);
 }
 
+bool compareDouble(double a, double b, double limit){
+    if((a - b) / b < limit)
+        return true;
+    else
+        return false;
+}
 
 
 /**
@@ -255,7 +261,7 @@ void testCalcEnergy(){
     }
 
     generatePoints(atoms, enviro);
-     
+    
     //calculate energy linearly
     gettimeofday(&le_tvBegin,NULL); //start clock for execution time
 
@@ -279,11 +285,70 @@ void testCalcEnergy(){
     printf("In %d ms\n", le_runTime);
     printf("Parallel Total Energy: %f \n", te_parallel);
     printf("In %d ms\n", pl_runTime);
-    assert((long long) ((pow(10.f, -6.f) * te_parallel)) == (long long) ((pow(10.f, -6.f) * te_linear)));
+    assert(compareDouble(te_linear, te_parallel, .05));
     printf("testCalcEnergy successful.");
 
     
 }
+
+void testCalcEnergyWithMolecules(){
+    // the sigma value of krypton used in the LJ simulation
+    double kryptonSigma = 3.624;
+    // the epsilon value of krypton used in the LJ simulation
+    double kryptonEpsilon = 0.317;
+
+    struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
+
+    //Generate enviorment and atoms
+    int numberOfAtoms = 100;
+    Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
+
+    Environment *enviro = &stableEnviro;
+
+    Atom *atoms = new Atom[numberOfAtoms];
+    for (int i = 0; i < numberOfAtoms; i++){
+        atoms[i] = createAtom(i, -1.0, -1.0, -1.0, kryptonSigma, kryptonEpsilon);
+    }
+    enviro->numOfMolecules = numberOfAtoms;
+    generatePoints(atoms, enviro);
+    Molecule *molecules;
+    molecules = (Molecule *)malloc(sizeof(Molecule) * numberOfAtoms);
+    for(int i = 0; i < numberOfAtoms; i++){
+        molecules[i].numOfAtoms = 1;
+        molecules[i].atoms = (Atom *)malloc(sizeof(Atom));
+        molecules[i].atoms[0] = atoms[i];
+    }
+
+    //calculate energy linearly
+    gettimeofday(&le_tvBegin,NULL); //start clock for execution time
+
+    double te_linear = calculate_energy(atoms, enviro);
+
+    gettimeofday(&le_tvEnd,NULL); //stop clock for execution time
+    long le_runTime = timevaldiff(&le_tvBegin,&le_tvEnd); //get difference in time in milli seconds
+
+    //calculate energy in parallel
+    gettimeofday(&pl_tvBegin,NULL); //start clock for execution time
+
+    double te_parallel =  calcEnergyWrapper(molecules, enviro);	 
+
+    gettimeofday(&pl_tvEnd,NULL); //start clock for execution time
+    long pl_runTime = timevaldiff(&pl_tvBegin,&pl_tvEnd); //get difference in time in milli seconds
+
+
+    //Print out Results
+    printf("Number of elements: %d\n", numberOfAtoms);
+    printf("Linear Total Energy:   %f \n", te_linear);
+    printf("In %d ms\n", le_runTime);
+    printf("Parallel Total Energy: %f \n", te_parallel);
+    printf("In %d ms\n", pl_runTime);
+    assert(compareDouble(te_linear, te_parallel, .05));
+    printf("testCalcEnergyWithMolecules successful.");
+
+    
+}
+
+
 
 int main(){
     setupCalc_lj();
@@ -292,5 +357,6 @@ int main(){
     setupWrapBox();
     testGeneratePoints();
     testCalcEnergy();
+    testCalcEnergyWithMolecules();
     return 0;
 }

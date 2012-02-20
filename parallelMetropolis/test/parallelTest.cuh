@@ -37,9 +37,21 @@ Tests the calc_lj Function. The global Kernel is used to setup the tests.
 void setupCalc_lj();
 __global__ void testCalcLJKernel();
 
+/**
+  Tests the function that generates points against the known bounds for the
+  generated points
+*/
 void testGeneratePoints();
 
+/**
+  Tests the energy calculated using parallel method vs the energy caclulated
+  by the linear method.
+*/
 void testCalcEnergy();
 
-
+/**
+  Tests the calc energy function that accepts an array of molecules instead
+  of an array of atoms.
+*/
+void testCalcEnergyWithMolecules();
 #endif //PARALLELTEST_H
