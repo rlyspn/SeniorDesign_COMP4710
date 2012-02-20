@@ -6,17 +6,18 @@ using namespace std;
 
 string oplsPath = "../Utilities/bossFiles/oplsua.par";
 
-string atomNumber1 = "420";
+string atomNumber1 = "418";
 string atomNumber2 = "1";
 string atomNumber3 = "53";
 
-double atom1Charge = -2.0;
-double atom1Sigma = 0.5;
-double atom1Epsilon = 3.25;
+double atom1Charge =  0.365;
+double atom1Sigma = 3.850;
+double atom1Epsilon = 0.080;
 
 double atom2Charge = 0.5;
 double atom2Sigma = 3.75;
 double atom2Epsilon = 0.105;
+double atom2V[4] = {};	
 
 double atom3Charge = .640;
 double atom3Sigma = 2.250;
@@ -68,6 +69,34 @@ void testGetCharge(Opls_Scan scan){
     cout << "Testing Opls_Scan.getCharge Completed\n" << endl;
 }
 
+string atomNumber4 ="415";
+double atom4Fourier[4] = {0.0 , -2.500, 1.250, 3.100 };
+
+string atomNumber5 ="002";
+double atom5Fourier[4] = { 1.363, 0.343, -0.436, -1.121};
+	
+string atomNumber6 ="073";
+double atom6Fourier[4] = { 0.0, -4.0396, 1.2261, 3.5637 };
+
+void testGetFourier(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getVvalues\n" << endl;
+	 Fourier f = scan.getFourier(atomNumber4);
+	 for(int i=0; i<4; i++){
+	     assert(f.vValues[i]==atom4Fourier[i]);	 
+	 }
+	 
+	 f = scan.getFourier(atomNumber5);
+	 for(int i=0; i<4; i++){
+	     assert(f.vValues[i]==atom5Fourier[i]);	 
+	 }
+	 
+	 f = scan.getFourier(atomNumber6);
+	 for(int i=0; i<4; i++){
+	     assert(f.vValues[i]==atom6Fourier[i]);	 
+	 }
+    cout << "Testing Opls_Scan.getVvalues Completed\n" << endl;
+}
+
 int main(){
     Opls_Scan scanner(oplsPath);
     cout << scanner.scanInOpls(oplsPath) << endl;
@@ -77,4 +106,5 @@ int main(){
     testGetSigma(scanner);
     testGetEpsilon(scanner);
     testGetCharge(scanner);
+    testGetFourier(scanner);
 }

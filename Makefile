@@ -14,7 +14,7 @@ EXE=kryptonSim
 DEMOEXE=parallelDemo
 UTILTESTEXE=utilTest
 
-all: $(BIN)tests $(BIN)kryptonSim $(BIN)utilTests
+all: dir $(BIN)tests $(BIN)kryptonSim $(BIN)utilTests
 
 $(BIN)demo: $(BIN)cudaUtil $(BIN)metroUtil $(PARA)$(SRC)inClassDemo.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)inClassDemo.cu -o $(BIN)$(DEMOEXE)	
@@ -42,6 +42,9 @@ $(BIN)OPLSScan: $(UTIL)$(SRC)Opls_Scan.cpp $(UTIL)$(SRC)Opls_Scan.h
 
 $(BIN)utilTests: $(BIN)metroUtil $(BIN)zMatrix $(BIN)OPLSScan
 	$(NV) $(BIN)metroUtil.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
+
+dir:
+	mkdir -p $(BIN)
 
 clean:
 	rm -f $(BIN)*

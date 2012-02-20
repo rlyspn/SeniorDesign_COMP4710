@@ -9,6 +9,7 @@ Opls_Scan::Opls_Scan(string filename){
 
 Opls_Scan::~Opls_Scan(){
     oplsTable.clear();
+	 vTable.clear();
 }
 
 //scans in the opls file and adds entries to the table
@@ -38,39 +39,57 @@ int Opls_Scan::scanInOpls(string filename){
 
 // adds a string line into the table
 void Opls_Scan::addLineToTable(string line, int numOfLines){
-
     string hashNum;
     int secCol;
-	 double charge,sigma,epsilon;
+	 double charge,sigma,epsilon;	 
 	 string name,extra;
+	 stringstream ss(line) ;
 	 
-	 //check if line contains correct format
-	 if(checkFormat(line)){
-	     stringstream ss ; 
-        ss << line;    	
-        ss >> hashNum >> secCol >> name >> charge >> sigma >> epsilon >> extra;
-
-	     Atom temp = createAtom(-1, -1, -1, -1, sigma, epsilon, charge);
-	 
-	     pair<map<string,Atom>::iterator,bool> ret;
-	 	  ret = oplsTable.insert( pair<string,Atom>(hashNum,temp) );
-	     if (ret.second==false)
-        {
-           cerr << "Err Opls Scanner: element "<< hashNum << "already existed" <<endl;
-        }
-	 }else
-	     cerr << "Err Opls Scanner: line "<< numOfLines <<"contains bad format" << endl;
+	 //check to see what format it is opls, V value, or neither
+	 int format = checkFormat(line);
+				 	  
+	if(format ==1 ){      	
+       ss >> hashNum >> secCol >> name >> charge >> sigma >> epsilon ;
+				
+		 Atom temp = createAtom(0, -1, -1, -1, sigma, epsilon, charge);
+		 pair<map<string,Atom>::iterator,bool> ret;
+		 ret = oplsTable.insert( pair<string,Atom>(hashNum,temp) );
+		 if (ret.second==false)
+		     cerr << "Err Opls Scanner: element "<< hashNum << "already existed" <<endl;
+    }
+    else if(format ==2 )
+	 {
+		  double v0,v1,v2,v3;
+		  ss >> hashNum >> v0 >> v1 >> v2 >> v3 ;
+		  Fourier vValues = {v0,v1,v2,v3};
+		  pair<map<string,Fourier>::iterator,bool> ret2;
+		  ret2 = vTable.insert( pair<string,Fourier>(hashNum,vValues) );
+		  if (ret2.second==false)
+		      cerr << "Err Opls Scanner: element "<< hashNum << "already existed" <<endl;
+    }
+	 else
+		 cerr << "Err Opls Scanner: line "<< numOfLines <<"contains bad format\n---" << line<< endl;
 
 }
 
 // check if line contains the right format...
-bool Opls_Scan::checkFormat(string line){ 
-    stringstream iss(line);
-	 int count =0;
-	 string word;
-	 while (iss >> word)
-	     count ++;
-	 return (count > 5);
+int Opls_Scan::checkFormat(string line){   	 
+	 int hashNum, secCol;
+	 double charge,sigma,epsilon;
+	 string name,extra;
+	 stringstream iss(line);
+
+    double v1,v2,v3,v4;
+    stringstream issw(line);
+    //see if format is the V values for the diherdral format
+    if((issw >> hashNum >> v1 >> v2 >> v3 >> v4) )
+	     return 2;
+	//else see if format is normal opls format
+    else if((iss >> hashNum >> secCol >> name >> charge >> sigma >> epsilon ))
+	     return 1;
+	//if neither return -1
+	 else
+	     return -1;
 }
 
 //return an Atom struct of the given hash value
@@ -117,5 +136,18 @@ double Opls_Scan::getCharge(string hashNum){
 	 else{
 	    cerr << "Index does not exist" <<endl;
 		 return -1;
+	 }
+}
+
+//return the list of v values as a struct
+Fourier Opls_Scan::getFourier(string hashNum){
+    if(vTable.count(hashNum)>0 ){
+	     Fourier temp = vTable[hashNum];
+		  return temp;
+	 }
+	 else{	    
+	    cerr << "Index does not exist" <<endl;
+		 Fourier temp ={-1,-1,-1,-1};
+		 return temp;
 	 }
 }
