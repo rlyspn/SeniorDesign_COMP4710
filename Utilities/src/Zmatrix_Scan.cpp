@@ -16,7 +16,7 @@ Zmatrix_Scan::~Zmatrix_Scan(){
 //scans in the zmatrix file and adds entries to the table
 int Zmatrix_Scan::scanInZmatrix(){
     int numOfLines=0;
-   ifstream zmatrixScanner(filename.c_str());
+   ifstream zmatrixScanner(fileName.c_str());
    if( !zmatrixScanner.is_open() )
       return -1;
    else {
@@ -47,7 +47,7 @@ int Zmatrix_Scan::scanInZmatrix(){
             angleArray = (Angle*) malloc(sizeof(Angle) * angleVector.size());
             dihedralArray = (Dihedral*) malloc(sizeof(Dihedral) * dihedralVector.size());
             
-            for (int i = 0; i < moleculeLimits[j]; i++){
+            for (int i = 0; i < atomVector.size(); i++){
                 atomArray[i] = atomVector[i];
             }
             for (int i = 0; i < bondVector.size(); i++){
@@ -61,7 +61,7 @@ int Zmatrix_Scan::scanInZmatrix(){
             }
 
             moleculePattern.push_back(createMolecule(-1, atomArray, angleArray, bondArray, dihedralArray, 
-                                 atomVector.size(), angleVector.size(), bondVector.size(), dihedralVector.size()));i
+                                 atomVector.size(), angleVector.size(), bondVector.size(), dihedralVector.size()));
 
             atomVector.clear();
             bondVector.clear();
@@ -138,8 +138,6 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
             startNewMolecule = true;
         }
     }
-
-    ss.close();
 }
 
 // check if line contains the right format...

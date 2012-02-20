@@ -43,8 +43,9 @@ class Zmatrix_Scan{
 		Checks the format of the line being read in
 		returns false if the format of the line is invalid
 		@param line -  a line from the zmatrix file
+        @param stringCount - number of strings in a line you're looking at
 		*/
-        bool checkFormat(string line);
+        bool checkFormat(string line, int stringCount);
 
         /**
         Creates a molecule(s)  based on a starting unique ID and the pattern specified
