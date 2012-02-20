@@ -154,7 +154,21 @@ void generatePoints(Atom *atoms, Environment *enviro){
 
     //free(hostDoubles);
 }
- 
+
+//Calculates the energy of system using molecules
+double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
+    Atom *atoms = (Atom *) malloc(sizeof(Atom) * enviro->numOfAtoms);
+    int atomIndex = 0;
+    for(int i = 0; i < enviro->numOfMolecules; i++){
+        Molecule currentMolecule = molecules[i];
+        for(int j = 0; j < currentMolecule.numOfAtoms; j++){
+            atoms[atomIndex] = currentMolecule.atoms[j];
+        }
+    }
+
+    return calcEnergyWrapper(atoms, enviro);
+}
+
 double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     //setup CUDA storage
     double totalEnergy = 0.0;
