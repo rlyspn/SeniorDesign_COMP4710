@@ -35,6 +35,7 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     atom.z = z;
     atom.sigma = 0.0;
     atom.epsilon = 0.0;
+    atom.charge = 0.0;
 
     return atom;
 }

@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <map>
 #include "metroUtil.h"
 #include "Opls_Scan.h"
 using namespace std;
@@ -14,12 +13,14 @@ class Zmatrix_Scan{
    private:
       string fileName;
       Opls_Scan *oplsScanner;
-      Molecule moleculePattern;
+      vector<Molecule> moleculePattern;
       vector<Atom> atomVector;
       vector<Bond> bondVector;
       vector<Angle> angleVector;
       vector<Dihedral> dihedralVector;
-      map<int,int> idMap;
+      vector<int>  moleculeLimits;
+
+      bool startNewMolecule;
    public:
       Zmatrix_Scan(string filename, Opls_Scan* oplsScannerRef); // constructor
       ~Zmatrix_Scan();
@@ -28,7 +29,7 @@ class Zmatrix_Scan{
 		Scans in the z-matrix File calls sub-function parseLine
 		@param filename - the name/path of the z-matrix file
 		*/
-      int scanInZmatrix(string filename); 
+      int scanInZmatrix(); 
 		
 		/**
 		Parses out a line from the zmatrix file and gets the atom from the OPLS hash
@@ -47,9 +48,9 @@ class Zmatrix_Scan{
         bool checkFormat(string line);
 
         /**
-        Creates a molecule based on a starting unique ID and the pattern specified
+        Creates a molecule(s)  based on a starting unique ID and the pattern specified
         by the Z-matrix in the scan functions
         @param startingID - first ID for the molecule being built
         */
-        Molecule buildMolecule(int startingID);
+        vector<Molecule> buildMolecule(int startingID);
 };

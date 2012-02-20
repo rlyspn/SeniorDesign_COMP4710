@@ -68,6 +68,10 @@ void testGetCharge(Opls_Scan scan){
     cout << "Testing Opls_Scan.getCharge Completed\n" << endl;
 }
 
+void testZmatrix(Zmatrix_scan){
+    
+}
+
 int main(){
     Opls_Scan scanner(oplsPath);
     cout << scanner.scanInOpls(oplsPath) << endl;
