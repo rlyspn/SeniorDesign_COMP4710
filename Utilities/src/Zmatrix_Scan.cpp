@@ -42,8 +42,6 @@ int Zmatrix_Scan::scanInZmatrix(){
             Angle* angleArray;
             Dihedral* dihedralArray;
 
-            //TODO: CLEAR VECTORS WHEN STARTING A NEW MOLECULE
-
             atomArray = (Atom*) malloc(sizeof(Atom) * atomVector.size());
             bondArray = (Bond*) malloc(sizeof(Bond) * bondVector.size());
             angleArray = (Angle*) malloc(sizeof(Angle) * angleVector.size());
@@ -61,10 +59,18 @@ int Zmatrix_Scan::scanInZmatrix(){
             for (int i = 0; i < dihedralVector.size(); i++){
                 dihedralArray[i] = dihedralVector[i];
             }
+
+            moleculePattern.push_back(createMolecule(-1, atomArray, angleArray, bondArray, dihedralArray, 
+                                 atomVector.size(), angleVector.size(), bondVector.size(), dihedralVector.size()));i
+
+            atomVector.clear();
+            bondVector.clear();
+            angleVector.clear();
+            dihedralVector.clear();
+
+            startNewMolecule = false;
         } 
       }
-        moleculePattern = createMolecule(-1, atomArray, angleArray, bondArray, dihedralArray, 
-                            atomVector.size(), angleVector.size(), bondVector.size(), dihedralVector.size());
 
       zmatrixScanner.close();
    }
@@ -129,7 +135,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         
         //multiple molecule check
         if (oneStringCheck == "TERZ"){
-            moleculeLimits.push_back(atomVector.size() + 1);//add a new molecule beginning point
+            startNewMolecule = true;
         }
     }
 
@@ -149,35 +155,39 @@ bool Zmatrix_Scan::checkFormat(string line, int stringCount){
 //return molecule(s)
 vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
     vector<Molecule> newMolecules = moleculePattern;
-    newMolecule.numOfAtoms = atomVector.size();
+    for (int i = 0; i < newMolecules.size(); i++)
+    {
+        newMolecules[i].numOfAtoms = sizeof(*(newMolecules[i].atoms)) / sizeof(Atom);
+        newMolecules[i].numOfBonds = sizeof(*(newMolecules[i].bonds)) / sizeof(Bond);
+        newMolecules[i].numOfAngles = sizeof(*(newMolecules[i].angles)) / sizeof(Angle);
+        newMolecules[i].numOfDihedrals = sizeof(*(newMolecules[i].dihedrals)) / sizeof(Dihedral);
+    }
 
-    //TODO:FINISH ACCOUNTING FOR MULTIPLE MOLECULES
-    //TODO:REDO MAPPING ON ATOM IDs
     for (int j = 0; j < newMolecules.size(); j++)
     {
-        Molecule newMolecule = 
+        Molecule newMolecule = newMolecules[j];
         //map unique IDs to atoms within structs based on startingID
-        for(int i = 0; i < atomVector.size(); i++){
-            int atomID = newMolecule.atoms[i].id;
-            newMolecule.atoms[i].id = idMap[atomID] + startingID;
+        for(int i = 0; i < newMolecule.numOfAtoms; i++){
+            int atomID = newMolecule.atoms[i].id - 1;
+            newMolecule.atoms[i].id = atomID + startingID;
         }
-        for (int i = 0; i < bondVector.size(); i++){
-            int atom1ID = newMolecule.bonds[i].atom1;
-            int atom2ID = newMolecule.bonds[i].atom2;
+        for (int i = 0; i < newMolecule.numOfBonds; i++){
+            int atom1ID = newMolecule.bonds[i].atom1 - 1;
+            int atom2ID = newMolecule.bonds[i].atom2 - 1;
             
             newMolecule.bonds[i].atom1 = atom1ID + startingID;
             newMolecule.bonds[i].atom2 = atom2ID + startingID;
         }
-        for (int i = 0; i < bondVector.size(); i++){
-            int atom1ID = newMolecule.angles[i].atom1;
-            int atom2ID = newMolecule.angles[i].atom2;
+        for (int i = 0; i < newMolecule.numOfAngles; i++){
+            int atom1ID = newMolecule.angles[i].atom1 - 1;
+            int atom2ID = newMolecule.angles[i].atom2 - 1;
             
             newMolecule.angles[i].atom1 = atom1ID + startingID;
             newMolecule.angles[i].atom2 = atom2ID + startingID;
         }
-        for (int i = 0; i < bondVector.size(); i++){
-            int atom1ID = newMolecule.dihedrals[i].atom1;
-            int atom2ID = newMolecule.dihedrals[i].atom2;
+        for (int i = 0; i < newMolecule.numOfDihedrals; i++){
+            int atom1ID = newMolecule.dihedrals[i].atom1 - 1;
+            int atom2ID = newMolecule.dihedrals[i].atom2 - 1;
             
             newMolecule.dihedrals[i].atom1 = atom1ID + startingID;
             newMolecule.dihedrals[i].atom2 = atom2ID + startingID;

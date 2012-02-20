@@ -18,7 +18,6 @@ class Zmatrix_Scan{
       vector<Bond> bondVector;
       vector<Angle> angleVector;
       vector<Dihedral> dihedralVector;
-      vector<int>  moleculeLimits;
 
       bool startNewMolecule;
    public:
