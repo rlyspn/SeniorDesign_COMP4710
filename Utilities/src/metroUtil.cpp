@@ -35,6 +35,7 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     atom.z = z;
     atom.sigma = 0.0;
     atom.epsilon = 0.0;
+    atom.charge = 0.0;
 
     return atom;
 }
@@ -129,7 +130,9 @@ void writePDB(Atom *atoms, Environment enviro, string filename){
     outputFile.open(filename.c_str());
     for(int i = 0; i < enviro.numOfAtoms; i++){
         Atom currentAtom = atoms[i];
-        outputFile << "ATOM " << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z << endl;
+        //ATOM name number residueName residueNumber chain x y z occupancy temp
+        outputFile << "ATOM " << "NAME" << currentAtom.id << "residueName residueNumber chain "
+            << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z << endl;
     }
     outputFile.close();
 }

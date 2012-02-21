@@ -154,7 +154,26 @@ void generatePoints(Atom *atoms, Environment *enviro){
 
     //free(hostDoubles);
 }
- 
+
+//Calculates the energy of system using molecules
+double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
+    
+    Atom *atoms = (Atom *) malloc(sizeof(Atom) * enviro->numOfAtoms);
+    int atomIndex = 0;
+    for(int i = 0; i < enviro->numOfMolecules; i++){
+        Molecule currentMolecule = molecules[i];
+        for(int j = 0; j < currentMolecule.numOfAtoms; j++){
+            atoms[atomIndex] = currentMolecule.atoms[j];
+            //printf("%d, %f, %f, %f, %f, %f\n", atoms[atomIndex].id, atoms[atomIndex].x,
+            //        atoms[atomIndex].y, atoms[atomIndex].z, atoms[atomIndex].sigma,
+             //       atoms[atomIndex].epsilon);
+            atomIndex++;
+        }
+    }
+
+    return calcEnergyWrapper(atoms, enviro);
+}
+
 double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     //setup CUDA storage
     double totalEnergy = 0.0;
@@ -189,6 +208,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     for(int i = 0; i < N; i++){
         totalEnergy += energySum_host[i];
         //printf("energySum_host[%d] = %f\n", i, energySum_host[i]);
+        //printf("totalEnergy: %f\n" , totalEnergy);
     }
 
     //cleanup
@@ -249,6 +269,41 @@ if (cacheIndex == 0)
 energySum[blockIdx.x] = cache[0];
 */
 
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventAccessibleSurfaceArea(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventDistributionFunction(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double atomAtomDistributionFunction(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double solventSolventTotalEnergy(){
+    return -1.f;
+}
+
+/**
+  This is currently a stub pending information from Dr. Acevedo
+*/
+double soluteSolventTotalEnergy(){
+    return -1.f;
 }
 
 

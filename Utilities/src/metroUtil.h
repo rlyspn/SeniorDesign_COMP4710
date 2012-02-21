@@ -38,6 +38,7 @@ struct Environment{
     double temperature; // the temperature of the box
 
     int numOfAtoms; // the number of atoms in the environment
+    int numOfMolecules; // the number of molecues in the environment
 };
 
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms);
