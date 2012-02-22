@@ -130,8 +130,8 @@ void writePDB(Atom *atoms, Environment enviro, string filename){
     outputFile.open(filename.c_str());
     for(int i = 0; i < enviro.numOfAtoms; i++){
         Atom currentAtom = atoms[i];
-        //ATOM name number residueName residueNumber chain x y z occupancy temp
-        outputFile << "ATOM " << "NAME" << currentAtom.id << "residueName residueNumber chain "
+        //ATOM number name residueName residueNumber chain x y z occupancy temp
+        outputFile << "ATOM " << currentAtom.id << " NAME" << " residueName residueNumber chain "
             << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z << endl;
     }
     outputFile.close();

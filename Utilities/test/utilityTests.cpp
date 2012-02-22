@@ -1,6 +1,8 @@
 #include "../src/Opls_Scan.h"
 #include <assert.h>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -97,6 +99,49 @@ void testGetFourier(Opls_Scan scan){
     cout << "Testing Opls_Scan.getVvalues Completed\n" << endl;
 }
 
+void testPDBoutput(){
+    Atom* pdbAtoms;
+    Environment pdbEnviro;
+
+    pdbAtoms = (Atom *) malloc(sizeof(Atom)*2);
+    pdbEnviro.numOfAtoms = 2;
+
+    for (int i = 0; i < 2; i++){
+        pdbAtoms[i].x = 1.1 * (i + 1);
+        pdbAtoms[i].y = 2.2 * (i + 1);
+        pdbAtoms[i].z = 3.3 * (i + 1);
+
+        pdbAtoms[i].id = i;
+    }
+
+    string fileName = "test.pdb";
+
+    writePDB(pdbAtoms, pdbEnviro, fileName);
+    
+    string lines[2];
+    ifstream readPDB;
+    readPDB.open(fileName.c_str());
+
+    for (int i = 0; i < 2; i++){
+        stringstream ss;
+        string tokens[9];
+
+        getline(readPDB, lines[i]);
+        ss << lines[i];
+        ss >> tokens[0] >> tokens[1] >> tokens[2] >> tokens[3] >> tokens[4] >> tokens[5] >> tokens[6] >> tokens[7] >> tokens[8];
+
+        assert(tokens[0].compare("ATOM") == 0);
+        assert(atoi(tokens[1].c_str()) == pdbAtoms[i].id);
+        assert(atof(tokens[6].c_str()) == pdbAtoms[i].x);
+        assert(atof(tokens[7].c_str()) == pdbAtoms[i].y);
+        assert(atof(tokens[8].c_str()) == pdbAtoms[i].z);
+    }
+
+    readPDB.close();
+
+    cout << "testPDBoutput successful." << endl;
+}
+
 int main(){
     Opls_Scan scanner(oplsPath);
     cout << scanner.scanInOpls(oplsPath) << endl;
@@ -107,4 +152,5 @@ int main(){
     testGetEpsilon(scanner);
     testGetCharge(scanner);
     testGetFourier(scanner);
+    testPDBoutput();
 }
