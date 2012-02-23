@@ -15,7 +15,7 @@ path/to/opls/file
 #path to z matrix file
 path/to/zMatrix/file
 #path to state input
-path/to/state/input 
+path/to/state/input
 #path to state output
 path/to/State/output
 #pdb output path

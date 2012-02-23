@@ -7,7 +7,7 @@ using namespace std;
 
 class Config_Scan{
     private:
-        Environment* enviro;
+        Environment enviro;
         string configpath;
         long numOfSteps;
         string oplsuaparPath;
@@ -34,7 +34,7 @@ class Config_Scan{
             getters
         */
 
-        Environment* getEnviro();
+        Environment getEnviro();
 
         string getConfigPath();
 

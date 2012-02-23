@@ -5,36 +5,40 @@ Config_Scan::Config_Scan(string configPath){
 }
 
 void Config_Scan::readInConfig(){
+    cout << "Reading configuration file." << endl;
     ifstream configscanner(configpath.c_str());
     if (! configscanner.is_open()){
+        cout << "Configuration file failed to open." << endl;
+    
         return;
     }
     else {
+        cout << "Configuration file opened successfully." << endl;
         string line;
         int currentLine = 1;
         while (configscanner.good()){
             getline(configscanner,line);
             switch(currentLine){
                 case 2:
-                    enviro->x = atof(line.c_str());
+                    enviro.x = atof(line.c_str());
                     break;
                 case 3:
-                    enviro->y = atof(line.c_str());
+                    enviro.y = atof(line.c_str());
                     break;
                 case 4:
-                    enviro->z = atof(line.c_str());
+                    enviro.z = atof(line.c_str());
                     break;
                 case 6:
-                    enviro->temperature = atof(line.c_str());
+                    enviro.temperature = atof(line.c_str());
                     break;
                 case 8:
-                    enviro->maxTranslation = atof(line.c_str());
+                    enviro.maxTranslation = atof(line.c_str());
                     break;
                 case 10:
                     numOfSteps = atoi(line.c_str());
                     break;
                 case 12:
-                    enviro->numOfMolecules = atoi(line.c_str());
+                    enviro.numOfMolecules = atoi(line.c_str());
                     break;
                 case 14:
                     oplsuaparPath = line;
@@ -63,7 +67,7 @@ void Config_Scan::readInConfig(){
     }
 }
 
-Environment* Config_Scan::getEnviro(){
+Environment Config_Scan::getEnviro(){
     return enviro;
 }
 
