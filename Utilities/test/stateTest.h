@@ -44,4 +44,9 @@ void runStateRead_WriteTests();
   tests the functionality that writes out and reads in the state.
 */
 void testWriteOutReadInState();
+
+/**
+  Runs the tests that test state input and output
+*/
+void runStateTests();
 #endif //STATETEST_H

@@ -105,6 +105,7 @@ void testGetEnvironmentFromLine(){
 }
 
 void testWriteOutReadInState(){
+    printf("Testing State read and write.\n");
     Atom atom1 = createAtom(0, 1.23f, 2.3f, 4.3f, 5.6f, 4.34f);
     Atom atom2 = createAtom(1, 3.22f, 4.2f, 6.5f, 8.6f, 6.36f);
     Atom atom3 = createAtom(2, 2.21f, 7.4f, 2.8f, 4.2f, 2.22f);
@@ -133,7 +134,8 @@ void testWriteOutReadInState(){
     Molecule molecArray[2] = {molec1, molec2};
     string filename = "STATE_TEST.state";
     printState(&enviro, molecArray, 2, filename);
-    
+
+    printf("State written out\n");
 
     /*==================
       STATE HAS BEEN WRITTEN OUT
@@ -197,12 +199,13 @@ void testWriteOutReadInState(){
 
 
 
-void runStateRead_WriteTests(){
+void runStateTests(){
     testGetDihedralFromLine();
     testGetAtomFromLine();
     testGetBondFromLine();
     testGetAngleFromLine();
     testGetEnvironmentFromLine();
     testWriteOutReadInState();
+
 }
 

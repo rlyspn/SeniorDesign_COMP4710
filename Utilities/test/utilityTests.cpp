@@ -1,4 +1,5 @@
 #include "../src/Opls_Scan.h"
+#include "stateTest.h"
 #include <assert.h>
 #include <iostream>
 #include <sstream>
@@ -141,6 +142,7 @@ void testPDBoutput(){
 }
 
 int main(){
+    runStateTests();
     Opls_Scan scanner(oplsPath);
     int returnInt = scanner.scanInOpls(oplsPath);
     if(returnInt == -1){
