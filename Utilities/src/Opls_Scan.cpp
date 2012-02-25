@@ -1,4 +1,7 @@
 #include "Opls_Scan.h"
+#include <exception>
+#include <stdexcept>
+
 //constructor
 Opls_Scan::Opls_Scan(string filename){
    fileName = filename;
@@ -6,7 +9,6 @@ Opls_Scan::Opls_Scan(string filename){
 
 Opls_Scan::~Opls_Scan(){
     oplsTable.clear();
-	 vTable.clear();
 }
 
 //scans in the opls file and adds entries to the table

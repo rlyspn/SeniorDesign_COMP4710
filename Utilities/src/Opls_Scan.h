@@ -1,19 +1,12 @@
-#ifndef OPLS_SCAN_H
-#define OPLS_SCAN_H
-
 // writing on a text file
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <map>
-#include <exception>
-#include <stdexcept>
-
 #include "metroUtil.h"
 using namespace std;
 
-//Struct that holds the Fourier Coefficents 
 struct Fourier
 {
     double vValues[4];
@@ -24,6 +17,15 @@ class Opls_Scan{
       map<string,Atom> oplsTable; //"HashTable" the holds all opls ref.
 		map<string,Fourier> vTable;
       string fileName;
+   public:
+      Opls_Scan(string filename); // constructor
+      ~Opls_Scan();
+		
+		/**
+		Scans in the opls File calls sub-function addLineToTable
+		@param filename - the name/path of the opls file
+		*/
+      int scanInOpls(string filename); 
 		
 		/**
 		Parses out a line from the opls file and gets (sigma, epsiolon, charge)
@@ -40,17 +42,7 @@ class Opls_Scan{
 		@param line -  a line from the opls file
 		*/
 		int checkFormat(string line);
-
-   public:
-      Opls_Scan(string filename); // constructor
-      ~Opls_Scan();
 		
-		/**
-		Scans in the opls File calls sub-function addLineToTable
-		@param filename - the name/path of the opls file
-		*/
-      int scanInOpls(string filename); 
-						
 		/**
 		Returns an Atom struct based on the hashNum (1st col) in Z matrix file
 		The Atom struct has -1 for x,y,z and has the hashNum for an id. 
@@ -78,11 +70,15 @@ class Opls_Scan{
 		double getCharge(string hashNum);
 		
 		/**
-		Returns the Fourier Coefficents (v values) based on the hashNum (1st col) in Z matrix file
+		Returns the V values value based on the hashNum (1st col) in Z matrix file
 		@param hashNum -  the hash number (1st col) in Z matrix file
 		*/
+
 		Fourier getFourier(string hashNum);
 
 };
 
-#endif // OPLS_SCAN_H
+
+
+
+
