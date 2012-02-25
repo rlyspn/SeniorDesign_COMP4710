@@ -21,8 +21,9 @@ demo: cudaUtil metroUtil $(PARA)$(SRC)inClassDemo.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)inClassDemo.cu -o $(BIN)$(DEMOEXE)	
 
 metroSim: cudaUtil metroUtil zMatrix OPLSScan $(PARA)$(SRC)metropolisSimulation.cu
-	$(NV) $(FLAGS) $(BIN)*.o $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)$(EXE) 
-	#$(NV) $(FLAGS) $(BIN)metroCudaUtil.o  $(BIN)metroUtil.o  $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)$(EXE) 
+	#$(NV) $(FLAGS) $(BIN)*.o $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)$(EXE) 
+	$(NV) $(FLAGS) -c $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)metropolisSimulation.o 
+	$(NV) $(FLAGS) $(BIN)metroUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o -o $(BIN)$(EXE) 
 
 kryptonSim: cudaUtil metroUtil $(PARA)$(SRC)kryptonSimulation.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)kryptonSimulation.cu -o $(BIN)$(KRYPTONEXE)	

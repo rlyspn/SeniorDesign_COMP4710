@@ -130,7 +130,20 @@ int main(int argc, char ** argv){
 
     //Simulation will run based on the zMatrix and configuration Files
     if(flag.compare("-z") == 0){
+        enviro = configScan.getEnviro();
         printf("Running simulation based on zMatrixFile\n");
+        Opls_Scan oplsScan (configScan.getOplsusaparPath());
+        Zmatrix_Scan zMatrixScan (configScan.getZmatrixPath(), &oplsScan);
+        zMatrixScan.scanInZmatrix();
+        molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
+        int moleculeIndex = 0;
+        while(moleculeIndex < enviro.numOfMolecules){
+            vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
+            for(int j = 0; j < molecVec.size(); j++){
+                molecules[moleculeIndex] = molecVec[j];
+                moleculeIndex++;
+            }
+        }
     }       
     //Simulation will run based on the state file
     else if(flag.compare("-s") == 0){
