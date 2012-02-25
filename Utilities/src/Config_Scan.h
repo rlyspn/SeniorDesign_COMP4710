@@ -1,3 +1,6 @@
+#ifndef OPLS_SCAN_H
+#define OPLS_SCAN_H
+
 #include <iostream>
 #include <fstream>
 #include "metroUtil.h"
@@ -51,3 +54,5 @@ class Config_Scan{
         string getPdbOutputPath();
 
 };
+
+#endif //OPLS_SCAN_H

@@ -1,11 +1,17 @@
+#ifndef ZMATRIX_SCAN_H
+#define ZMATRIX_SCAN_H
+
 // writing on a text file
+#include <vector>
+#include <exception>
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <vector>
-#include "metroUtil.h"
 #include "Opls_Scan.h"
+#include "metroUtil.h"
 using namespace std;
 
 
@@ -54,3 +60,4 @@ class Zmatrix_Scan{
         */
         vector<Molecule> buildMolecule(int startingID);
 };
+#endif // ZMATRIX_SCAN_H

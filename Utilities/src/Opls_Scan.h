@@ -1,9 +1,15 @@
+#ifndef OPLS_SCAN_H
+#define OPLS_SCAN_H
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <map>
+#include <exception>
+#include <stdexcept>
+
 #include "metroUtil.h"
 using namespace std;
 
@@ -79,7 +85,4 @@ class Opls_Scan{
 
 };
 
-
-
-
-
+#endif // OPLS_SCAN_H

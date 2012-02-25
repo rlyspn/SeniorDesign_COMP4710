@@ -1,7 +1,4 @@
 #include "Zmatrix_Scan.h"
-#include <vector>
-#include <exception>
-#include <stdexcept>
 
 //constructor
 Zmatrix_Scan::Zmatrix_Scan(string filename, Opls_Scan* oplsScannerRef){

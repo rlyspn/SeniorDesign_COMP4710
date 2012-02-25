@@ -1,7 +1,4 @@
 #include "Opls_Scan.h"
-#include <exception>
-#include <stdexcept>
-
 //constructor
 Opls_Scan::Opls_Scan(string filename){
    fileName = filename;
