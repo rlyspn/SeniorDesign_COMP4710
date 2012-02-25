@@ -18,17 +18,8 @@ Date: 1/26/2012
 Author(s): Riley Spahn, Seth Wooten, Alexander Luchs
 */
 
-// maximum translation of an atom per move in any direction
-const double maxTranslation = 0.5;
-// the tempeature of the simulation (Kelvin)
-const double temperature = 298.15;
-// the sigma value of krypton used in the LJ simulation
-const double kryptonSigma = 3.624;
-// the epsilon value of krypton used in the LJ simulation
-const double kryptonEpsilon = 0.317;
 // boltzman constant
 const double kBoltz = 1.987206504191549E-003;
-const double kT = kBoltz * temperature;
 // lengths of the box in each dimension
 const double xLength = 10.0;
 const double yLength = xLength;
@@ -44,6 +35,9 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
     int accepted = 0; // number of accepted moves
     int rejected = 0; // number of rejected moves
     int numberOfAtoms = enviro->numOfAtoms;
+    double maxTranslation = enviro->maxTranslation;
+    double temperature = enviro->temperature;
+    double kT = kBoltz * temperature;
 
     Atom *atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
     //create array of atoms from arrays in the molecules
@@ -67,7 +61,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
         const double deltaZ = randomFloat(-maxTranslation, maxTranslation);
 
         atoms[atomIndex] = createAtom((unsigned long) atomIndex, oldAtom.x +
-        deltaX, oldAtom.y + deltaY, oldAtom.z + deltaZ, kryptonSigma, kryptonEpsilon);
+        deltaX, oldAtom.y + deltaY, oldAtom.z + deltaZ, oldAtom.sigma, oldAtom.epsilon);
         //here ===== could be its own function
 
         double newEnergy = calcEnergyWrapper(molecules, enviro);
@@ -163,8 +157,6 @@ int main(int argc, char ** argv){
         for(int i = 0; i < molecVec.size(); i++){
             molecules[i] = molecVec[i];
         }
-        
-
     }
     else{
         printf("Error, Unknown flag.\n");
