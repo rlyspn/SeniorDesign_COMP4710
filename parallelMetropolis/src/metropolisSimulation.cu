@@ -130,11 +130,14 @@ int main(int argc, char ** argv){
 
     //Simulation will run based on the zMatrix and configuration Files
     if(flag.compare("-z") == 0){
-        enviro = configScan.getEnviro();
         printf("Running simulation based on zMatrixFile\n");
+        //get environment from the config file
+        enviro = configScan.getEnviro();
+        //set up Opls scan and zMatrixScan
         Opls_Scan oplsScan (configScan.getOplsusaparPath());
         Zmatrix_Scan zMatrixScan (configScan.getZmatrixPath(), &oplsScan);
         zMatrixScan.scanInZmatrix();
+        //Convert molecule vectors into an array
         molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
         int moleculeIndex = 0;
         while(moleculeIndex < enviro.numOfMolecules){
