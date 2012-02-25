@@ -1,5 +1,5 @@
-#ifndef OPLS_SCAN_H
-#define OPLS_SCAN_H
+#ifndef CONFIG_SCAN_H
+#define CONFIG_SCAN_H
 
 #include <iostream>
 #include <fstream>
@@ -55,4 +55,4 @@ class Config_Scan{
 
 };
 
-#endif //OPLS_SCAN_H
+#endif //CONFIG_SCAN_H

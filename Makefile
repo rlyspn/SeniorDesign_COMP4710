@@ -20,10 +20,10 @@ all: dir tests kryptonSim utilTests metroSim
 demo: cudaUtil metroUtil $(PARA)$(SRC)inClassDemo.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)inClassDemo.cu -o $(BIN)$(DEMOEXE)	
 
-metroSim: cudaUtil metroUtil zMatrix OPLSScan $(PARA)$(SRC)metropolisSimulation.cu
+metroSim: cudaUtil metroUtil configScan zMatrix OPLSScan $(PARA)$(SRC)metropolisSimulation.cu
 	#$(NV) $(FLAGS) $(BIN)*.o $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)$(EXE) 
 	$(NV) $(FLAGS) -c $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)metropolisSimulation.o 
-	$(NV) $(FLAGS) $(BIN)metroUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o -o $(BIN)$(EXE) 
+	$(NV) $(FLAGS) $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroCudaUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o -o $(BIN)$(EXE) 
 
 kryptonSim: cudaUtil metroUtil $(PARA)$(SRC)kryptonSimulation.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)kryptonSimulation.cu -o $(BIN)$(KRYPTONEXE)	
@@ -45,6 +45,9 @@ zMatrix: $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 
 OPLSScan: $(UTIL)$(SRC)Opls_Scan.cpp $(UTIL)$(SRC)Opls_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Opls_Scan.cpp -o $(BIN)Opls_Scan.o
+
+configScan: $(UTIL)$(SRC)Config_Scan.cpp $(UTIL)$(SRC)Config_Scan.h
+	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Config_Scan.cpp -o $(BIN)Config_Scan.o
 
 utilTests: metroUtil zMatrix OPLSScan
 	$(NV) $(BIN)metroUtil.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
