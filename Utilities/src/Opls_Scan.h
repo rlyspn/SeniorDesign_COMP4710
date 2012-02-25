@@ -1,3 +1,6 @@
+#ifndef OPLS_SCAN_H
+#define OPLS_SCAN_H
+
 // writing on a text file
 #include <iostream>
 #include <fstream>
@@ -78,7 +81,4 @@ class Opls_Scan{
 
 };
 
-
-
-
-
+#endif //OPLS_SCAN_H
