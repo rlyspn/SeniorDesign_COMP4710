@@ -20,10 +20,6 @@ Author(s): Riley Spahn, Seth Wooten, Alexander Luchs
 
 // boltzman constant
 const double kBoltz = 1.987206504191549E-003;
-// lengths of the box in each dimension
-const double xLength = 10.0;
-const double yLength = xLength;
-const double zLength = xLength;
 
 
 double randomFloat(const double start, const double end)

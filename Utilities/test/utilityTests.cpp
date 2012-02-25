@@ -143,7 +143,6 @@ void testPDBoutput(){
 int main(){
     Opls_Scan scanner(oplsPath);
     int returnInt = scanner.scanInOpls(oplsPath);
-    cout << "Finished Scanning File." << endl;
     if(returnInt == -1){
         cout << "Failed to open Opls file." << endl;
     }
