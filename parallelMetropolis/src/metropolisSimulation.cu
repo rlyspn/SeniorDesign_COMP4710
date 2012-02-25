@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include <time.h>
+#include <vector>
 #include "../../Utilities/src/metroUtil.h"
 #include "../../Utilities/src/Config_Scan.h"
 #include "../../Utilities/src/Opls_Scan.h"
@@ -39,10 +40,20 @@ double randomFloat(const double start, const double end)
     return (end-start) * (double(rand()) / RAND_MAX) + start;
 }
 
-void runParallel(Atom *atoms, Environment *enviro, int numberOfSteps){
+void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
     int accepted = 0; // number of accepted moves
     int rejected = 0; // number of rejected moves
     int numberOfAtoms = enviro->numOfAtoms;
+
+    Atom *atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
+    //create array of atoms from arrays in the molecules
+    int atomIndex = 0;
+    for(int i = 0; i < enviro->numOfMolecules; i++){
+        for(int j = 0; j < molecules[i].numOfAtoms; j++){
+            atoms[atomIndex] = molecules[i].atoms[j];
+            atomIndex++;
+        }
+    }
 
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
@@ -59,7 +70,7 @@ void runParallel(Atom *atoms, Environment *enviro, int numberOfSteps){
         deltaX, oldAtom.y + deltaY, oldAtom.z + deltaZ, kryptonSigma, kryptonEpsilon);
         //here ===== could be its own function
 
-        double newEnergy = calcEnergyWrapper(atoms, enviro);
+        double newEnergy = calcEnergyWrapper(molecules, enviro);
 
         bool accept = false;
 
@@ -107,18 +118,41 @@ int main(int argc, char ** argv){
     string flag = argv[1];
     //path to the configuration file
     string configPath = argv[2];
+    
     //Configuration file scanner
     Config_Scan configScan(configPath);
     configScan.readInConfig();
 
+    //Environment for the simulation
+    Environment enviro;
+    long simulationSteps = configScan.getSteps();
+    Molecule *molecules;
+
+    //Simulation will run based on the zMatrix and configuration Files
     if(flag.compare("-z") == 0){
         printf("Running simulation based on zMatrixFile\n");
     }       
+    //Simulation will run based on the state file
     else if(flag.compare("-s") == 0){
         printf("Running simulation based on state file\n");
+        //get path for the state file
+        string statePath = configScan.getStatePath();
+        //get environment from the state file
+        enviro = readInEnvironment(statePath);
+        //get vector of molecules from the state file
+        vector<Molecule> molecVec = readInMolecules(statePath);
+        enviro.numOfMolecules = molecVec.size();
+        //convert vector of molecules to array
+        molecules = (Molecule *)malloc(sizeof(Molecule) * molecVec.size());
+        for(int i = 0; i < molecVec.size(); i++){
+            molecules[i] = molecVec[i];
+        }
+        
+
     }
     else{
         printf("Error, Unknown flag.\n");
         exit(1);
     }
+    runParallel(molecules, &enviro, simulationSteps); 
 }
