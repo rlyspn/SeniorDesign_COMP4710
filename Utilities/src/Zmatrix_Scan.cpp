@@ -81,7 +81,11 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
     stringstream ss;
      
 	 //check if line contains correct format
-	 if(checkFormat(line, 11)){
+	 int format = checkFormat(line);
+	 //cout <<"-- " <<line<<endl; //DEBUG
+	 //cout <<"Format: "<< format << endl; //DEBUG
+	 
+	 if(format == 1){
 	    //read in strings in columns and store the data in temporary variables
         ss << line;    	
         ss >> atomID >> atomType >> oplsA >> oplsB >> bondWith >> bondDistance >> angleWith >> angleMeasure >> dihedralWith >> dihedralMeasure;
@@ -108,6 +112,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
             lineBond.atom1 = lineAtom.id;
             lineBond.atom2 = atoi(bondWith.c_str());
             lineBond.distance = atof(bondDistance.c_str());
+				lineBond.variable = false;
             bondVector.push_back(lineBond);
         }
 
@@ -115,6 +120,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
             lineAngle.atom1 = lineAtom.id;
             lineAngle.atom2 = atoi(angleWith.c_str());
             lineAngle.value = atof(angleMeasure.c_str());
+				lineAngle.variable = false;
             angleVector.push_back(lineAngle);
         }
 
@@ -122,40 +128,157 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
             lineDihedral.atom1 = lineAtom.id;
             lineDihedral.atom2 = atoi(dihedralWith.c_str());
             lineDihedral.value = atof(dihedralMeasure.c_str());
+				lineDihedral.variable = false;
             dihedralVector.push_back(lineDihedral);
         }
     }
-    else if(checkFormat(line, 1)){
-        string oneStringCheck;
-        ss << line;
-        ss >> oneStringCheck;
-        
-        //multiple molecule check
-        if (oneStringCheck == "TERZ"){
-            startNewMolecule = true;
-        }
-    }
+    else if(format == 2)
+        startNewMolecule = true;
+	 else if(format == 3){
+	     startNewMolecule = true;
+	 }
+	 if (previousFormat >= 3 && format == -1)
+	     handleZAdditions(line, previousFormat);
+	 		  
+	     
+	 previousFormat = format;
 }
 
 // check if line contains the right format...
-bool Zmatrix_Scan::checkFormat(string line, int stringCount){ 
+int Zmatrix_Scan::checkFormat(string line){
+    int format =-1; 
     stringstream iss(line);
-	 int count =0;
-	 string word;
-	 while (iss >> word)
-	     count ++;
-	 return (count == stringCount);
+	 stringstream iss2(line);
+	 string atomType, someLine;
+	 int atomID, oplsA, oplsB, bondWith, angleWith,dihedralWith,extra;
+	 double bondDistance, angleMeasure, dihedralMeasure;	 
+	 
+	 // check if it is the normal 11 line format
+	  if( iss >> atomID >> atomType >> 
+	      oplsA >> oplsB >> 
+			bondWith >> bondDistance >> 
+			angleWith >> angleMeasure >> 
+			dihedralWith >> dihedralMeasure >> extra)
+			format = 1;
+	 else{
+	     someLine = line;
+	     if(someLine.find("TERZ")!=string::npos)
+		      format = 2;
+		  else if(someLine.find("Geometry Variations follow")!=string::npos)
+		      format = 3;
+		  else if(someLine.find("Variable Bonds follow")!=string::npos)
+		      format = 4;
+		  else if(someLine.find("Additional Bonds follow")!=string::npos)
+		      format = 5;
+		  else if(someLine.find("Harmonic Constraints follow")!=string::npos)
+		      format = 6;
+		  else if(someLine.find("Variable Bond Angles follow")!=string::npos)
+		      format = 7;
+		  else if(someLine.find("Additional Bond Angles follow")!=string::npos)
+		      format = 8;
+		  else if(someLine.find("Variable Dihedrals follow")!=string::npos)
+		      format = 9;
+		  else if(someLine.find("Additional Dihedrals follow")!=string::npos)
+		      format = 10;
+		 else if(someLine.find("Domain Definitions follow")!=string::npos)
+		      format = 11;
+	 	 else if(someLine.find("Final blank line")!=string::npos)
+		      format = -2;  
+	 }	 
+	 return format;
 }
 
-//return molecule(s)
+void Zmatrix_Scan::handleZAdditions(string line, int cmdFormat){
+    vector<int> atomIds;
+	 int id;
+	 stringstream tss(line.substr(0,15) );
+	 if(line.find("AUTO")!=string::npos){
+	 }
+	 else{
+        while(tss >> id){
+            atomIds.push_back(id);
+            if(tss.peek()=='-'||tss.peek()==','||tss.peek()==' ')
+                tss.ignore();
+        }
+		  int start, end=0;
+		  if( atomIds.size()== 1){
+		     start = atomIds[0];
+			  end = atomIds[0]; 
+			  }
+		  else if(atomIds.size() == 2){
+		     start = atomIds[0]; end = atomIds[1];
+			 }
+		  //cout << "start: " << start<< " end: " <<end <<endl; //DEBUG
+            switch(cmdFormat){
+	             case 3:
+    				// Geometry Variations follow 
+		              break;
+    		      case 4:
+    				// Variable Bonds follow
+					    for(int i=0; i< moleculePattern[0].numOfBonds; i++){
+					        if(  moleculePattern[0].bonds[i].atom1 >= start &&  moleculePattern[0].bonds[i].atom1 <= end){
+							       //cout << "Bond Atom1: "<<  moleculePattern[0].bonds[i].atom1 << " : " <<  moleculePattern[0].bonds[i].variable<<endl;//DEBUG
+			                   moleculePattern[0].bonds[i].variable = true;
+									 }
+						 }
+    		          break;
+    		      case 5:
+    				//  Additional Bonds follow 
+    		          break;
+    		      case 6:
+    				// Harmonic Constraints follow 
+    		          break;
+    		      case 7:
+    				//  Variable Bond Angles follow
+					    for(int i=0; i<  moleculePattern[0].numOfAngles; i++){
+					        if(  moleculePattern[0].angles[i].atom1 >= start && moleculePattern[0].angles[i].atom1 <= end){
+							      //cout << "Angle Atom1: "<<  moleculePattern[0].angles[i].atom1 << " : " << moleculePattern[0].angles[i].variable << endl;//DEBUG
+					            moleculePattern[0].angles[i].variable = true;
+									}
+						 }
+    		          break;
+    		      case 8:
+    				// Additional Bond Angles follow
+    		          break;
+    		      case 9:
+    				// Variable Dihedrals follow
+					    for(int i=0; i< moleculePattern[0].numOfDihedrals; i++){
+					        if(  moleculePattern[0].dihedrals[i].atom1 >= start &&  moleculePattern[0].dihedrals[i].atom1 <= end ) {
+							      //cout << "Dihedral Atom1: "<<  moleculePattern[0].dihedrals[i].atom1 << " : " <<   moleculePattern[0].dihedrals[i].variable << endl;//DEBUG
+					            moleculePattern[0].dihedrals[i].variable = true;
+									}
+						 }
+    		          break;
+    		      case 10:
+    				//  Domain Definitions follow
+    		          break;
+					default:
+					//Do nothing
+					    break;
+		  }
+	 }
+}
+
+//return a vector of all the molecules scanned in.
+//resed the id's of all molecules and atoms to be the location in Atom array
+//based on the startingID. Atoms adn Molecules should be stored one behind the other.
 vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
     vector<Molecule> newMolecules = moleculePattern;
-    for (int i = 0; i < newMolecules.size(); i++)
+    
+	 for (int i = 0; i < newMolecules.size(); i++)
     {
+	     if(i == 0){
+		      newMolecules[i].id = startingID;
+		  }
+		  else
+		      newMolecules[i].id = newMolecules[i-1].id + newMolecules[i-1].numOfAtoms;  
+		  		
+	     /* //Why is this needed? these values are added and set in the createMolecule() function
+	     //called earlier
         newMolecules[i].numOfAtoms = sizeof(*(newMolecules[i].atoms)) / sizeof(Atom);
         newMolecules[i].numOfBonds = sizeof(*(newMolecules[i].bonds)) / sizeof(Bond);
         newMolecules[i].numOfAngles = sizeof(*(newMolecules[i].angles)) / sizeof(Angle);
-        newMolecules[i].numOfDihedrals = sizeof(*(newMolecules[i].dihedrals)) / sizeof(Dihedral);
+        newMolecules[i].numOfDihedrals = sizeof(*(newMolecules[i].dihedrals)) / sizeof(Dihedral);*/
     }
 
     for (int j = 0; j < newMolecules.size(); j++)

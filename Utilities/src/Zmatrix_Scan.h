@@ -26,6 +26,7 @@ class Zmatrix_Scan{
       vector<Dihedral> dihedralVector;
 
       bool startNewMolecule;
+		int previousFormat;
    public:
       Zmatrix_Scan(string filename, Opls_Scan* oplsScannerRef); // constructor
       ~Zmatrix_Scan();
@@ -51,8 +52,14 @@ class Zmatrix_Scan{
 		@param line -  a line from the zmatrix file
         @param stringCount - number of strings in a line you're looking at
 		*/
-        bool checkFormat(string line, int stringCount);
+        int checkFormat(string line);
 
+        /**
+		  Handles the additional stuff listed at the bottom of the Z-matrix file
+		  @param line -   a line from the zmatrix file
+		  @param cmdFormat- the int representing the format for which the line applies :see checkFormat
+		  */
+        void handleZAdditions(string line, int cmdFormat);
         /**
         Creates a molecule(s)  based on a starting unique ID and the pattern specified
         by the Z-matrix in the scan functions

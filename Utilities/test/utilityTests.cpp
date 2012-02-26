@@ -1,11 +1,15 @@
 #include "../src/Opls_Scan.h"
+#include "../src/Zmatrix_Scan.h"
 #include <assert.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <cmath>
 
 using namespace std;
+
 string oplsPath = "../Utilities/bossFiles/oplsua.par";
+
 string atomNumber1 = "418";
 string atomNumber2 = "1";
 string atomNumber3 = "53";
@@ -140,22 +144,193 @@ void testPDBoutput(){
     cout << "testPDBoutput successful." << endl;
 }
 
+bool asserTwoBool(bool b1, bool b2){
+    if(b1 && b2)
+        return true;
+    else if(!b1 && !b2)
+        return true;
+    else
+        return false;
+}
+
+bool percentDifference(double d1, double d2){
+    double difference = d2-d1;
+    double average = (d2+d1)/d2;
+    double percentDiff = (difference/average)*100;
+    //cout <<"Percent Diff: " << percentDiff << endl;;
+    return percentDiff < 3;
+}
+
+//Test Z-matrix files using mesh.z
+Molecule createMeshZMolecules(Opls_Scan scanner){
+
+       
+    Atom *atomPtr = new Atom[8];
+    Bond *bondPtr = new Bond[7];
+    Angle *anglePtr = new Angle[6];
+    Dihedral *dihedPtr = new Dihedral[5];
+
+    //1 S    200    0    0    0.000000   0    0.000000   0    0.000000        0  
+    Atom atom1=scanner.getAtom("200");
+    atom1.id=1;
+
+    // 2 DUM   -1    0    1    0.500000   0    0.000000   0    0.000000        0
+    Atom atom2=createAtom(2,-1,-1,-1,-1,-1,-1);
+	 Bond bond2=createBond(2,1,0.5,false);
+	     
+    //3 DUM   -1    0    2    0.500000   1   90.000000   0    0.000000        0 
+    Atom atom3=createAtom(3,-1,-1,-1,-1,-1,-1);
+	 Bond bond3=createBond(3,2,0.5,false);
+	 Angle angle3=createAngle(3,1,90,false);
+	 
+	 //4 hH    204    0    1    1.336532   2   90.000000   3  180.000000        0    
+    Atom atom4=scanner.getAtom("204");
+        atom4.id=4;
+	 Bond bond4=createBond(4,1,1.336532,true);
+	 Angle angle4=createAngle(4,2,90,false);
+	 Dihedral dihed4=createDihedral(4,3,180,false);
+	 
+    //5 C    217    0    1    1.811119   4   96.401770   2  180.000000        0
+    Atom atom5=scanner.getAtom("217");
+        atom5.id=5;
+	 Bond bond5=createBond(5,1,1.8119,true);
+	 Angle angle5=createAngle(5,4,96.401770,true);
+	 Dihedral dihed5=createDihedral(5,2,180,false);
+	 
+    //6 HC   140    0    5    1.090187   1  110.255589   4  179.999947        0
+	 Atom atom6=scanner.getAtom("140");
+        atom6.id=6;
+	 Bond bond6=createBond(6,5,1.090187,true);
+	 Angle angle6=createAngle(6,1,110.255589,true);
+	 Dihedral dihed6=createDihedral(6,4,179.999947,true);    
+
+    //7 HC   140    0    5    1.090135   6  108.527646   1  121.053891        0
+	 Atom atom7=scanner.getAtom("140");
+        atom7.id=7;
+	 Bond bond7=createBond(7,5,1.090135,true);
+	 Angle angle7=createAngle(7,6,108.527646,true);
+	 Dihedral dihed7=createDihedral(7,1,121.053891,true);    
+
+    //8 HC   140    0    5    1.090135   6  108.527646   1  238.946114        0
+	 Atom atom8=scanner.getAtom("140");
+        atom8.id=8;
+	 Bond bond8=createBond(8,5,1.090135,true);
+	 Angle angle8=createAngle(8,6,108.527646,true);
+	 Dihedral dihed8=createDihedral(8,1,238.946114,true);
+	 
+
+        atomPtr[0]=atom1;  atomPtr[1]=atom2; atomPtr[2]=atom3; atomPtr[3]=atom4; atomPtr[4]=atom5; atomPtr[5]=atom6; atomPtr[6]=atom7; atomPtr[7]=atom8;
+        bondPtr[0]=bond2; bondPtr[1]=bond3; bondPtr[2]=bond4; bondPtr[3]=bond5; bondPtr[4]=bond6; bondPtr[5]=bond7; bondPtr[6]=bond8;
+        anglePtr[0]=angle3; anglePtr[1]=angle4; anglePtr[2]=angle5; anglePtr[3]=angle6; anglePtr[4]=angle7; anglePtr[5]=angle8;
+        dihedPtr[0]=dihed4; dihedPtr[1]=dihed5; dihedPtr[2]=dihed6; dihedPtr[3]=dihed7; dihedPtr[4]=dihed8;
+ 
+ 
+	 return createMolecule(1,atomPtr,anglePtr,bondPtr,dihedPtr,8,6,7,5);
+}
+
+//checks to see if two molecule objects are equal
+//uses assert
+void compareTestMolecules(Molecule molec1, Molecule molec2){
+    // check if id's are equal
+    //cout << "-- Moleculde1 id: " << molec1.id << " Moleculde2 id: " << molec2.id << endl; 
+    assert(molec1.id == molec2.id);	 
+
+	 //check atoms
+        //cout << endl<< "Testing Atoms Array" << endl;
+        //cout << "-- Moleculde1 # atoms: " << molec1.numOfAtoms << " Moleculde2 # atoms: " << molec2.numOfAtoms << endl;
+	 assert(molec1.numOfAtoms == molec2.numOfAtoms);
+	 for(int i=0; i< molec1.numOfAtoms; i++){
+            //cout << "-- Atom1#: " << i <<endl;
+            //cout << "-- Atom1 Id: " << molec1.atoms[i].id << " Atom2 Id: " << molec2.atoms[i].id <<endl;
+            //cout << "-- Atom1 charge: " << molec1.atoms[i].charge << " Atom2 charge: " << molec2.atoms[i].charge <<endl;
+            //cout << "-- Atom1 sigma: " << molec1.atoms[i].sigma << " Atom2 sigma: " << molec1.atoms[i].sigma <<endl;
+            //cout << "-- Atom1 epsilon: " << molec1.atoms[i].epsilon << " Atom2 epsilon: " << molec1.atoms[i].epsilon<<endl;
+	     
+            assert(molec1.atoms[i].id==molec2.atoms[i].id);
+	     assert(percentDifference(molec1.atoms[i].charge,molec2.atoms[i].charge));
+	     assert(percentDifference(molec1.atoms[i].sigma,molec2.atoms[i].sigma));
+	     assert(percentDifference(molec1.atoms[i].epsilon,molec2.atoms[i].epsilon));		
+	 }
+	 //check bond
+        //cout << endl << "Testing Bonds Array" << endl;
+        //cout << "-- Moleculde1 # bonds: " << molec1.numOfBonds << " Moleculde2 # bonds: " << molec2.numOfBonds << endl;
+	 assert(molec1.numOfBonds == molec2.numOfBonds);
+	 for(int i=0; i< molec1.numOfBonds; i++){
+            //cout << "-- Atom1#: " << i <<endl;
+            //cout << "-- Atom1 atom1: " << molec1.bonds[i].atom1 << " Atom2 atom1: " << molec2.bonds[i].atom1 <<endl;
+            //cout << "-- Atom1 atom2: " << molec1.bonds[i].atom2 << " Atom2 atom2: " << molec2.bonds[i].atom2 <<endl;
+            //cout << "-- Atom1 distance: " << molec1.bonds[i].distance << " Atom2 distance: " << molec2.bonds[i].distance <<endl;
+            //cout << "-- Atom1 variable: " << molec1.bonds[i].variable << " Atom2 variable: " << molec2.bonds[i].variable <<endl;
+                         
+	     assert(molec1.bonds[i].atom1 == molec2.bonds[i].atom1);
+	     assert(molec1.bonds[i].atom2 == molec2.bonds[i].atom2);
+	     assert(percentDifference(molec1.bonds[i].distance, molec2.bonds[i].distance));
+	     assert(asserTwoBool( molec1.bonds[i].variable,molec2.bonds[i].variable));
+	 }
+	 //check angles
+        //cout << endl << "Testing Angles Array" << endl;
+        //cout << "-- Moleculde1 # angles: " << molec1.numOfBonds << " Moleculde2 # angles: " << molec2.numOfBonds << endl;
+	 assert(molec1.numOfAngles == molec2.numOfAngles);
+	 for(int i=0; i< molec1.numOfAngles; i++){
+            //cout << "-- Atom1#: " << i <<endl;
+            //cout << "-- Atom1 atom1: " << molec1.angles[i].atom1 << " Atom2 atom1: " << molec2.angles[i].atom1 <<endl;
+            //cout << "-- Atom1 atom2: " << molec1.angles[i].atom2 << " Atom2 atom2: " << molec2.angles[i].atom2 <<endl;
+            //cout << "-- Atom1 distance: " << molec1.angles[i].value << " Atom2 distance: " << molec2.angles[i].value <<endl;
+            //cout << "-- Atom1 variable: " << molec1.angles[i].variable << " Atom2 variable: " << molec2.angles[i].variable <<endl;
+	     
+            assert(molec1.angles[i].atom1 == molec2.angles[i].atom1);
+	     assert(molec1.angles[i].atom2 == molec2.angles[i].atom2);
+	     assert(percentDifference(molec1.angles[i].value,molec2.angles[i].value));
+	     assert(asserTwoBool(molec1.angles[i].variable, molec2.angles[i].variable));
+	 }
+	  //check dihederals
+        //cout << endl << "Testing Dihederals Array" << endl;
+        //cout << "-- Moleculde1 # dihedrals: " << molec1.numOfBonds << " Moleculde2 # dihedrals: " << molec2.numOfBonds << endl;
+	 assert(molec1.numOfAngles == molec2.numOfAngles);
+
+	 assert(molec1.numOfDihedrals == molec2.numOfDihedrals);
+	 for(int i=0; i< molec1.numOfDihedrals; i++){
+            //cout << "-- Atom1#: " << i <<endl;
+            //cout << "-- Atom1 atom1: " << molec1.dihedrals[i].atom1 << " Atom2 atom1: " << molec2.dihedrals[i].atom1 <<endl;
+            //cout << "-- Atom1 atom2: " << molec1.dihedrals[i].atom2 << " Atom2 atom2: " << molec2.dihedrals[i].atom2 <<endl;
+            //cout << "-- Atom1 distance: " << molec1.dihedrals[i].value << " Atom2 distance: " << molec2.dihedrals[i].value <<endl;
+            //cout << "-- Atom1 variable: " << molec1.dihedrals[i].variable << " Atom2 variable: " << molec2.dihedrals[i].variable <<endl;
+
+	     assert(molec1.dihedrals[i].atom1 == molec2.dihedrals[i].atom1);
+	     assert(molec1.dihedrals[i].atom2 == molec2.dihedrals[i].atom2);
+	     assert(percentDifference(molec1.dihedrals[i].value,molec2.dihedrals[i].value));
+	     assert(asserTwoBool(molec1.dihedrals[i].variable,molec2.dihedrals[i].variable));
+	 }
+}
+
+void testZmatrixScanner(Opls_Scan opls){
+    cout << endl <<"Testing Z-matrix scanner\n"<< endl;
+    string zMatrixFile1 = "../Utilities/bossFiles/mesh.z";
+    Molecule meshZ= createMeshZMolecules(opls);
+    Zmatrix_Scan zScan (zMatrixFile1,&opls);
+    vector<Molecule> scannedInMolecules;
+	 int open = zScan.scanInZmatrix();
+	 if(open == -1)
+	     cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
+    else
+	     scannedInMolecules = zScan.buildMolecule(1);
+    //cout << "-- # Scanned in molecules:" << scannedInMolecules.size() <<endl;
+    assert(scannedInMolecules.size()==1);
+    compareTestMolecules(scannedInMolecules[0],meshZ);  
+    cout << "Testing Z-matrix scanner Completed\n"<< endl;  
+}
+
+
 int main(){
     Opls_Scan scanner(oplsPath);
-    int returnInt = scanner.scanInOpls(oplsPath);
-    if(returnInt == -1){
-        cout << "Failed to open Opls file." << endl;
-    }
-    else{
-   
-    /**
+    cout << scanner.scanInOpls(oplsPath) << endl;
+    cout << "Reading file: " << oplsPath << endl;
+    
     testGetAtom(scanner);
     testGetSigma(scanner);
     testGetEpsilon(scanner);
     testGetCharge(scanner);
     testGetFourier(scanner);
-    */
-
-    }
-    //testPDBoutput();
+    testPDBoutput();
+    testZmatrixScanner(scanner);
 }
