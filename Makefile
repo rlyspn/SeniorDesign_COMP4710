@@ -40,20 +40,26 @@ cudaUtil: metroUtil $(PARA)$(SRC)metroCudaUtil.cuh $(PARA)$(SRC)metroCudaUtil.cu
 metroUtil: OPLSScan zMatrix $(UTIL)$(SRC)metroUtil.h $(UTIL)$(SRC)metroUtil.cpp
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)metroUtil.cpp -o $(BIN)metroUtil.o
 
+utilTests: stateTest configTest metroUtil zMatrix OPLSScan
+	$(NV) $(BIN)configurationTest.o $(BIN)Config_Scan.o $(BIN)stateTest.o $(BIN)metroUtil.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
+
 zMatrix: $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Zmatrix_Scan.cpp -o $(BIN)Zmatrix_Scan.o
 
 OPLSScan: $(UTIL)$(SRC)Opls_Scan.cpp $(UTIL)$(SRC)Opls_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Opls_Scan.cpp -o $(BIN)Opls_Scan.o
 
+stateTest: metroUtil $(UTIL)$(TST)stateTest.cpp $(UTIL)$(TST)stateTest.h 
+	$(NV) $(FLAGS) -c $(UTIL)$(TST)stateTest.cpp -o $(BIN)stateTest.o
+
 configScan: $(UTIL)$(SRC)Config_Scan.cpp $(UTIL)$(SRC)Config_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Config_Scan.cpp -o $(BIN)Config_Scan.o
 
-utilTests: metroUtil zMatrix OPLSScan
-	$(NV) $(BIN)metroUtil.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
+configTest: configScan $(UTIL)$(TST)configurationTest.h $(UTIL)$(TST)configurationTest.cpp
+	$(NV) $(FLAGS) -c $(UTIL)$(TST)configurationTest.cpp -o $(BIN)configurationTest.o
 
 dir:
 	mkdir -p $(BIN)
 
 clean:
-	rm -f $(BIN)*
+	rm -f $(BIN)*.o

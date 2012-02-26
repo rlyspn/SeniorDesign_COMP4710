@@ -1,5 +1,7 @@
 #include "../src/Opls_Scan.h"
 #include "../src/Zmatrix_Scan.h"
+#include "stateTest.h"
+#include "configurationTest.h"
 #include <assert.h>
 #include <iostream>
 #include <sstream>
@@ -7,8 +9,7 @@
 #include <cmath>
 
 using namespace std;
-
-string oplsPath = "../Utilities/bossFiles/oplsua.par";
+string oplsPath = "oplsua.par";
 
 string atomNumber1 = "418";
 string atomNumber2 = "1";
@@ -322,10 +323,19 @@ void testZmatrixScanner(Opls_Scan opls){
 
 
 int main(){
+    runStateTests();
+    testConfigScan();    
+    
     Opls_Scan scanner(oplsPath);
     cout << scanner.scanInOpls(oplsPath) << endl;
     cout << "Reading file: " << oplsPath << endl;
-    
+
+    int returnInt = scanner.scanInOpls(oplsPath);
+    cout << "Attempting to open " << oplsPath << endl;
+    if(returnInt == -1){
+        cout << "Failed to open Opls file." << endl;
+        exit(0);
+    }
     testGetAtom(scanner);
     testGetSigma(scanner);
     testGetEpsilon(scanner);
@@ -333,4 +343,5 @@ int main(){
     testGetFourier(scanner);
     testPDBoutput();
     testZmatrixScanner(scanner);
+
 }
