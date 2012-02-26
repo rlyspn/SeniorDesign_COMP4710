@@ -160,7 +160,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
     for(int i = 0; i < numOfMolecules; i++){
         Molecule currentMol = molecules[i];
         outFile << currentMol.id << endl;
-        outFile << "=" << endl; // delimiter
+        outFile << "= Atoms" << endl; // delimiter
     
         //write atoms
         for(int j = 0; j < currentMol.numOfAtoms; j++){
@@ -169,7 +169,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
                 << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z
                 << " " << currentAtom.sigma << " " << currentAtom.epsilon << endl;
         }
-        outFile << "=" << endl; // delimiter
+        outFile << "= Bonds" << endl; // delimiter
         
         //write bonds
         for(int j = 0; j < currentMol.numOfBonds; j++){
@@ -182,7 +182,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
                 outFile << "0" << endl;
 
         }
-        outFile << "=" << endl; // delimiter
+        outFile << "= Dihedrals" << endl; // delimiter
         for(int j = 0; j < currentMol.numOfDihedrals; j++){
             Dihedral currentDi = currentMol.dihedrals[j];
             outFile << currentDi.atom1 << " " << currentDi.atom2 << " "
@@ -192,7 +192,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
             else
                 outFile << "0" << endl;
         }
-        outFile << "=" << endl; // delimiter
+        outFile << "= Angles" << endl; // delimiter
 
         //print angless
         for(int j = 0; j < currentMol.numOfAngles; j++){

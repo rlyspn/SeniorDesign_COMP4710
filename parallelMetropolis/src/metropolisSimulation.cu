@@ -27,7 +27,7 @@ double randomFloat(const double start, const double end)
     return (end-start) * (double(rand()) / RAND_MAX) + start;
 }
 
-void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
+void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, string stateFile, string pdbFile){
     int accepted = 0; // number of accepted moves
     int rejected = 0; // number of rejected moves
     int numberOfAtoms = enviro->numOfAtoms;
@@ -40,15 +40,17 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
     //create array of atoms from arrays in the molecules
     cout << "Allocated array" << endl;
     int atomIndex = 0;
-    cout << enviro->numOfMolecules << endl;
     for(int i = 0; i < enviro->numOfMolecules; i++){
         for(int j = 0; j < molecules[i].numOfAtoms; j++){
             atoms[atomIndex] = molecules[i].atoms[j];
             atomIndex++;
+            
         }
     }
+
     cout << "array assigned " << endl;
     generatePoints(atoms, enviro);
+    printState(enviro, molecules, enviro->numOfMolecules, "initialState");
     cout << "points generated" << endl;
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
@@ -91,8 +93,10 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
             //restore previous configuration
             atoms[atomIndex] = oldAtom;
         }
-
-
+        if(move % 100 == 0){
+            printState(enviro, molecules, enviro->numOfMolecules, stateFile);
+        }
+//        cout << "Accepted: " << accepted << endl;
     }
 
 }
@@ -153,7 +157,7 @@ int main(int argc, char ** argv){
         int moleculeIndex = 0;
         int atomCount = 0;
         while(moleculeIndex < enviro.numOfMolecules){
-            vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
+            vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
             for(int j = 0; j < molecVec.size(); j++){
                 molecules[moleculeIndex] = molecVec[j];
                 atomCount += molecules[moleculeIndex].numOfAtoms;
@@ -186,5 +190,6 @@ int main(int argc, char ** argv){
     cout << "Beginning simulation with: " << endl;
     printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
             enviro.numOfMolecules, simulationSteps);
-    runParallel(molecules, &enviro, simulationSteps); 
+    runParallel(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
+            configScan.getPdbOutputPath()); 
 }
