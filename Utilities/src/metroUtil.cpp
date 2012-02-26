@@ -518,4 +518,36 @@ vector<Molecule> readInMolecules(string filename){
 
 }
 
+/**
+  Copies by value the values in molec2 into molec1
+*/
+void copyMolecule(Molecule *molec1, Molecule *molec2){
+    molec1->atoms = (Atom *)malloc(sizeof(Atom) * molec2->numOfAtoms);
+    molec1->bonds = (Bond *)malloc(sizeof(Bond) * molec2->numOfBonds);
+    molec1->angles = (Angle *)malloc(sizeof(Angle) * molec2->numOfAngles);
+    molec1->dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * molec2->numOfDihedrals);
+
+    molec1->numOfAtoms = molec2->numOfAtoms;
+    molec1->numOfBonds = molec2->numOfBonds;
+    molec1->numOfAngles = molec2->numOfAngles;
+    molec1->numOfDihedrals = molec2->numOfDihedrals;
+    molec1->id = molec2->id;
+
+    for(int i = 0; i < molec1->numOfAtoms; i++){
+        molec1->atoms[i] = molec2->atoms[2];
+    }
+    for(int i = 0; i < molec1->numOfBonds; i++){
+        molec1->bonds[i] = molec2->bonds[2];
+    }
+    for(int i = 0; i < molec1->numOfAngles; i++){
+        molec1->angles[i] = molec2->angles[2];
+    }
+    for(int i = 0; i < molec1->numOfBonds; i++){
+        molec1->dihedrals[i] = molec2->dihedrals[2];
+    }
+
+
+
+}
+
 

@@ -146,6 +146,7 @@ int main(int argc, char ** argv){
         Opls_Scan oplsScan (oplsPath);
         oplsScan.scanInOpls(oplsPath);
         cout << "Created oplsScan" << endl;
+        
         Zmatrix_Scan zMatrixScan (configScan.getZmatrixPath(), &oplsScan);
         if (zMatrixScan.scanInZmatrix() == -1){
             cerr << "Error, Could not open: " << configScan.getZmatrixPath() << endl;
@@ -157,10 +158,14 @@ int main(int argc, char ** argv){
         int moleculeIndex = 0;
         int atomCount = 0;
         while(moleculeIndex < enviro.numOfMolecules){
-            vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
+            cout << "beginning of loop" << endl;
+            vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
             for(int j = 0; j < molecVec.size(); j++){
-                molecules[moleculeIndex] = molecVec[j];
+                Molecule molec2 = molecVec[j];
+                molecules[moleculeIndex] = molec2;
+                cout << "AtomIndex ID: " << molecVec[j].atoms[0].id << endl;
                 atomCount += molecules[moleculeIndex].numOfAtoms;
+                cout << "MolecIndex " << moleculeIndex << endl;
                 moleculeIndex++;
             }
         }

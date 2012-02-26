@@ -139,6 +139,13 @@ Molecule createMolecule(int id,
                         int atomCount);
 
 /**
+    Copies by value molec2 into molec1
+    @param molec1 - the destination molecule
+    @param molec2 - the source molecule
+ */
+void copyMolecule(Molecule *molec1, Molecule *molec2);
+
+/**
   Prints the position of all the atoms in an array.
   @param atoms - array of atoms
   @param count - number of atoms
