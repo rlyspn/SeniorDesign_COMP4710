@@ -1,8 +1,7 @@
-#include <assert.h>
-#include "../src/Config_Scan.h"
+#include "configurationTest.h"
 
 void testConfigScan(){
-    string configPath = "test/configurationTest.txt"; 
+    string configPath = "configurationTest.txt"; 
     string oplsPath = "path/to/opls/file";
     string zMatrixPath = "path/to/zMatrix/file";
     string stateInputPath = "path/to/state/input";
@@ -16,6 +15,7 @@ void testConfigScan(){
     assert(configPath.compare(cs.getConfigPath()) == 0);
     //test opls path
     cout << "Opls path: " << cs.getOplsusaparPath() << endl;
+    cout << "Opls path: " << oplsPath << endl;
     assert(oplsPath.compare(cs.getOplsusaparPath()) == 0);
     //test zmatrix path
     cout << "Zmatrix path: " << cs.getZmatrixPath() << endl;

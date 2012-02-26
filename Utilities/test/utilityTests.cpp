@@ -1,5 +1,6 @@
 #include "../src/Opls_Scan.h"
 #include "stateTest.h"
+#include "configurationTest.h"
 #include <assert.h>
 #include <iostream>
 #include <sstream>
@@ -143,21 +144,19 @@ void testPDBoutput(){
 
 int main(){
     runStateTests();
+    testConfigScan();    
+    
     Opls_Scan scanner(oplsPath);
     int returnInt = scanner.scanInOpls(oplsPath);
     if(returnInt == -1){
         cout << "Failed to open Opls file." << endl;
     }
     else{
-   
-    /**
     testGetAtom(scanner);
     testGetSigma(scanner);
     testGetEpsilon(scanner);
     testGetCharge(scanner);
     testGetFourier(scanner);
-    */
-
     }
-    //testPDBoutput();
+    testPDBoutput();
 }
