@@ -7,7 +7,7 @@
 #include <fstream>
 
 using namespace std;
-string oplsPath = "../Utilities/bossFiles/oplsua.par";
+string oplsPath = "oplsua.par";
 string atomNumber1 = "418";
 string atomNumber2 = "1";
 string atomNumber3 = "53";
@@ -148,15 +148,14 @@ int main(){
     
     Opls_Scan scanner(oplsPath);
     int returnInt = scanner.scanInOpls(oplsPath);
+    cout << "Attempting to open " << oplsPath << endl;
     if(returnInt == -1){
         cout << "Failed to open Opls file." << endl;
     }
-    else{
     testGetAtom(scanner);
     testGetSigma(scanner);
     testGetEpsilon(scanner);
     testGetCharge(scanner);
     testGetFourier(scanner);
-    }
     testPDBoutput();
 }
