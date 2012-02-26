@@ -39,14 +39,21 @@ void testConfigScan(){
     double maxTranslation = .5;
     int numberOfSteps = 10000;
     int numberOfMolecules = 500;
-
+    
+    cout << "x = " << x << endl;
     assert(enviro.x == x);
+    cout << "y = " << y << endl;
     assert(enviro.y == y);
+    cout << "z = " << z << endl;
     assert(enviro.z == z);
 
+    cout << "maxTranslation = " << enviro.maxTranslation << endl;
     assert(enviro.maxTranslation == maxTranslation);
+    cout << "numOfMolecules = " << enviro.numOfMolecules << endl;
     assert(enviro.numOfMolecules == numberOfMolecules);
+    cout << "temperature = " << enviro.temperature << endl;
     assert(enviro.temperature == temperature);
+    cout << "numberOfSteps = " << cs.getSteps() << endl;
     assert(cs.getSteps() == numberOfSteps); 
 
     cout << "Configuration test succeeded." << endl;

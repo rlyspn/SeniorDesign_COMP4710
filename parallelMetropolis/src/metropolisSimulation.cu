@@ -34,17 +34,22 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
     double maxTranslation = enviro->maxTranslation;
     double temperature = enviro->temperature;
     double kT = kBoltz * temperature;
-
-    Atom *atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
+    
+    Atom *atoms;
+    atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
     //create array of atoms from arrays in the molecules
+    cout << "Allocated array" << endl;
     int atomIndex = 0;
+    cout << enviro->numOfMolecules << endl;
     for(int i = 0; i < enviro->numOfMolecules; i++){
         for(int j = 0; j < molecules[i].numOfAtoms; j++){
             atoms[atomIndex] = molecules[i].atoms[j];
             atomIndex++;
         }
     }
-
+    cout << "array assigned " << endl;
+    generatePoints(atoms, enviro);
+    cout << "points generated" << endl;
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
 
@@ -99,16 +104,23 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps){
         -s run from state input file specified in the configuration file
 */
 int main(int argc, char ** argv){
+    
+    
+    /***===================
+      TEMPORARILY WITHOUT COMMANDLINE ARGUMENTS
     if(argc != 3){
         printf("Error.  Expected metro flag path.\n");
         exit(1);
     }
-    
+
     // z matrix or state flage
     string flag = argv[1];
     //path to the configuration file
     string configPath = argv[2];
-    
+    ====================*/
+   
+    string flag = "-z";
+    string configPath = "bin/demoConfiguration.txt";
     //Configuration file scanner
     Config_Scan configScan(configPath);
     configScan.readInConfig();
@@ -123,20 +135,33 @@ int main(int argc, char ** argv){
         printf("Running simulation based on zMatrixFile\n");
         //get environment from the config file
         enviro = configScan.getEnviro();
+        cout << "Configuration Path = " << configScan.getConfigPath() << endl;
         //set up Opls scan and zMatrixScan
-        Opls_Scan oplsScan (configScan.getOplsusaparPath());
+        cout << "OPLS File Path = " << configScan.getOplsusaparPath() << endl;
+        string oplsPath = configScan.getOplsusaparPath();
+        Opls_Scan oplsScan (oplsPath);
+        oplsScan.scanInOpls(oplsPath);
+        cout << "Created oplsScan" << endl;
         Zmatrix_Scan zMatrixScan (configScan.getZmatrixPath(), &oplsScan);
-        zMatrixScan.scanInZmatrix();
+        if (zMatrixScan.scanInZmatrix() == -1){
+            cerr << "Error, Could not open: " << configScan.getZmatrixPath() << endl;
+            exit(1);
+        }
+        cout << "Opened zMatrix file" << endl;
         //Convert molecule vectors into an array
         molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
         int moleculeIndex = 0;
+        int atomCount = 0;
         while(moleculeIndex < enviro.numOfMolecules){
             vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
             for(int j = 0; j < molecVec.size(); j++){
                 molecules[moleculeIndex] = molecVec[j];
+                atomCount += molecules[moleculeIndex].numOfAtoms;
                 moleculeIndex++;
             }
         }
+        enviro.numOfAtoms = atomCount;
+        cout << "Created Molecule Array" << endl;
     }       
     //Simulation will run based on the state file
     else if(flag.compare("-s") == 0){
@@ -158,5 +183,8 @@ int main(int argc, char ** argv){
         printf("Error, Unknown flag.\n");
         exit(1);
     }
+    cout << "Beginning simulation with: " << endl;
+    printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
+            enviro.numOfMolecules, simulationSteps);
     runParallel(molecules, &enviro, simulationSteps); 
 }

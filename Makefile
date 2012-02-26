@@ -21,7 +21,6 @@ demo: cudaUtil metroUtil $(PARA)$(SRC)inClassDemo.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)inClassDemo.cu -o $(BIN)$(DEMOEXE)	
 
 metroSim: cudaUtil metroUtil configScan zMatrix OPLSScan $(PARA)$(SRC)metropolisSimulation.cu
-	#$(NV) $(FLAGS) $(BIN)*.o $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)$(EXE) 
 	$(NV) $(FLAGS) -c $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)metropolisSimulation.o 
 	$(NV) $(FLAGS) $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroCudaUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o -o $(BIN)$(EXE) 
 
