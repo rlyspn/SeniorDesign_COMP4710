@@ -89,8 +89,8 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
 	    //read in strings in columns and store the data in temporary variables
         ss << line;    	
         ss >> atomID >> atomType >> oplsA >> oplsB >> bondWith >> bondDistance >> angleWith >> angleMeasure >> dihedralWith >> dihedralMeasure;
-	 
-        //setup structures for permanent encapsulation
+	     
+		  //setup structures for permanent encapsulation
         Atom lineAtom;
         Bond lineBond;
         Angle lineAngle;
@@ -263,52 +263,80 @@ void Zmatrix_Scan::handleZAdditions(string line, int cmdFormat){
 //resed the id's of all molecules and atoms to be the location in Atom array
 //based on the startingID. Atoms adn Molecules should be stored one behind the other.
 vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
-    vector<Molecule> newMolecules = moleculePattern;
-    
+    vector<Molecule> newMolecules;
+	 //need a deep copy of molecule pattern incase it is modified.
+	  for (int i = 0; i < moleculePattern.size(); i++){
+	      Atom *atomCopy = new Atom[ moleculePattern[i].numOfAtoms] ;
+			for(int a=0; a <  moleculePattern[i].numOfAtoms ; a++)
+			    atomCopy[a]=  moleculePattern[i].atoms[a];
+	      
+			Bond *bondCopy = new Bond[ moleculePattern[i].numOfBonds] ;
+			for(int a=0; a <  moleculePattern[i].numOfBonds ; a++)
+			    bondCopy[a]=  moleculePattern[i].bonds[a];
+
+			Angle *angleCopy = new Angle[ moleculePattern[i].numOfAngles] ;
+			for(int a=0; a <  moleculePattern[i].numOfAngles ; a++)
+			    angleCopy[a]=  moleculePattern[i].angles[a];
+
+	      Dihedral *dihedCopy = new Dihedral[ moleculePattern[i].numOfDihedrals];
+			for(int a=0; a <  moleculePattern[i].numOfDihedrals ; a++)
+			    dihedCopy[a]=  moleculePattern[i].dihedrals[a];
+
+			
+			Molecule molecCopy = createMolecule(-1,atomCopy, angleCopy, bondCopy, dihedCopy, 
+			                                     moleculePattern[i].numOfAtoms, 
+															 moleculePattern[i].numOfAngles,
+															 moleculePattern[i].numOfBonds,
+															 moleculePattern[i].numOfDihedrals);
+															 
+		   newMolecules.push_back(molecCopy);	      
+	  }
+	 
+	 // cout << "ZMATRIX-- startingID: " << startingID <<endl;    
+	 //cout << "ZMATRIX-- newMolecules size: " <<  moleculePattern.size() <<endl;
+	
+	 //cout << "ZMATRIX-- newMolecules[i] ID: " <<  newMolecules[0].id <<endl;
 	 for (int i = 0; i < newMolecules.size(); i++)
     {
 	     if(i == 0){
 		      newMolecules[i].id = startingID;
 		  }
 		  else
-		      newMolecules[i].id = newMolecules[i-1].id + newMolecules[i-1].numOfAtoms;  
-		  		
-	     /* //Why is this needed? these values are added and set in the createMolecule() function
-	     //called earlier
-        newMolecules[i].numOfAtoms = sizeof(*(newMolecules[i].atoms)) / sizeof(Atom);
-        newMolecules[i].numOfBonds = sizeof(*(newMolecules[i].bonds)) / sizeof(Bond);
-        newMolecules[i].numOfAngles = sizeof(*(newMolecules[i].angles)) / sizeof(Angle);
-        newMolecules[i].numOfDihedrals = sizeof(*(newMolecules[i].dihedrals)) / sizeof(Dihedral);*/
+		      newMolecules[i].id = newMolecules[i-1].id + newMolecules[i-1].numOfAtoms; 
     }
-
+	 
     for (int j = 0; j < newMolecules.size(); j++)
     {
         Molecule newMolecule = newMolecules[j];
         //map unique IDs to atoms within structs based on startingID
-        for(int i = 0; i < newMolecule.numOfAtoms; i++){
+        for(int i = 0; i < newMolecules[j].numOfAtoms; i++){
+		      //cout << "ZMATRIX-- newMolecules[j].atoms[i] ID: " <<  moleculePattern[j].atoms[i].id <<endl;
             int atomID = newMolecule.atoms[i].id - 1;
+				//cout << "ZMATRIX-- atomID: " <<  atomID <<endl;
+				//cout << "ZMATRIX-- atomID memory Loc: " << &newMolecules[j].atoms[i]  <<endl;
             newMolecule.atoms[i].id = atomID + startingID;
+				//cout << "ZMATRIX-- newMolecule.atoms[i] ID + Molec ID: " <<  newMolecule.atoms[i].id <<endl;
         }
         for (int i = 0; i < newMolecule.numOfBonds; i++){
             int atom1ID = newMolecule.bonds[i].atom1 - 1;
             int atom2ID = newMolecule.bonds[i].atom2 - 1;
             
-            newMolecule.bonds[i].atom1 = atom1ID + startingID;
-            newMolecule.bonds[i].atom2 = atom2ID + startingID;
+            newMolecule.bonds[i].atom1 = atom1ID + newMolecule.id;
+            newMolecule.bonds[i].atom2 = atom2ID + newMolecule.id;
         }
         for (int i = 0; i < newMolecule.numOfAngles; i++){
             int atom1ID = newMolecule.angles[i].atom1 - 1;
             int atom2ID = newMolecule.angles[i].atom2 - 1;
             
-            newMolecule.angles[i].atom1 = atom1ID + startingID;
-            newMolecule.angles[i].atom2 = atom2ID + startingID;
+            newMolecule.angles[i].atom1 = atom1ID + newMolecule.id;
+            newMolecule.angles[i].atom2 = atom2ID + newMolecule.id;
         }
         for (int i = 0; i < newMolecule.numOfDihedrals; i++){
             int atom1ID = newMolecule.dihedrals[i].atom1 - 1;
             int atom2ID = newMolecule.dihedrals[i].atom2 - 1;
             
-            newMolecule.dihedrals[i].atom1 = atom1ID + startingID;
-            newMolecule.dihedrals[i].atom2 = atom2ID + startingID;
+            newMolecule.dihedrals[i].atom1 = atom1ID + newMolecule.id;
+            newMolecule.dihedrals[i].atom2 = atom2ID + newMolecule.id;
         }
     }
 

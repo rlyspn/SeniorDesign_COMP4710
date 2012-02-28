@@ -35,7 +35,7 @@ void testGetAtom(Opls_Scan scan){
     Atom atom2 = scan.getAtom(atomNumber2);
     Atom atom3 = scan.getAtom(atomNumber3);
     
-    printf("%f, %f, %f\n", atom1.charge, atom1.sigma, atom1.epsilon);
+    //printf("%f, %f, %f\n", atom1.charge, atom1.sigma, atom1.epsilon);
     assert(atom1.charge == atom1Charge);
     assert(atom1.sigma == atom1Sigma);
     assert(atom1.epsilon == atom1Epsilon);
@@ -313,13 +313,49 @@ void testZmatrixScanner(Opls_Scan opls){
 	 int open = zScan.scanInZmatrix();
 	 if(open == -1)
 	     cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
-    else
-	     scannedInMolecules = zScan.buildMolecule(1);
+    else{
+	     for(int x=0; x<5; x++)
+	         scannedInMolecules = zScan.buildMolecule(1);
+		  }
     //cout << "-- # Scanned in molecules:" << scannedInMolecules.size() <<endl;
     assert(scannedInMolecules.size()==1);
     compareTestMolecules(scannedInMolecules[0],meshZ);  
     cout << "Testing Z-matrix scanner Completed\n"<< endl;  
 }
+
+void testZmatrixScanner_multpleSingle(Opls_Scan opls){
+    
+	 cout << "Testing Z-matrix scanner with reuse type1\n"<< endl;
+    string zMatrixFile1 = "../Utilities/bossFiles/testZ.z";
+	 Zmatrix_Scan zScan (zMatrixFile1,&opls);
+	 vector<Molecule> scannedInMolecules;
+	 int open = zScan.scanInZmatrix();
+	 if(open == -1){
+	     cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
+		  assert(open >= 0 );
+	 }
+		 
+	 Molecule* myMolecArray = new Molecule[5];
+	 Molecule molec;
+	 for(int i=0; i<5; i++){
+	     scannedInMolecules = zScan.buildMolecule(i);
+		   //cout << "-- # Scanned in molecules:" << scannedInMolecules.size() <<endl;
+         assert(scannedInMolecules.size()==1);
+			molec = scannedInMolecules[0];
+			//cout << "\nIndex: " << i << endl;
+			//cout << "Molecule Id: "<< molec.id << endl;
+			assert(molec.id == i);
+			assert(molec.numOfAtoms==1);
+			assert(molec.atoms[0].id == i);
+			// cout << "# of Atoms: " << molec.numOfAtoms <<endl;
+// 			for(int j=0; j< molec.numOfAtoms; j++){
+// 			    cout<< "Atom Id: " << molec.atoms[j].id << endl;
+// 			}	     
+	 } 
+	 cout << "Testing Z-matrix scanner with reuse type1 Complete\n"<< endl;	 
+}
+
+
 
 
 int main(){
@@ -327,9 +363,6 @@ int main(){
     testConfigScan();    
     
     Opls_Scan scanner(oplsPath);
-    cout << scanner.scanInOpls(oplsPath) << endl;
-    cout << "Reading file: " << oplsPath << endl;
-
     int returnInt = scanner.scanInOpls(oplsPath);
     cout << "Attempting to open " << oplsPath << endl;
     if(returnInt == -1){
@@ -343,5 +376,6 @@ int main(){
     testGetFourier(scanner);
     testPDBoutput();
     testZmatrixScanner(scanner);
+	 testZmatrixScanner_multpleSingle(scanner);
 
 }
