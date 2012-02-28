@@ -238,6 +238,9 @@ Environment getEnvironmentFromLine(string line){
             case 3:
                 enviro.numOfAtoms = atoi(tokens);
                 break;
+            case 4:
+                enviro.temperature = atof(tokens);
+                break;
         }
         tokens = strtok(NULL, " ");
         tokenNumber++;

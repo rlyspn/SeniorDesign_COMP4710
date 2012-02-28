@@ -7,9 +7,9 @@
 #max translation
 .5
 #number of steps
-1000
+100
 #number of molecues
-500
+10
 #path to opls file
 bin/oplsua.par
 #path to z matrix file

@@ -50,6 +50,19 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 
     cout << "array assigned " << endl;
     generatePoints(atoms, enviro);
+            int atomTotal = 0;
+            int aIndex = 0;
+            int mIndex = 0;
+            while(atomTotal < numberOfAtoms){
+                molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
+                atomTotal++;
+                aIndex++;
+                if(aIndex == molecules[mIndex].numOfAtoms){
+                    aIndex = 0;
+                    mIndex++;
+                }
+            }
+    
     printState(enviro, molecules, enviro->numOfMolecules, "initialState");
     cout << "points generated" << endl;
     for(int move = 0; move < numberOfSteps; move++){
@@ -94,10 +107,36 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             atoms[atomIndex] = oldAtom;
         }
         if(move % 100 == 0){
+             atomTotal = 0;
+             aIndex = 0;
+             mIndex = 0;
+            while(atomTotal < numberOfAtoms){
+                molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
+                atomTotal++;
+                aIndex++;
+                if(aIndex == molecules[mIndex].numOfAtoms){
+                    aIndex = 0;
+                    mIndex++;
+                }
+            }
+
             printState(enviro, molecules, enviro->numOfMolecules, stateFile);
         }
 //        cout << "Accepted: " << accepted << endl;
     }
+        atomTotal = 0;
+        aIndex = 0;
+        mIndex = 0;
+        while(atomTotal < numberOfAtoms){
+            molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
+            atomTotal++;
+            aIndex++;
+            if(aIndex == molecules[mIndex].numOfAtoms){
+                aIndex = 0;
+                mIndex++;
+            }
+        }
+
 
 }
 
@@ -158,14 +197,28 @@ int main(int argc, char ** argv){
         int moleculeIndex = 0;
         int atomCount = 0;
         while(moleculeIndex < enviro.numOfMolecules){
-            cout << "beginning of loop" << endl;
             vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
+            cout << "Vector size = " << molecVec.size() << endl;
+            //cycle through the number of molecules from the zMatrix
             for(int j = 0; j < molecVec.size(); j++){
-                Molecule molec2 = molecVec[j];
-                molecules[moleculeIndex] = molec2;
-                cout << "AtomIndex ID: " << molecVec[j].atoms[0].id << endl;
+                //Copy data from vector to molecule
+                Molecule molec1 = molecVec[j];
+                molecules[moleculeIndex].atoms = (Atom *)malloc(sizeof(Atom) * molec1.numOfAtoms);
+                molecules[moleculeIndex].numOfAtoms = molec1.numOfAtoms;
+                molecules[moleculeIndex].id = molec1.id;
+                molecules[moleculeIndex].numOfBonds = molec1.numOfBonds;
+                molecules[moleculeIndex].numOfDihedrals = molec1.numOfDihedrals;
+                molecules[moleculeIndex].numOfAngles = molec1.numOfAngles;
+
+                //get the atoms from the vector molecule
+                for(int k = 0; k < molec1.numOfAtoms; k++){
+                    molecules[moleculeIndex].atoms[k] = molec1.atoms[k];
+                }               
+                
+                cout << "AtomIndex ID: " << molecules[moleculeIndex].atoms[0].id << endl;
                 atomCount += molecules[moleculeIndex].numOfAtoms;
                 cout << "MolecIndex " << moleculeIndex << endl;
+               
                 moleculeIndex++;
             }
         }
