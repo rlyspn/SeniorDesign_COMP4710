@@ -121,6 +121,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             }
 
             printState(enviro, molecules, enviro->numOfMolecules, stateFile);
+            cout << "Move: " << move << endl;
+            cout << "new energy: " << newEnergy << endl;
         }
 //        cout << "Accepted: " << accepted << endl;
     }
@@ -198,7 +200,7 @@ int main(int argc, char ** argv){
         int atomCount = 0;
         while(moleculeIndex < enviro.numOfMolecules){
             vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
-            cout << "Vector size = " << molecVec.size() << endl;
+            //cout << "Vector size = " << molecVec.size() << endl;
             //cycle through the number of molecules from the zMatrix
             for(int j = 0; j < molecVec.size(); j++){
                 //Copy data from vector to molecule
@@ -215,9 +217,9 @@ int main(int argc, char ** argv){
                     molecules[moleculeIndex].atoms[k] = molec1.atoms[k];
                 }               
                 
-                cout << "AtomIndex ID: " << molecules[moleculeIndex].atoms[0].id << endl;
+                //cout << "AtomIndex ID: " << molecules[moleculeIndex].atoms[0].id << endl;
                 atomCount += molecules[moleculeIndex].numOfAtoms;
-                cout << "MolecIndex " << moleculeIndex << endl;
+                //cout << "MolecIndex " << moleculeIndex << endl;
                
                 moleculeIndex++;
             }
@@ -249,5 +251,6 @@ int main(int argc, char ** argv){
     printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
             enviro.numOfMolecules, simulationSteps);
     runParallel(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
-            configScan.getPdbOutputPath()); 
+            configScan.getPdbOutputPath());
+    
 }

@@ -7,7 +7,7 @@
 #max translation
 .5
 #number of steps
-100
+1000
 #number of molecues
 10
 #path to opls file
