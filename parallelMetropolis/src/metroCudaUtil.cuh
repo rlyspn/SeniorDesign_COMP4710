@@ -128,7 +128,7 @@ __device__ double calcBlending(double d1, double d2);
   @param molecules - the list of molecules to be searched
   @param return - returns the id of the molecule
 */
-__double__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules);
+__device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules);
 
 /****************************
   Begin Stubs for outputs
