@@ -119,7 +119,7 @@ void setupMakePeriodic(){
 }
 
 
-
+/**
 void setupWrapBox(){
  srand(time(NULL));
     int numberOfTests = 128;
@@ -170,6 +170,7 @@ void setupWrapBox(){
 
 
 }
+*/
 
 void setupCalc_lj(){
     double kryptonSigma = 3.624;
@@ -354,7 +355,7 @@ int main(){
     setupCalc_lj();
     setupGetIndexTest();
     setupMakePeriodic();
-    setupWrapBox();
+//    setupWrapBox();
     testGeneratePoints();
     testCalcEnergy();
     testCalcEnergyWithMolecules();

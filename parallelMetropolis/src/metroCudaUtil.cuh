@@ -34,7 +34,7 @@ __device__ double makePeriodic(double x, const double box);
   @param x - the value to continue on the other side of the box
   @param box - the length of one side of the box (cube)
 */
-__device__ double wrapBox(double x, double box);
+double wrapBox(double x, double box);
 
 /**
   Calculates the energy between 2 atoms

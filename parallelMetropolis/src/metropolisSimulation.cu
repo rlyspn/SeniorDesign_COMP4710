@@ -77,8 +77,10 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         const double deltaY = randomFloat(-maxTranslation, maxTranslation);
         const double deltaZ = randomFloat(-maxTranslation, maxTranslation);
 
-        atoms[atomIndex] = createAtom((unsigned long) atomIndex, oldAtom.x +
-        deltaX, oldAtom.y + deltaY, oldAtom.z + deltaZ, oldAtom.sigma, oldAtom.epsilon);
+        double newX = wrapBox(oldAtom.x + deltaX, enviro->x);
+        double newY = wrapBox(oldAtom.y + deltaY, enviro->y);
+        double newZ = wrapBox(oldAtom.z + deltaZ, enviro->z);
+        atoms[atomIndex] = createAtom((unsigned long) atomIndex,newX, newY, newZ, oldAtom.sigma, oldAtom.epsilon);
         //here ===== could be its own function
 
         double newEnergy = calcEnergyWrapper(molecules, enviro);
