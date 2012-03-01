@@ -326,7 +326,7 @@ void testZmatrixScanner(Opls_Scan opls){
 
 void testZmatrixScanner_multpleSingle(Opls_Scan opls){
     
-	 cout << "Testing Z-matrix scanner with reuse type1\n"<< endl;
+	 cout << "Testing Z-matrix scanner with reuse 500 molec : 1 atom each\n"<< endl;
     string zMatrixFile1 = "../Utilities/bossFiles/testZ.z";
 	 Zmatrix_Scan zScan (zMatrixFile1,&opls);
 	 vector<Molecule> scannedInMolecules;
@@ -335,10 +335,8 @@ void testZmatrixScanner_multpleSingle(Opls_Scan opls){
 	     cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
 		  assert(open >= 0 );
 	 }
-		 
-	 Molecule* myMolecArray = new Molecule[5];
 	 Molecule molec;
-	 for(int i=0; i<5; i++){
+	 for(int i=0; i<500; i++){
 	     scannedInMolecules = zScan.buildMolecule(i);
 		   //cout << "-- # Scanned in molecules:" << scannedInMolecules.size() <<endl;
          assert(scannedInMolecules.size()==1);
@@ -353,7 +351,41 @@ void testZmatrixScanner_multpleSingle(Opls_Scan opls){
 // 			    cout<< "Atom Id: " << molec.atoms[j].id << endl;
 // 			}	     
 	 } 
-	 cout << "Testing Z-matrix scanner with reuse type1 Complete\n"<< endl;	 
+	 cout << "Testing Z-matrix scanner with reuse 500 molec : 1 atom each Complete\n"<< endl;	 
+}
+
+void testZmatrixScanner_multpleAmount(Opls_Scan opls){
+    
+	 cout << "Testing Z-matrix scanner with reuse 500 molec : 8 atoms each\n"<< endl;
+    string zMatrixFile1 = "../Utilities/bossFiles/mesh.z";
+	 Zmatrix_Scan zScan (zMatrixFile1,&opls);
+	 vector<Molecule> scannedInMolecules;
+	 int open = zScan.scanInZmatrix();
+	 if(open == -1){
+	     cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
+		  assert(open >= 0 );
+	 }
+	 int runningNumOfAtoms =0;	 
+	 Molecule* myMolecArray = new Molecule[500];
+	 Molecule molec;
+	 for(int i=0; i<500; i++){	
+		   scannedInMolecules = zScan.buildMolecule(runningNumOfAtoms);
+		   //cout << "-- # Scanned in molecules:" << scannedInMolecules.size() <<endl;
+         assert(scannedInMolecules.size()==1);
+			myMolecArray[i] = scannedInMolecules[0];
+			molec = 	myMolecArray[i] ;
+			//cout << "\nIndex: " << i << endl;
+			//cout << "Molecule Id: "<< molec.id << endl;		
+			//cout << "# of Atoms: " << molec.numOfAtoms <<endl;
+			assert(molec.id == i*8);
+			assert(molec.numOfAtoms==8);
+			for(int j=0; j< molec.numOfAtoms; j++){
+			    //cout<< "Atom Id: " << molec.atoms[j].id << endl;
+				 assert( molec.atoms[j].id == molec.id+j); 
+			}
+			runningNumOfAtoms += molec.numOfAtoms;	     
+	 } 
+	 cout << "Testing Z-matrix scanner with reuse 500 molec : 8 atoms each Complete\n"<< endl;	 
 }
 
 
@@ -378,5 +410,6 @@ int main(){
     testPDBoutput();
     testZmatrixScanner(scanner);
 	 testZmatrixScanner_multpleSingle(scanner);
+	 testZmatrixScanner_multpleAmount(scanner);
 
 }
