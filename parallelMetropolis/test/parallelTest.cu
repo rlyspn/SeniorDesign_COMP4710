@@ -119,58 +119,34 @@ void setupMakePeriodic(){
 }
 
 
-/**
-void setupWrapBox(){
+void testWrapBox(){
  srand(time(NULL));
     int numberOfTests = 128;
-    double *box;;
+    double box;
     
-    double *inputs_host;
-    double *inputs_device;
-    double *outputs_host;
-    double *dev_box;
+    double *testDoubles;
     size_t inputSize = sizeof(double) * numberOfTests;
 
-    box = (double *) malloc(sizeof(double));
-    *box = 10.0;
-    inputs_host = (double *) malloc(inputSize);
-    outputs_host = (double *) malloc(inputSize);
-    cudaMalloc((void **) &inputs_device, inputSize);
-    cudaMalloc((void **) &dev_box, sizeof(double));
+    box = 10.f;
+    testDoubles = (double *) malloc(inputSize);
     
     //generate random numbers
     for(int i = 0; i < numberOfTests; i++){
-        inputs_host[i] = ((double) (rand() % 100));
+        testDoubles[i] = ((double) (rand() % 100));
     }
 
-    //copy data to device
-    cudaMemcpy(inputs_device, inputs_host, inputSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_box, box, sizeof(double), cudaMemcpyHostToDevice);
-    
-    int threadsPerBlock = numberOfTests / 2;
-    int blocks = numberOfTests / threadsPerBlock +
-        (numberOfTests % threadsPerBlock == 0 ? 0 : 1);
-
-    testWrapBoxKernel <<< blocks, threadsPerBlock >>> (inputs_device,
-            dev_box, numberOfTests);
-
-    cudaMemcpy(outputs_host, inputs_device, inputSize, cudaMemcpyDeviceToHost);
-
-    //check that values are the same as known correct function
+     //check that values are the same as known correct function
     for(int i = 0; i < numberOfTests; i++){
-        double test_output = wrap_into_box(inputs_host[i], *box);
-        assert(outputs_host[i] == test_output);
+        double test_output = wrap_into_box(testDoubles[i], box);
+        assert(wrapBox(testDoubles[i], box) == test_output);
     }
 
     printf("wrapBox passed Tests\n");
 
-    free(inputs_host);
-    free(outputs_host);
-    cudaFree(inputs_device);
+    free(testDoubles);
 
 
 }
-*/
 
 void setupCalc_lj(){
     double kryptonSigma = 3.624;
@@ -352,10 +328,10 @@ void testCalcEnergyWithMolecules(){
 
 
 int main(){
+    testWrapBox();
     setupCalc_lj();
     setupGetIndexTest();
     setupMakePeriodic();
-//    setupWrapBox();
     testGeneratePoints();
     testCalcEnergy();
     testCalcEnergyWithMolecules();

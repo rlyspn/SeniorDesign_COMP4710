@@ -310,15 +310,7 @@ double soluteSolventTotalEnergy(){
 #ifdef DEBUG
 
 //these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
-/**
-__global__ void testWrapBoxKernel(double *x, double *box, int n){ 
-    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
 
-    if (idx < n){
-        x[idx] = wrapBox(x[idx], *box);
-    }
-}
-*/
 __global__ void testMakePeriodicKernel(double *x, double *box, int n){ 
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;
 
