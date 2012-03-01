@@ -2,6 +2,7 @@
 #define STATETEST_H
 
 #include "../src/metroUtil.h"
+#include "../src/State_Scan.h"
 #include <assert.h>
 #include <iostream>
 

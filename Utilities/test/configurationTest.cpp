@@ -50,6 +50,7 @@ void testConfigScan(){
     cout << "maxTranslation = " << enviro.maxTranslation << endl;
     assert(enviro.maxTranslation == maxTranslation);
     cout << "numOfMolecules = " << enviro.numOfMolecules << endl;
+    cout << "expected Molecules = " << numberOfMolecules << endl;
     assert(enviro.numOfMolecules == numberOfMolecules);
     cout << "temperature = " << enviro.temperature << endl;
     assert(enviro.temperature == temperature);

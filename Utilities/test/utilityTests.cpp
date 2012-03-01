@@ -1,5 +1,6 @@
 #include "../src/Opls_Scan.h"
 #include "../src/Zmatrix_Scan.h"
+#include "../src/State_Scan.h"
 #include "stateTest.h"
 #include "configurationTest.h"
 #include <assert.h>

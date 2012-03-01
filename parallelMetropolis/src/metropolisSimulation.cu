@@ -8,6 +8,7 @@
 #include "../../Utilities/src/Config_Scan.h"
 #include "../../Utilities/src/metroUtil.h"
 #include "../../Utilities/src/Zmatrix_Scan.h"
+#include "../../Utilities/src/State_Scan.h"
 
 #include "metroCudaUtil.cuh"
 /**
