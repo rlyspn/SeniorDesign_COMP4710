@@ -85,6 +85,51 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro);
 */
 __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
 
+/**
+  Calculates the charge portion of the force field energy calculation between two atoms.
+  @param atom1 - the first atom in the calculation
+  @param atom2 - the second atom in the calculation
+  @return - the charge portion of the force field.
+  
+  Assigned to Alex
+*/
+__device__ double calcCharge(Atom atom1, Atom atom2);
+
+/**
+  Returns the "fudge factor" to be used in force field calculation.
+  @param atom1 - the first atom in calculation
+  @param atom2 - the second atom in the calculation
+  @return - 1.0 if the bond traversal diffstance is greater than 4
+            .5 if the bond traversal distance is less or equal to 4
+
+  Assigned to TBD
+*/
+__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules);
+
+/**
+  Returns the bond distance between atom1 and atom2 in the molecule
+  @param atom1 - the source atom in the molecule
+  @param atom2 - the destination atom in the molecule
+  @param molecule - the molecule that contains atom1 and atom 2
+*/
+__device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule);
+
+/**
+  Returns sqrt(d1 * d2)
+  @param d1 - the first double in the calculation
+  @param d2 - the second double in the calculation
+  @return - sqrt(d1 * d2)
+*/
+__device__ double calcBlending(double d1, double d2);
+
+/**
+  Returns the molecule id from the atomid
+  @param atom - the atom from which to find the molecule
+  @param molecules - the list of molecules to be searched
+  @param return - returns the id of the molecule
+*/
+__double__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules);
+
 /****************************
   Begin Stubs for outputs
 ****************************/
