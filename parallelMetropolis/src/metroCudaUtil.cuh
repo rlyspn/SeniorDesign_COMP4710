@@ -93,7 +93,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
   
   Assigned to Alex
 */
-__device__ double calcCharge(Atom atom1, Atom atom2);
+__device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 
 /**
   Returns the "fudge factor" to be used in force field calculation.

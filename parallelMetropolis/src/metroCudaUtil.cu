@@ -54,7 +54,7 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     double deltaY = atom1.y - atom2.y;
     double deltaZ = atom1.z - atom2.z;
 
-    //magic chemistry
+    //calculate distance between atoms
     deltaX = makePeriodic(deltaX, enviro.x);
     deltaY = makePeriodic(deltaY, enviro.y);
     deltaZ = makePeriodic(deltaZ, enviro.z);
@@ -63,6 +63,7 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
                       (deltaY * deltaY) + 
                       (deltaZ * deltaZ);
 
+    //calculate terms
     const double sig2OverR2 = pow(sigma, 2) / r2;
     const double sig6OverR6 = pow(sig2OverR2, 3);
     const double sig12OverR12 = pow(sig6OverR6, 2);
@@ -269,6 +270,28 @@ if (cacheIndex == 0)
 energySum[blockIdx.x] = cache[0];
 */
 
+}
+
+__device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
+    const double e = 1.602176565 * pow(10.f,-19.f);
+ 
+    //calculate difference in coordinates
+    double deltaX = atom1.x - atom2.x;
+    double deltaY = atom1.y - atom2.y;
+    double deltaZ = atom1.z - atom2.z;
+
+    //calculate distance between atoms
+    deltaX = makePeriodic(deltaX, enviro->x);
+    deltaY = makePeriodic(deltaY, enviro->y);
+    deltaZ = makePeriodic(deltaZ, enviro->z);
+
+    const double r2 = (deltaX * deltaX) +
+                      (deltaY * deltaY) + 
+                      (deltaZ * deltaZ);
+    
+    const double r = sqrt(r2);
+
+    return (atom1.charge * atom2.charge * pow(e,2) / r);
 }
 
 /**
