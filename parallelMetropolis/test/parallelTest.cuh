@@ -54,4 +54,24 @@ void testCalcEnergy();
   of an array of atoms.
 */
 void testCalcEnergyWithMolecules();
+
+/**
+  Tests getMoleculeFromID by calling testGetMoleculeFromID()
+*/
+void testGetMoleculeFromIDWrapper();
+
+/**
+  Tests calcBlending by calling testCalcBlending()
+*/
+void testCalcBlendingWrapper();
+
+/**
+  Tests getFValue by calling testGetFValue()
+*/
+void testGetFValueWrapper();
+
+/**
+  Tests calcCharge() by calling testCalcCharge()
+*/
+void testCalcChargeWrapper();
 #endif //PARALLELTEST_H
