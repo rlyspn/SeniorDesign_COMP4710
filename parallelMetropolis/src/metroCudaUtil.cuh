@@ -112,7 +112,7 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules);
   @param atom2 - the destination atom in the molecule
   @param molecule - the molecule that contains atom1 and atom 2
 */
-__device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule);
+__device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule, Environment enviro);
 
 /**
   Returns sqrt(d1 * d2)
