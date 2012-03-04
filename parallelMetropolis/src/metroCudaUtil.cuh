@@ -133,6 +133,7 @@ __device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment e
 /****************************
   Begin Stubs for outputs
 ****************************/
+
 /**
   This is currently a stub pending information from Dr. Acevedo
 */
@@ -160,6 +161,27 @@ double soluteSolventTotalEnergy();
 
 
 #ifdef DEBUG
+
+/**
+  Kernel function that will be used to test test getMoleculeFromID function.
+*/
+__global__ void testGetMoleculeFromID();
+
+/**
+  Kernel function that will be used to test test calcBlending() function.
+*/
+__global__ void testCalcBlending();
+
+/**
+  Kernel function that will be used to test the getFValue() function.
+*/
+__global__ void testGetVFValue();
+
+/**
+  Kernel function that will be used to test the calcCharge() function.
+*/
+__global__ void testCalcCharge();
+
 /**
     Kernel call that will be used to test the getXFromIndexFunction
     @apram xValues - a series of xValues used to test
