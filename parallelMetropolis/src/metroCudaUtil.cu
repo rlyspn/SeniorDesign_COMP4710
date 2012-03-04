@@ -294,6 +294,23 @@ __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
     return (atom1.charge * atom2.charge * pow(e,2) / r);
 }
 
+__device__ double calcBlending(double d1, double d2){
+    return sqrt(d1 * d2);
+}
+
+//returns the molecule that contains a given atom
+__device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro){
+    int atomId = a1.id;
+    int currentIndex = enviro.numOfAtoms - 1;
+    int molecId = molecules[currentIndex].id;
+    while(atomId < molecId && currentIndex > 0){
+        currentIndex -= 1;
+        molecId = molecules[currentIndex].id;
+    }
+
+    return molecules[molecId].id;
+}
+
 /**
   This is currently a stub pending information from Dr. Acevedo
 */
