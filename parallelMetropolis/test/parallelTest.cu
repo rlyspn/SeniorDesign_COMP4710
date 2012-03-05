@@ -426,7 +426,9 @@ void testCalcBlendingWrapper(){
     cudaMemcpy(answers, answers_device, doubleSize, cudaMemcpyDeviceToHost);
 
     for(int i = 0 ; i < numberOfTests; i++){
-        assert(answers[i] == sqrt(d1[i] * d2[i]));
+        expected = sqrt(d1[i] * d2[i]);
+        printf("answers[%d] = %f\nexpected = %f", i, answers[i], expected);
+        assert(answers[i] / sqrt(d1[i] * d2[i]) < 0.01 || answers[i] == expected);
     }
 
     printf("calcBlending passed tests.\n");
