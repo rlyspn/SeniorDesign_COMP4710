@@ -301,14 +301,14 @@ __device__ double calcBlending(double d1, double d2){
 //returns the molecule that contains a given atom
 __device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro){
     int atomId = a1.id;
-    int currentIndex = enviro.numOfAtoms - 1;
+    int currentIndex = enviro.numOfMolecules - 1;
     int molecId = molecules[currentIndex].id;
     while(atomId < molecId && currentIndex > 0){
         currentIndex -= 1;
         molecId = molecules[currentIndex].id;
     }
+    return molecId;
 
-    return molecules[molecId].id;
 }
 
 /**
@@ -350,6 +350,18 @@ double soluteSolventTotalEnergy(){
 #ifdef DEBUG
 
 //these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
+
+__global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
+        Environment enviros, int numberOfTests, int *answers){
+
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if(idx < numberOfTests){
+        answers[idx] = getMoleculeFromAtomID(atoms[idx], molecules,
+                enviros);
+    }
+    
+}
 
 __global__ void testMakePeriodicKernel(double *x, double *box, int n){ 
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;

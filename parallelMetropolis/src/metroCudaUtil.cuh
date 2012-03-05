@@ -163,9 +163,14 @@ double soluteSolventTotalEnergy();
 #ifdef DEBUG
 
 /**
-  Kernel function that will be used to test test getMoleculeFromID function.
-*/
-__global__ void testGetMoleculeFromID();
+   @param atoms - array of atoms to be used in the atom1 parameter
+   @param molecules - array of molecules to be used in the molecule parameter
+   @param enviros - the array of environments to be used in the enviro parameter
+   @param numberOfTests - the number of tests to be run. All other arrays must 
+   be of length numberOfTests
+ */
+__global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
+        Environment enviros, int numberOfTests, int *answers);
 
 /**
   Kernel function that will be used to test test calcBlending() function.

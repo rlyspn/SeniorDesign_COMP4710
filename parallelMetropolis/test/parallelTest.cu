@@ -325,9 +325,68 @@ void testCalcEnergyWithMolecules(){
     
 }
 
+void testGetMoleculeFromIDWrapper(){
+    int numberOfAtoms = 11;
+    int numberOfMolecules = 3;
+    
+    Atom *atoms;
+    Molecule *molecules;
+    Environment enviro;
+    int *answers;
 
+    Atom *atoms_device;
+    Molecule *molecules_device;
+    int *answers_device;
+
+    enviro.numOfAtoms = numberOfAtoms;
+    enviro.numOfMolecules = numberOfMolecules;
+
+    atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
+    molecules = (Molecule *)malloc(sizeof(Molecule) *numberOfMolecules);
+    answers = (int *)malloc(sizeof(int) * numberOfAtoms);
+
+    cudaMalloc((void **) &atoms_device, sizeof(Atom) * numberOfAtoms);
+    cudaMalloc((void **) &molecules_device, sizeof(Molecule) * numberOfMolecules);
+    cudaMalloc((void **) &answers_device, sizeof(int) * numberOfAtoms);
+
+    enviro.numOfAtoms = numberOfAtoms;
+    enviro.numOfMolecules = numberOfMolecules;
+    
+    for(int i = 0; i < numberOfAtoms; i++){
+        atoms[i].id = i;
+    }
+    molecules[0].id = 0;
+    molecules[1].id = 2;
+    molecules[2].id = 6;
+
+
+    cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
+    cudaMemcpy(molecules_device, molecules, sizeof(Molecule) * numberOfMolecules, cudaMemcpyHostToDevice);
+
+    int numberOfBlocks = 1;
+    int threadsPerBlock = 128;
+    testGetMoleculeFromID<<<numberOfBlocks,threadsPerBlock>>>(atoms_device,
+            molecules_device, enviro, numberOfAtoms, answers_device);
+   
+    cudaMemcpy(answers, answers_device, sizeof(int) * numberOfAtoms, cudaMemcpyDeviceToHost);
+
+    assert(answers[0] == 0);
+    assert(answers[1] == 0);
+    assert(answers[2] == 2);
+    assert(answers[3] == 2);
+    assert(answers[4] == 2);
+    assert(answers[5] == 2);
+    assert(answers[6] == 6);
+    assert(answers[7] == 6);
+    assert(answers[8] == 6);
+    assert(answers[9] == 6);
+    assert(answers[10] == 6);
+   
+    printf("getMoleculeFromID passed tests\n");
+}
 
 int main(){
+    testGetMoleculeFromIDWrapper();
     testWrapBox();
     setupCalc_lj();
     setupGetIndexTest();
@@ -335,5 +394,7 @@ int main(){
     testGeneratePoints();
     testCalcEnergy();
     testCalcEnergyWithMolecules();
+    
     return 0;
 }
+
