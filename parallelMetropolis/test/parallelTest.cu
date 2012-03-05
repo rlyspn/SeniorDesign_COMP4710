@@ -383,6 +383,16 @@ void testGetMoleculeFromIDWrapper(){
     assert(answers[10] == 6);
    
     printf("getMoleculeFromID passed tests\n");
+
+    free(atoms);
+    free(molecules);
+    free(answers);
+
+    cudaFree(atoms_device);
+    cudaFree(molecules_device);
+    cudaFree(answers_device);
+
+
 }
 
 
@@ -402,17 +412,17 @@ void testCalcBlendingWrapper(){
     d1[0] = 0.f;
     d2[0] = 0.f;
 
-    d1[1] = -4.5;
-    d2[1] = -2.32;
+    d1[1] = 4.5;
+    d2[1] = 2.32;
     
-    d1[2] = 532.34;
-    d2[2] = -0.f;
+    d1[2] = 52.34;
+    d2[2] = 5.f;
 
 
     d1[3] = 1.f;
     d2[3] = 7.f;
 
-    d1[4] = -345.56;
+    d1[4] = 34.56;
     d2[4] = 12.7;
     
     cudaMemcpy(d1_device, d1, doubleSize, cudaMemcpyHostToDevice);
@@ -421,18 +431,23 @@ void testCalcBlendingWrapper(){
     int blocks = 1;
     int threadsPerBlock = 64;
 
-    testCalcBlending <<<blocks, threadsPerBlock>>>(d1, d2, answers_device, numberOfTests);
+    testCalcBlending <<<blocks, threadsPerBlock>>>(d1_device, d2_device, answers_device, numberOfTests);
 
     cudaMemcpy(answers, answers_device, doubleSize, cudaMemcpyDeviceToHost);
 
     for(int i = 0 ; i < numberOfTests; i++){
-        expected = sqrt(d1[i] * d2[i]);
-        printf("answers[%d] = %f\nexpected = %f", i, answers[i], expected);
+        double expected = sqrt(d1[i] * d2[i]);
         assert(answers[i] / sqrt(d1[i] * d2[i]) < 0.01 || answers[i] == expected);
     }
 
     printf("calcBlending passed tests.\n");
-
+    
+    free(d1);
+    free(d2);
+    free(answers);
+    cudaFree(d1_device);
+    cudaFree(d2_device);
+    cudaFree(answers_device);
 }
 
 int main(){
