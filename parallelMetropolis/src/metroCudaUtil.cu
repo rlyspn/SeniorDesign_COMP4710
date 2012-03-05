@@ -363,6 +363,14 @@ __global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
     
 }
 
+__global__ void testCalcBlending(double *d1, double *d2, double *answers, int numberOfTests){
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if(idx < numberOfTests){
+        answers[idx] = calcBlending(d1[idx], d2[idx]);
+    }
+}
+
 __global__ void testMakePeriodicKernel(double *x, double *box, int n){ 
     int idx =  threadIdx.x + blockIdx.x * blockDim.x;
 

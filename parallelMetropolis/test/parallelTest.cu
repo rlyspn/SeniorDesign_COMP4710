@@ -385,7 +385,56 @@ void testGetMoleculeFromIDWrapper(){
     printf("getMoleculeFromID passed tests\n");
 }
 
+
+void testCalcBlendingWrapper(){
+    double *d1, *d2, *d1_device, *d2_device, *answers, *answers_device;
+    int numberOfTests = 5;
+    size_t doubleSize = sizeof(double) * numberOfTests;
+
+    d1 = (double *)malloc(doubleSize);
+    d2 = (double *)malloc(doubleSize);
+    answers = (double *)malloc(doubleSize);
+    
+    cudaMalloc((void **) &d1_device, doubleSize);
+    cudaMalloc((void **) &d2_device, doubleSize);
+    cudaMalloc((void **) &answers_device, doubleSize);
+
+    d1[0] = 0.f;
+    d2[0] = 0.f;
+
+    d1[1] = -4.5;
+    d2[1] = -2.32;
+    
+    d1[2] = 532.34;
+    d2[2] = -0.f;
+
+
+    d1[3] = 1.f;
+    d2[3] = 7.f;
+
+    d1[4] = -345.56;
+    d2[4] = 12.7;
+    
+    cudaMemcpy(d1_device, d1, doubleSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d2_device, d2, doubleSize, cudaMemcpyHostToDevice);
+
+    int blocks = 1;
+    int threadsPerBlock = 64;
+
+    testCalcBlending <<<blocks, threadsPerBlock>>>(d1, d2, answers_device, numberOfTests);
+
+    cudaMemcpy(answers, answers_device, doubleSize, cudaMemcpyDeviceToHost);
+
+    for(int i = 0 ; i < numberOfTests; i++){
+        assert(answers[i] == sqrt(d1[i] * d2[i]));
+    }
+
+    printf("calcBlending passed tests.\n");
+
+}
+
 int main(){
+    testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();
     testWrapBox();
     setupCalc_lj();

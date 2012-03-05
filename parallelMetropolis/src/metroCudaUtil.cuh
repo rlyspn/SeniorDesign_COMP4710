@@ -175,7 +175,7 @@ __global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
 /**
   Kernel function that will be used to test test calcBlending() function.
 */
-__global__ void testCalcBlending();
+__global__ void testCalcBlending(double *d1, double *d2, double *answers, int numberOfTests);
 
 /**
   Kernel function that will be used to test the getFValue() function.
