@@ -214,6 +214,11 @@ __global__ void testWrapBoxKernel(double *x, double *box, int numberOfTests);
 */
 __global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy);
 
+/**
+  Kernel function to test the calculation of bond distance between two atoms
+*/
+__global__ void testCalcGetDistance(Atom *atom1List, Atom *atom2List, Molecule molecule, Environment *enviro, int *distances, int numberOfTests);
+
 #endif //DEBUG
 
 #endif //METROCUDAUTIL_CUH
