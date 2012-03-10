@@ -311,11 +311,11 @@ __device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment e
 
 }
 
-__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment enviro){
-    int m1 = getMoleculeFromAtomID(atom1, molecules, enviro);
-    int m2 = getMoleculeFromAtomID(atom2, molecules, enviro);
+__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
+    int m1 = getMoleculeFromAtomID(atom1, molecules, *enviro);
+    int m2 = getMoleculeFromAtomID(atom2, molecules, *enviro);
     Molecule molec = molecules[0];
-    for(int i = 0; i < enviro.numOfMolecules; i++){
+    for(int i = 0; i < enviro->numOfMolecules; i++){
         if(molecules[i].id == m1){
             molec = molecules[i];
             break;
@@ -324,10 +324,10 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 
     if(m1 != m2)
         return 1.0;
-    else if(getDistance(atom1, atom2, molec, enviro) <= 4)
+    else if(getDistance(atom1, atom2, molec, *enviro) >= 4)
         return 0.5;
     else
-        return 1.0;
+        return 0.0;
 }
 
 __device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule, Environment enviro){
@@ -386,6 +386,16 @@ __global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
                 enviros);
     }
     
+}
+
+__global__ void testGetFValue(Atom *atom1List, Atom *atom2List, 
+        Molecule *molecules, Environment *enviro, double *fValues, int numberOfTests){ 
+    
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if (idx < numberOfTests){
+        fValues[idx] = getFValue(atom1List[idx], atom2List[idx], molecules, enviro);
+    }
 }
 
 __global__ void testCalcBlending(double *d1, double *d2, double *answers, int numberOfTests){

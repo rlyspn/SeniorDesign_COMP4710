@@ -450,6 +450,90 @@ void testCalcBlendingWrapper(){
     cudaFree(answers_device);
 }
 
+void testGetFValueWrapper(){
+    Environment *enviro, *dev_enviro;
+    Molecule *molecules, *dev_molecules;
+    Atom *mol1_atoms, *mol2_atoms, *atom1List, *atom2List, *dev_atom1List, *dev_atom2List;
+    double *fvalues, *dev_fvalues;
+    Bond *mol1_bonds, *blankBonds;
+    Angle *blankAngles;
+    Dihedral *blankDihedrals;
+
+    int numberOfTests = 4;
+
+    Environment stable_enviro = createEnvironment(5.0,5.0,5.0,1.0,270.0,5);
+    enviro = &stable_enviro;
+    mol1_atoms = (Atom *)malloc(sizeof(Atom)*4);
+    mol2_atoms = (Atom *)malloc(sizeof(Atom));
+    atom1List = (Atom *)malloc(sizeof(Atom)*4);
+    atom2List = (Atom *)malloc(sizeof(Atom)*4);
+
+    fvalues = (double *)malloc(sizeof(double)*4);
+    
+    for (int i = 0; i < 4; i++){
+        mol1_atoms[i] = createAtom(i+1,1.0,1.0,1.0);
+    }
+    for (int i = 0; i < 4; i++){
+        atom1List[i] = mol1_atoms[0];
+        if (i < 3)
+            atom2List[i] = mol1_atoms[i+1];
+    }
+
+    mol2_atoms[0] = createAtom(5,1.0,1.0,1.0);
+    atom2List[4] = mol2_atoms[0];
+
+    mol1_bonds = (Bond *)malloc(sizeof(Bond)*3);
+    for (int i = 0; i < 3; i++){
+        mol1_bonds[i] = createBond(i+1,i+2, 0.5, false);
+    }
+
+    molecules = (Molecule *)malloc(sizeof(Molecule)*2);
+    molecules[0] = createMolecule(1, mol1_atoms, blankAngles, mol1_bonds, blankDihedrals, 4, 0, 3, 0);
+    molecules[1] = createMolecule(5, mol2_atoms, blankAngles, blankBonds, blankDihedrals, 1, 0, 0, 0);
+
+    cudaMalloc((void **) &dev_enviro, sizeof(Environment));
+    cudaMalloc((void **) &dev_molecules, sizeof(Molecule)*2);
+    cudaMalloc((void **) &dev_atom1List, sizeof(Atom)*4);
+    cudaMalloc((void **) &dev_atom2List, sizeof(Atom)*4);
+    cudaMalloc((void **) &dev_fvalues, sizeof(double)*4);
+
+
+    cudaMemcpy(dev_enviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_molecules, molecules, sizeof(Molecule)*2, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_atom1List, atom1List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_atom2List, atom2List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
+
+    int blocks = 1;
+    int threadsPerBlock = 64;
+
+    testGetFValue <<<blocks, threadsPerBlock>>>(dev_atom1List, dev_atom2List, dev_molecules, dev_enviro, dev_fvalues, numberOfTests);
+
+    cudaMemcpy(fvalues, dev_fvalues, sizeof(double)*4, cudaMemcpyDeviceToHost);
+
+    double *expected = (double *)malloc(sizeof(double)*4);
+    expected[0] = 0.0;
+    expected[1] = 0.0;
+    expected[2] = 0.5;
+    expected[3] = 1.0;
+    for(int i = 0 ; i < numberOfTests; i++){
+        assert(expected[i] == fvalues[i]);
+    }
+
+    printf("calcTestFValue passed tests.\n");
+   
+    free(mol1_atoms);
+    free(mol2_atoms);
+    free(atom1List);
+    free(atom2List);
+    free(fvalues);
+    cudaFree(dev_enviro);
+    cudaFree(dev_molecules);
+    cudaFree(dev_atom1List);
+    cudaFree(dev_atom2List);
+    cudaFree(dev_fvalues);
+}
+
+
 int main(){
     testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();

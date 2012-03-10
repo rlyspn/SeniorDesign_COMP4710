@@ -99,12 +99,13 @@ __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
   Returns the "fudge factor" to be used in force field calculation.
   @param atom1 - the first atom in calculation
   @param atom2 - the second atom in the calculation
-  @return - 1.0 if the bond traversal diffstance is greater than 4
-            .5 if the bond traversal distance is less or equal to 4
+  @return - 1.0 if the atoms are in seperate molecules
+            .5 if the bond traversal distance is greater or equal to 4
+            0.0 if the bond traversal is less than 4
 
   Assigned to TBD
 */
-__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules);
+__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
 
 /**
   Returns the bond distance between atom1 and atom2 in the molecule
@@ -180,7 +181,7 @@ __global__ void testCalcBlending(double *d1, double *d2, double *answers, int nu
 /**
   Kernel function that will be used to test the getFValue() function.
 */
-__global__ void testGetVFValue();
+__global__ void testGetFValue(Atom *atom1List, Atom *atom2List, Molecule *molecules, Environment *enviro, double *fValues, int numberOfTests);
 
 /**
   Kernel function that will be used to test the calcCharge() function.
@@ -215,4 +216,4 @@ __global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy);
 
 #endif //DEBUG
 
-#endif //METROCUDAUTIL_H
+#endif //METROCUDAUTIL_CUH
