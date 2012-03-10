@@ -336,6 +336,64 @@ __device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule, Environmen
 
 }
 
+void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation){
+    //save pivot atom coordinates because they will change
+    double pivotAtomX = pivotAtom.x;
+    double pivotAtomY = pivotAtom.y;
+    double pivotAtomZ = pivotAtom.z;
+
+    //translate entire molecule to place pivotAtom at origin
+    for (int i = 0; i < molecule.numOfAtoms; i++){
+        molecule.atoms[i].x -= pivotAtomX;
+        molecule.atoms[i].y -= pivotAtomY;
+        molecule.atoms[i].z -= pivotAtomZ;
+    }
+
+    srand(time(NULL));
+    double dtr = PI / 180.0;
+
+    //rotate molecule about origin
+    for (int axis = 0; axis < 3; axis++){
+        double rotation = ((double) rand() / RAND_MAX) * maxRotation * dtr;
+        double sinrot = sin(rotation);
+        double cosrot = cos(rotation);
+        if (axis == 0){ //rotate about x-axis
+            for (int i = 0; i < molecule.numOfAtoms; i++){
+                Atom *thisAtom = &(molecule.atoms[i]);
+                double oldY = thisAtom->y;
+                double oldZ = thisAtom->z;
+                thisAtom->y = cosrot * oldY + sinrot * oldZ;
+                thisAtom->z = cosrot * oldZ - sinrot * oldY;
+            }
+        }
+        else if (axis == 1){ //rotate about y-axis
+            for (int i = 0; i < molecule.numOfAtoms; i++){
+                Atom *thisAtom = &(molecule.atoms[i]);
+                double oldX = thisAtom->x;
+                double oldZ = thisAtom->z;
+                thisAtom->x = cosrot * oldX - sinrot * oldZ;
+                thisAtom->z = cosrot * oldZ + sinrot * oldX;
+            }
+        }
+        if (axis == 2){ //rotate about z-axis
+            for (int i = 0; i < molecule.numOfAtoms; i++){
+                Atom *thisAtom = &(molecule.atoms[i]);
+                double oldX = thisAtom->x;
+                double oldY = thisAtom->y;
+                thisAtom->x = cosrot * oldX + sinrot * oldY;
+                thisAtom->y = cosrot * oldY - sinrot * oldX;
+            }
+        }
+    }
+
+    //translate entire molecule back based on original pivot point
+    for (int i = 0; i < molecule.numOfAtoms; i++){
+        molecule.atoms[i].x += pivotAtomX;
+        molecule.atoms[i].y += pivotAtomY;
+        molecule.atoms[i].z += pivotAtomZ;
+    }
+}
+
 /**
   This  is currently a stub pending information from Dr. Acevedo
 */

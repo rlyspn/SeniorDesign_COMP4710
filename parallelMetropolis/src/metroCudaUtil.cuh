@@ -3,12 +3,14 @@
 
 #define DEBUG
 
+#include <cstdlib>
 #include <cuda.h>
 #include <curand_kernel.h>
 #include <math.h>
 #include "../../Utilities/src/metroUtil.h"
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
+#define PI 3.14159265358979323
 
 
 /**
@@ -130,6 +132,15 @@ __device__ double calcBlending(double d1, double d2);
   @param return - returns the id of the molecule
 */
 __device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro);
+
+/**
+  Rotates a molecule about a given atom a random amount
+  @param molecule - the molecule to be rotated
+  @param pivotAtom - the atom that the molecule is rotated about
+  @param maxRotation - the maximum number of degrees for each axis of rotation
+
+*/
+void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation);
 
 /****************************
   Begin Stubs for outputs
