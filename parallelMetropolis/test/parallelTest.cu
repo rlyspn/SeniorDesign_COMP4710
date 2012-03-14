@@ -497,7 +497,6 @@ void testGetFValueWrapper(){
     cudaMalloc((void **) &dev_atom2List, sizeof(Atom)*4);
     cudaMalloc((void **) &dev_fvalues, sizeof(double)*4);
 
-
     cudaMemcpy(dev_enviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
     cudaMemcpy(dev_molecules, molecules, sizeof(Molecule)*2, cudaMemcpyHostToDevice);
     cudaMemcpy(dev_atom1List, atom1List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
@@ -519,18 +518,90 @@ void testGetFValueWrapper(){
         assert(expected[i] == fvalues[i]);
     }
 
-    printf("calcTestFValue passed tests.\n");
+    printf("testGetFValue passed tests.\n");
    
     free(mol1_atoms);
     free(mol2_atoms);
     free(atom1List);
     free(atom2List);
     free(fvalues);
+    free(molecules);
     cudaFree(dev_enviro);
     cudaFree(dev_molecules);
     cudaFree(dev_atom1List);
     cudaFree(dev_atom2List);
     cudaFree(dev_fvalues);
+}
+
+void testGetDistanceWrapper(){
+    Environment *enviro, *dev_enviro;
+    Molecule molecule, dev_molecule;
+    Atom *mol1_atoms, *mol2_atoms, *atom1List, *atom2List, *dev_atom1List, *dev_atom2List;
+    int *distances, *dev_distances;
+    Bond *mol1_bonds, *blankBonds;
+    Angle *blankAngles;
+    Dihedral *blankDihedrals;
+
+    int numberOfTests = 3;
+
+    Environment stable_enviro = createEnvironment(5.0,5.0,5.0,1.0,270.0,5);
+    enviro = &stable_enviro;
+    mol1_atoms = (Atom *)malloc(sizeof(Atom)*4);
+    atom1List = (Atom *)malloc(sizeof(Atom)*3);
+    atom2List = (Atom *)malloc(sizeof(Atom)*3);
+
+    distances = (int *)malloc(sizeof(int)*4);
+    
+    for (int i = 0; i < 4; i++){
+        mol1_atoms[i] = createAtom(i+1,1.0,1.0,1.0);
+    }
+    for (int i = 0; i < 3; i++){
+        atom1List[i] = mol1_atoms[0];
+        atom2List[i] = mol1_atoms[i+1];
+    }
+
+    mol1_bonds = (Bond *)malloc(sizeof(Bond)*3);
+    for (int i = 0; i < 3; i++){
+        mol1_bonds[i] = createBond(i+1,i+2, 0.5, false);
+    }
+
+    molecule = createMolecule(1, mol1_atoms, blankAngles, mol1_bonds, blankDihedrals, 4, 0, 3, 0);
+
+    cudaMalloc((void **) &dev_enviro, sizeof(Environment));
+    cudaMalloc((void **) &dev_atom1List, sizeof(Atom)*4);
+    cudaMalloc((void **) &dev_atom2List, sizeof(Atom)*4);
+    cudaMalloc((void **) &dev_distances, sizeof(int)*4);
+
+    cudaMemcpy(dev_enviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
+    cudaMemcpy(&dev_molecule, &molecule, sizeof(Molecule), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_atom1List, atom1List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_atom2List, atom2List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
+
+    int blocks = 1;
+    int threadsPerBlock = 64;
+
+    testGetDistance <<<blocks, threadsPerBlock>>>(dev_atom1List, dev_atom2List, dev_molecule, dev_enviro, dev_distances, numberOfTests);
+
+    cudaMemcpy(distances, dev_distances, sizeof(int)*4, cudaMemcpyDeviceToHost);
+
+    int *expected = (int *)malloc(sizeof(int)*3);
+    expected[0] = 1;
+    expected[1] = 2;
+    expected[2] = 3;
+    for(int i = 0 ; i < numberOfTests; i++){
+        assert(expected[i] == distances[i]);
+    }
+
+    printf("testGetDistance passed tests.\n");
+   
+    free(mol1_atoms);
+    free(atom1List);
+    free(atom2List);
+    free(distances);
+    cudaFree(dev_enviro);
+    cudaFree(dev_atom1List);
+    cudaFree(dev_atom2List);
+    cudaFree(dev_distances);
 }
 
 

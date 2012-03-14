@@ -70,4 +70,10 @@ void testGetFValueWrapper();
   Tests calcCharge() by calling testCalcCharge()
 */
 void testCalcChargeWrapper();
+
+/**
+  Tests getDistance() device function via testGetDistance() global function.
+*/
+void testGetDistanceWrapper();
+
 #endif //PARALLELTEST_H

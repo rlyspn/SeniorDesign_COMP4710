@@ -324,7 +324,7 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 
     if(m1 != m2)
         return 1.0;
-    else if(getDistance(atom1, atom2, molec, *enviro) >= 4)
+    else if(getDistance(atom1, atom2, molec, *enviro) >= 3)
         return 0.5;
     else
         return 0.0;
@@ -497,7 +497,7 @@ __global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy){
     *energy = testEnergy;
 }
 
-__global__ void testCalcGetDistance(Atom *atom1List, Atom *atom2List, Molecule molecule,
+__global__ void testGetDistance(Atom *atom1List, Atom *atom2List, Molecule molecule,
          Environment *enviro, int *distances, int numberOfTests){
  
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
