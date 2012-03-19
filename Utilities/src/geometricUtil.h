@@ -62,7 +62,7 @@ Atom getAtom(vector<Atom> atoms, unsigned long atomID);
   @param degrees - the measure of an angle in degrees
   @return - the value of the same angle in radians.
 */
-double degreesToRadian(double degrees);
+double degreesToRadians(double degrees);
 
 /**
   @param radians - the measure of an angle in radians
