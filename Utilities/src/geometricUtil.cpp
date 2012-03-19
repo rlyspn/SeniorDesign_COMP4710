@@ -98,7 +98,8 @@ double getAngle(Atom atom1, Atom atom2, Atom atom3){
 
 }
 
-void rotateAtom(Atom atom1, Atom atom2, Atom atom3){
+Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3){
 
+    return Atom1;
 }
 
