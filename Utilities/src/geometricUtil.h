@@ -33,6 +33,15 @@ struct Plane{
     Point point3;
 };
 
+struct Vector{
+    Point origin;
+    Point end;
+};
+
+Vector createVector(Point startPoint, Point endPoint);
+
+Vector createVector(Point startPoint, double deltaX, double deltaY, double deltaZ);
+
 /**
   @param p1 - the first point in the plane.
   @param p2 - the second point in the plane.
@@ -103,6 +112,38 @@ double getDistance(Atom atom1, Atom atom2);
 double getAngle(Atom atom1, Atom atom2, Atom atom3);
 
 /**
+  Translates the atom by x, y, z
+  @param atom - the atom to be translated.
+  @param x - the distance in the x direction to be translated.
+  @param y - the distance in the y direction to be translated.
+  @param z - the distance in the z direction to be translated.
+  @return - a copy of atom that has been translated accordingly.
+*/
+Atom translateAtom(Atom atom, double x, double y, double z);
+
+/**
+  @param atom - the atom to be rotated
+  @param theta - the distance in degrees to be rotated.
+  @return - atom rotated theta degrees about the x axis.
+*/
+Atom rotateAboutX(Atom atom, double theta);
+
+/**
+  @param atom - the atom to be rotated
+  @param theta - the distance in degrees to be rotated.
+  @return - atom rotated theta degrees about the y axis.
+*/
+Atom rotateAboutY(Atom atom, double theta);
+
+/**
+  @param atom - the atom to be rotated
+  @param theta - the distance in degrees to be rotated.
+  @return - atom rotated theta degrees about the z axis.
+*/
+Atom rotateAboutZ(Atom atom, double theta);
+
+
+/**
   Rotates atom1 about atom2 in the plane defined by atom1, atom2 and atom3
   theta degrees.
   @param atom1 - the atom to be rotated.
@@ -110,6 +151,6 @@ double getAngle(Atom atom1, Atom atom2, Atom atom3);
   @param atom3 - the atom used to complete the plane.
   @param theta - the number of degrees to be rotated.
 */
-void rotateAtom(Atom atom1, Atom atom2, Atom atom3);
+Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3, double theta);
 
 #endif //GEOMETRICUTIL_H

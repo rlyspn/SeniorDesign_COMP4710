@@ -98,8 +98,64 @@ double getAngle(Atom atom1, Atom atom2, Atom atom3){
 
 }
 
-Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3){
+Atom translateAtom(Atom atom, double x, double y, double z){
+    atom.x += x;
+    atom.y += y;
+    atom.z += z;
 
-    return Atom1;
+    return atom;
+}
+
+Atom rotateAboutX(Atom atom, double theta){
+    double thetaRadians = degreesToRadians(theta);
+    atom.y = atom.y * cos(thetaRadians) - atom.z * sin(thetaRadians);
+    atom.z = atom.y * sin(thetaRadians) - atom.z * cos(thetaRadians);
+    return atom;
+}
+
+Atom rotateAboutY(Atom atom, double theta){
+    double thetaRadians = degreesToRadians(theta);
+    atom.z = atom.z * cos(thetaRadians) - atom.x * sin(thetaRadians);
+    atom.x = atom.z * sin(thetaRadians) + atom.x * cos(thetaRadians);
+    return atom; 
+}
+
+Atom rotateAboutZ(Atom atom, double theta){
+    double thetaRadians = degreesToRadians(theta);
+    atom.x = atom.x * cos(thetaRadians) - atom.y * sin(thetaRadians);
+    atom.y = atom.x * cos(thetaRadians) + atom.y * cos(thetaRadians);
+    return atom;
+}
+
+Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3, double theta){
+    //Translate atom2 to the origin
+    //translate (-atom2.x, -atom2.y, -atom2.z)
+    atom1 = translateAtom(atom1, -atom2.x, -atom2.y, -atom2.z);
+
+    //rotate thetaX about x axis into xz plane
+         // temporary atom that is directly below atom1 on the xz plane.
+         Atom atomA = createAtom(-1, atom1.x, 0, atom1.z);
+         double thetaX = getAngle(atom1, atom2, atomA);       
+    atom1 = rotateAboutX(atom1, thetaX);
+    
+    //rotate about y axis thetaY to align with z axis
+        // temporary atom that is on the z axis
+        Atom atomB = createAtom(-1, atom1.x, 0, 0);
+        double thetaY = getAngle(atom1, atom2, atomB);
+    atom1 = rotateAboutY(atom1, thetaY);
+
+    //rotate theta about the z axis
+    atom1 = rotateAboutZ(atom1, theta);
+    
+    //rotate -thetaY about y axis
+    atom1 = rotateAboutY(atom1, -thetaY);
+
+    //rotate -thetaX out of xz plane
+    atom1 = rotateAboutX(atom1, -thetaX);
+    
+    //translate (atom2.x, atom2.y, atom2.z)
+    atom1 = translateAtom(atom1, atom2.x, atom2.y, atom2.z);
+ 
+    return atom1;
 }
 
