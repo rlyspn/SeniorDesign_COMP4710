@@ -229,7 +229,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
     int cacheIndex = threadIdx.x;
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    double lj_energy;
+    double lj_energy,charge_energy, fValue;
 
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
 
@@ -244,7 +244,10 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         yAtom = atoms[yAtom_pos];
 
         lj_energy = calc_lj(xAtom,yAtom,*enviro);
-        energySum[idx] = lj_energy;
+        charge_energy = calcCharge(xAtom, yAtom, *enviro);
+        fValue = 1.0; //TODO: make this the proper function call when the signature is finalized
+        
+        energySum[idx] = fValue * (lj_energy + charge_energy);
     }
     else {
         lj_energy = 0.0;
