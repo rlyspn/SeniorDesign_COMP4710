@@ -96,19 +96,25 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         Angle lineAngle;
         Dihedral lineDihedral;
 
+        bool hasBond = false;
+        bool hasAngle = false;
+        bool hasDihedral = false;
+
         if (oplsA.compare("-1") != 0)
         {
             lineAtom = oplsScanner->getAtom(oplsA);
             lineAtom.id = atoi(atomID.c_str());
-            atomVector.push_back(lineAtom);
+        //    atomVector.push_back(lineAtom);
         }
         else//dummy atom
         {
             lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1);
-            atomVector.push_back(lineAtom); 
+        //    atomVector.push_back(lineAtom); 
         }
 
         if (bondWith.compare("0") != 0){
+            hasBond = true;
+
             lineBond.atom1 = lineAtom.id;
             lineBond.atom2 = atoi(bondWith.c_str());
             lineBond.distance = atof(bondDistance.c_str());
@@ -117,6 +123,8 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
 
         if (angleWith.compare("0") != 0){
+            hasAngle = true;
+
             lineAngle.atom1 = lineAtom.id;
             lineAngle.atom2 = atoi(angleWith.c_str());
             lineAngle.value = atof(angleMeasure.c_str());
@@ -125,12 +133,48 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
 
         if (dihedralWith.compare("0") != 0){
+            hasDihedral = true;
+
             lineDihedral.atom1 = lineAtom.id;
             lineDihedral.atom2 = atoi(dihedralWith.c_str());
             lineDihedral.value = atof(dihedralMeasure.c_str());
 				lineDihedral.variable = false;
             dihedralVector.push_back(lineDihedral);
         }
+       
+        /******************************************
+            BUILDING MOLECULE WITH CORRECT POSITIONS
+         ******************************************/        
+         // must not be a dummy atom
+         if(lineAtom.z != -1 && lineAtom.y != -1 && lineAtom.x != -1){
+            if(hasBond){
+
+                // Get other atom in bond
+                Atom otherAtom = createAtom(-1, -1, -1, -1);
+                unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
+                otherAtom = getAtom(atomVector, otherID);
+                if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
+                        && otherAtom.z == -1){
+                    
+                    // this should be an error but I don't know what kind.
+                    cout << "Other atom not found. Error?" << endl;
+                }
+                
+                // Move newAtom bond distance away from other atom in y direction.
+                lineAtom.x = otherAtom.x;
+                lineAtom.y = otherAtom.y + lineBond.distance;
+                lineAtom.z = otherAtom.z;
+            }
+            if(hasAngle){
+
+            }
+            if(hasDihedral){
+
+            } 
+         }
+
+         atomVector.push_back(lineAtom);
+
     }
     else if(format == 2)
         startNewMolecule = true;
@@ -142,7 +186,8 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
 	 		  
 	     
 	 previousFormat = format;
-}
+
+    }
 
 // check if line contains the right format...
 int Zmatrix_Scan::checkFormat(string line){
