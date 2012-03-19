@@ -150,9 +150,8 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
             if(hasBond){
 
                 // Get other atom in bond
-                Atom otherAtom = createAtom(-1, -1, -1, -1);
                 unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
-                otherAtom = getAtom(atomVector, otherID);
+                Atom otherAtom = getAtom(atomVector, otherID);
                 if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
                         && otherAtom.z == -1){
                     
@@ -166,7 +165,23 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 lineAtom.z = otherAtom.z;
             }
             if(hasAngle){
+                // Get other atom in angle
+                Atom otherAtom = createAtom(-1, -1, -1, -1);
+                unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
+                otherAtom = getAtom(atomVector, otherID);
+                if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
+                        && otherAtom.z == -1){
+                    
+                    // this should be an error but I don't know what kind.
+                    cout << "Other atom not found. Error?" << endl;
+                }
+                
+                // Get common atom that lineAtom and otherAtom are bonded to
+                unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
+                       otherID);
+                Atom commonAtom = getAtom(atomVector, commonID);
 
+                
             }
             if(hasDihedral){
 
