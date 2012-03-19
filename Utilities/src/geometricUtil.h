@@ -2,6 +2,9 @@
 #define GEOMETRICUTIL_H
 
 #include "metroUtil.h"
+#include <math.h>
+
+#define PI 3.14159265
 
 /**
   Structure representing a geometic point
@@ -47,6 +50,18 @@ Plane createPlane(Point p1, Point p2, Point p3);
 Atom getAtom(vector<Atom> atoms, unsigned long atomID);
 
 /**
+  @param degrees - the measure of an angle in degrees
+  @return - the value of the same angle in radians.
+*/
+double degreesToRadian(double degrees);
+
+/**
+  @param radians - the measure of an angle in radians
+  @return - the value of the same angle in degrees
+*/
+double radiansToDegrees(double radians);
+
+/**
   Returns the id in the bond that is not atomID
   @param bond - the bond to be checked.
   @param atomID - the atomID that you want the opposite of.
@@ -70,5 +85,31 @@ unsigned long getOppositeAtom(Angle angle, unsigned long atomID);
 */
 unsigned long getCommonAtom(vector<Bond> bonds, unsigned long atom1,
         unsigned long atom2);
+
+/**
+  @param - the first atom.
+  @param - the second atom.
+  @param - the distance between atom1 and atom2.
+*/
+double getDistance(Atom atom1, Atom atom2);
+
+/**
+  Returns the angle made by the three atoms.
+  @param atom1 - edge of the angle. Bonded to atom2
+  @param atom2 - the corner of the angle, Bonded to atom1 and atom3.
+  @param atom3 - the other edge of the angle.  Bonded to atom2.
+  @return - the angle in degrees created by the three atoms.
+*/
+double getAngle(Atom atom1, Atom atom2, Atom atom3);
+
+/**
+  Rotates atom1 about atom2 in the plane defined by atom1, atom2 and atom3
+  theta degrees.
+  @param atom1 - the atom to be rotated.
+  @param atom2 - the atom about which atom1 will be rotated.
+  @param atom3 - the atom used to complete the plane.
+  @param theta - the number of degrees to be rotated.
+*/
+void rotateAtom(Atom atom1, Atom atom2, Atom atom3);
 
 #endif //GEOMETRICUTIL_H

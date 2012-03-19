@@ -181,7 +181,8 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                        otherID);
                 Atom commonAtom = getAtom(atomVector, commonID);
 
-                
+                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
+                double angleChange = lineAngle.value - currentAngle;
             }
             if(hasDihedral){
 
