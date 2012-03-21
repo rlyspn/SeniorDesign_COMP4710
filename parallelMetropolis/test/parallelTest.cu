@@ -605,6 +605,77 @@ void testGetDistanceWrapper(){
 }
 
 
+void testRotateMolecule(){
+    //Testing on a molecule that is not totaly unlike water
+    double bondDistance = 0.9584; // angstroms
+    double maxRotation = 10.0; // degrees
+    int numOfAtoms = 3;
+    int numOfAngles = 1;
+    int numOfBonds = 2;
+    int numOfDihedrals = 0;
+
+    Atom oxygen = createAtom(1, 0, 0, 0);
+    Atom hydrogen1 = createAtom(2, 0, bondDistance, 0);
+    Atom hydrogen2 = createAtom(3, bondDistance, 0, 0);
+
+    Atom *atoms = (Atom *)malloc(sizeof(Atom) * 3);
+    atoms[0] = oxygen;
+    atoms[1] = hydrogen1;
+    atoms[2] = hydrogen2;
+    
+    vector<Atom> atomVector;
+    atomVector[0] = oxygen;
+    atomVector[1] = hydrogen1;
+    atomVector[2] = hydrogen2;
+
+    Bond b1 = createBond(1,2, bondDistance, false);
+    Bond b2 = createBond(1,3, bondDistance, false);
+    
+    Bond *bonds = (Bond *)malloc(sizeof(Bond) * 2);
+    bonds[0] = b1;
+    bonds[1] = b2;
+
+    Angle a1 = createAngle(2,3,90,false);
+    Angle *angles = (Angle *)malloc(sizeof(Angle));
+    angles[0] = a1;
+
+    Dihedral *dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * 0);
+
+    Molecule molec;
+    molec = createMolecule(1, atoms, angles, bonds, dihedrals,
+            numOfAtoms, numOfAngles, numOfBonds, numOfDihedrals);
+    
+    int testNumber = 10;
+   
+    for(int i = 0 ; i < testNumber; i++){
+        //pick atom to rotate about.  Cycle through all of them
+        Atom toRotate = atoms[i % numOfAtoms];
+        rotateMolecule(molec, toRotate, maxRotation);
+
+        //test that rotation is within limit
+        Atom newAtom1 = atoms[(i + 1) % numOfAtoms];
+        Atom origAtom1 = getAtom(atomVector, newAtom1.id);
+        double angleChange1 = getAngle(newAtom1, toRotate, origAtom1);
+        printf("Atom1 angle change = %f\n", angleChange1);
+        assert(angleChange1 < maxRotation);
+
+        Atom newAtom2 = atoms[(i + 2) % numOfAtoms];
+        Atom origAtom2 = getAtom(atomVector, newAtom2.id);
+        double angleChange2 = getAngle(newAtom2, toRotate, origAtom2);
+        
+        printf("Atom2 angle change = %f\n", angleChange2);
+        assert(angleChange2 < maxRotation);
+
+
+        //reset atoms
+        molec.atoms[0] = oxygen; 
+        molec.atoms[1] = hydrogen1;
+        molec.atoms[2] = hydrogen2;
+    }
+    
+    printf("rotateMolecule passed tests.\n");
+}
+
 int main(){
     testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();

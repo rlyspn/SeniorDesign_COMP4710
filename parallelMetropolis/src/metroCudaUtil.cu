@@ -244,7 +244,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         yAtom = atoms[yAtom_pos];
 
         lj_energy = calc_lj(xAtom,yAtom,*enviro);
-        charge_energy = calcCharge(xAtom, yAtom, *enviro);
+        charge_energy = calcCharge(xAtom, yAtom, enviro);
         fValue = 1.0; //TODO: make this the proper function call when the signature is finalized
         
         energySum[idx] = fValue * (lj_energy + charge_energy);

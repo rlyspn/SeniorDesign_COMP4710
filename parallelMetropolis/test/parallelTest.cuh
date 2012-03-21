@@ -4,7 +4,9 @@
 #include <assert.h>
 #include <cuda.h>
 #include "baseTests.h"
+#include <vector>
 #include "../src/metroCudaUtil.cuh"
+#include "../../Utilities/src/geometricUtil.h"
 #include <sys/time.h>
 
 /**
@@ -76,4 +78,8 @@ void testCalcChargeWrapper();
 */
 void testGetDistanceWrapper();
 
+/**
+  Tests that the function that rotates about a certain atom in a molecule is correct
+*/
+void testRotateMolecule();
 #endif //PARALLELTEST_H
