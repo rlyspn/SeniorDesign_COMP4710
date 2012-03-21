@@ -437,11 +437,11 @@ double soluteSolventTotalEnergy(){
 
 //these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
 
-__global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *charges, Environment *enviro){
+__global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *answers, Environment *enviro){
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if(idx < enviro->numOfAtoms){
-        charges[idx] = calcCharge(atoms1[idx], atoms2[idx], enviro);
+        answers[idx] = calcCharge(atoms1[idx], atoms2[idx], enviro);
     }
 }
 

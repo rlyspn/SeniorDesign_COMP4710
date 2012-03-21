@@ -676,6 +676,96 @@ void testRotateMolecule(){
     printf("rotateMolecule passed tests.\n");
 }
 
+void testCalcChargeWrapper(){
+    int numberOfTests = 10;
+    
+    // data on the host
+    Atom *atoms1_h;
+    Atom *atoms2_h;
+    Environment *enviro_h;
+    double *answers_h;
+
+    // data on the device
+    Atom *atoms1_d;
+    Atom *atoms2_d;
+    Environment *enviro_d;
+    double *answers_d;
+
+    // get sizes of data
+    size_t atomSize = sizeof(Atom) * numberOfTests;
+    size_t enviroSize = sizeof(Environment);
+    size_t answerSize = sizeof(double) * numberOfTests;
+
+    // mallocate on host
+    atoms1_h = (Atom *)malloc(atomSize);
+    atoms2_h = (Atom *)malloc(atomSize);
+    enviro_h = (Environment *)malloc(enviroSize);
+    answers_h = (double *) malloc(answerSize);
+
+    // mallocate on device
+    cudaMalloc((void **) &atoms1_d, atomSize);
+    cudaMalloc((void **) &atoms2_d, atomSize);
+    cudaMalloc((void **) &enviro_d, enviroSize);
+    cudaMalloc((void **) &answers_d, answerSize);
+
+    double xSize = 10;
+    double ySize = xSize;
+    double zSize = ySize;
+
+    double sigmaMax = 10;
+    double sigmaMin = -10;
+    double epsilonMax = 10;
+    double epsilonMin = -10;
+
+    //generate atoms for test
+    srand(time(NULL));
+    for(int i = 0; i < numberOfTests; i++){
+        atoms1_h[i].x = (double) rand() / (double) RAND_MAX * xSize;
+        atoms2_h[i].x = (double) rand() / (double) RAND_MAX * xSize;
+        
+        atoms1_h[i].y = (double) rand() / (double) RAND_MAX * ySize;
+        atoms2_h[i].y = (double) rand() / (double) RAND_MAX * ySize;
+        
+        atoms1_h[i].z = (double) rand() / (double) RAND_MAX * zSize;
+        atoms2_h[i].z = (double) rand() / (double) RAND_MAX * zSize;
+   
+        //ASSIGN SIGMA AND EPSILON
+        //TODO
+    }
+
+    enviro_h->x = xSize;
+    enviro_h->y = ySize;
+    enviro_h->z = zSize;
+    enviro_h->numOfAtoms = numberOfTests;
+
+    //transfer data to the device
+    cudaMemcpy(atoms1_d, atoms1_h, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(atoms2_d, atoms2_h, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(enviro_d, enviro_h, enviroSize, cudaMemcpyHostToDevice);
+
+    //call test function
+    int numOfBlocks = 1;
+    int threadsPerBlock = 64;
+    
+    testCalcCharge<<<numOfBlocks, threadsPerBlock>>>(atoms1_d, atoms2_d, answers_d, enviro_d);
+
+    //transfer answers from device to host
+    cudaMemcpy(answers_h, answers_d, answerSize, cudaMemcpyDeviceToHost);
+
+    //TEST ANSWERS
+    //TODO
+
+    free(atoms1_h);
+    free(atoms2_h);
+    free(enviro_h);
+    free(answers_h);
+
+    cudaFree(atoms1_d);
+    cudaFree(atoms2_d);
+    cudaFree(enviro_d);
+    cudaFree(answers_d);
+}
+
 int main(){
     testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();
