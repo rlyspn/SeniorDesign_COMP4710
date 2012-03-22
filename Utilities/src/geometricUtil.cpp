@@ -24,6 +24,38 @@ Atom getAtom(vector<Atom> atoms, unsigned long atomID){
     return createAtom(-1,-1,-1,-1);
 }
 
+Bond getBond(vector<Bond> bonds, unsigned long a1, unsigned long a2){
+    for(int i = 0; i < bonds.size(); i++){
+        if(getOppositeAtom(bonds[i], a1) == a2)
+            return bonds[i];
+    }
+    return createBond(-1, -1, -1, false);
+}
+
+vector<unsigned long> getAllBonds(vector<Bond> bonds, unsigned long atomID){
+    vector<unsigned long> toReturn;
+
+    for(int i = 0; i < bonds.size(); i++){
+        unsigned long oppositeAtom = getOppositeAtom(bonds[i], atomID);
+        if(oppositeAtom != -1)
+            toReturn.push_back(oppositeAtom);
+    }
+    return toReturn;
+}
+
+vector<unsigned long> getIntersection(vector<unsigned long> v1, vector<unsigned long> v2){
+    vector<unsigned long> intersection;
+
+    //not effecient but I will be working with small data sets.
+    for(int i = 0; i < v1.size(); i++){
+        for(int j = 0; j < v2.size(); j++){
+            if(v1[i] == v2[i])
+                intersection.push_back(v1[i]);
+        }
+    }
+    return intersection;
+}
+
 double degreesToRadians(double degrees){
     return degrees * PI / 180.0;
 }
@@ -50,6 +82,14 @@ unsigned long getOppositeAtom(Angle angle, unsigned long atomID){
         return -1;
 }
 
+unsigned long getOppositeAtom(Dihedral dihedral, unsigned long atomID){
+    if(dihedral.atom1 == atomID)
+        return dihedral.atom2;
+    else if(dihedral.atom2 == atomID)
+        return dihedral.atom1;
+    else
+        return -1;
+}
 
 unsigned long getCommonAtom(vector<Bond> bonds, unsigned long atom1,
         unsigned long atom2){

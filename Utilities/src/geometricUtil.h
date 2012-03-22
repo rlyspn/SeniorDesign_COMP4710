@@ -59,6 +59,33 @@ Plane createPlane(Point p1, Point p2, Point p3);
 Atom getAtom(vector<Atom> atoms, unsigned long atomID);
 
 /**
+  Returns a bond (if it exists) containing a1 and a2.
+  @param bonds - the vector of bonds to be tested.
+  @param a1 - the first atom needed in the bond
+  @param a2 - the second atom needed in the bond
+  @return - the bond containing a1 and a2
+          - 0 if a suitable bond has not been found
+ */
+Bond getBond(vector<Bond> bonds, unsigned long a1, unsigned long a2);
+
+/**
+  Returns a vector of all of the atoms bonded to atom id
+  @param bonds - the vector of bonds to be checked.
+  @param atomID - the atom that must be involved in the bonds
+  @return - a vector of atomIDs that are bonded to  atomID
+*/
+vector<unsigned long> getAllBonds(vector<Bond> bonds, unsigned long atomID);
+
+/**
+  Returns the intersection of the two vectors.
+  @param v1 - the first vector  set.
+  @param v2 - the seconds vector set.
+  @return - vector containing the elements of the intersection of the two sets.
+*/
+vector<unsigned long> getIntersection(vector<unsigned long> v1, vector<unsigned long> v2);
+
+
+/**
   @param degrees - the measure of an angle in degrees
   @return - the value of the same angle in radians.
 */
@@ -74,6 +101,8 @@ double radiansToDegrees(double radians);
   Returns the id in the bond that is not atomID
   @param bond - the bond to be checked.
   @param atomID - the atomID that you want the opposite of.
+  @return - the atom id of the atom opposite atomID
+            -1 if atomID is not found in the bond
 */
 unsigned long getOppositeAtom(Bond bond, unsigned long atomID);
 
@@ -81,8 +110,19 @@ unsigned long getOppositeAtom(Bond bond, unsigned long atomID);
   Returns the id in the angle that is not atomID
   @param angle - the angle to be checked.
   @param atomID - the atomID that you want the opposite of.
+  @return - the atom id of the atom opposite atomID
+            -1 if atomID is not found in the angle
 */
 unsigned long getOppositeAtom(Angle angle, unsigned long atomID);
+
+/**
+  Returns the id of the atom in the dihedral that is not atomID
+  @param dihedral - the dihedral to be checked.
+  @param atomID - the atomID that do not want to return.
+  @return - the atom id of the atom opposite atomID
+            -1 if atomID is not found in the dihedral 
+*/
+unsigned long getOppositeAtom(Dihedral dihedral, unsigned long atomID);
 
 /**
   Returns the id of the third atom in the angle between atom1 and atom2.

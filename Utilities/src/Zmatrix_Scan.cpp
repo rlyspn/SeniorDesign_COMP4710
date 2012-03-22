@@ -187,9 +187,48 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 lineAtom = rotateAtom(lineAtom, commonAtom, otherAtom, angleChange);
             }
             if(hasDihedral){
+                //get other atom in the dihedral
+                unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
+                Atom otherAtom = getAtom(atomVector, otherID);
 
-            } 
-         }
+                /*********
+                  There are guranteed to be 4 atoms involved in the dihedral
+                  because it takes atleast 4 atoms to define two non equal
+                  planes.
+                **********/
+                
+                //get all of the atoms bonded to lineAtom
+                vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
+                //get all of the atoms bonded to  otherAtom
+                vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
+                
+                /*find the intersection of the two previous vectors.
+                because of how the zMatrix file is set up the intersection
+                should be of size 1*/
+                vector<unsigned long> intersection = getIntersection(bondedToLineAtom, bondedToOtherAtom);
+                                 
+                //find bond that bonds together two of the atoms in the intersection
+                Bond linkingBond = createBond(-1, -1, -1, false);
+                for(int i = 0; i < intersection.size() - 1; i++){
+                    for(int j = i + 1; i < intersection.size(); i++){
+                        if(getOppositeAtom(bondVector, intersection[i]) == intersection[j]){
+                            //linkingBond = getBond(bondVector, intersection[i], intersection[j]);
+                        }
+                    }
+                } 
+         
+                /**
+                plane 1 is lineAtom and atoms in linking bond
+                plane 2 is otherAtom and atoms in linking bond
+                the bond creates the vector about which lineAtom will be rotated.
+                */    
+                
+                //find the angle between the planes.
+                //find the angle needed to rotate.
+                //rotate lineAtom needed degrees about linkbond.
+
+
+        }
 
          atomVector.push_back(lineAtom);
 
@@ -206,7 +245,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
 	 previousFormat = format;
 
     }
-
+}
 // check if line contains the right format...
 int Zmatrix_Scan::checkFormat(string line){
     int format =-1; 
