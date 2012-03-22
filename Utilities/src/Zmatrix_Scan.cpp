@@ -165,7 +165,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 lineAtom.z = otherAtom.z;
             }
             if(hasAngle){
-                // Get other atom in angle
+                // Get other atom listed in angle
                 Atom otherAtom = createAtom(-1, -1, -1, -1);
                 unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
                 otherAtom = getAtom(atomVector, otherID);
@@ -177,6 +177,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 }
                 
                 // Get common atom that lineAtom and otherAtom are bonded to
+                //it will be the vertex of the angle.
                 unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
                        otherID);
                 Atom commonAtom = getAtom(atomVector, commonID);
@@ -184,7 +185,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
                 double angleChange = lineAngle.value - currentAngle;
 
-                lineAtom = rotateAtom(lineAtom, commonAtom, otherAtom, angleChange);
+                lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
             }
             if(hasDihedral){
                 //get other atom in the dihedral
@@ -231,16 +232,32 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                         getAtom(atomVector, linkingBond.atom1),
                         getAtom(atomVector, linkingBond.atom2));
 
-                Plane nonMovingPlan = createPlane(otherAtom,
+                Plane nonMovingPlane = createPlane(otherAtom,
                         getAtom(atomVector, linkingBond.atom1),
                         getAtom(atomVector, linkingBond.atom2));
                 
                 //find the angle between the planes.
+                double initialAngle = getAngle(rotatePlane, nonMovingPlane);
                 //find the angle needed to rotate.
+                double toRotate = initialAngle - lineDihedral.value;
                 //rotate lineAtom needed degrees about linkbond.
+                    //determine which atom in linkingBond is vector head and tail
+                    Atom vectorHead;
+                    Atom vectorTail;
+                    Bond temp = getBond(bondVector, lineAtom.id, linkingBond.atom1);
+                    if(temp.atom1 == -1 && temp.atom2 == -1){
+                        // linkingBond.atom1 is not bonded to line atom and is the tail(start)
+                        vectorTail = getAtom(atomVector, linkingBond.atom1);
+                        vectorHead = getAtom(atomVector, linkingBond.atom2);
+                    }
+                    else{
+                        vectorTail = getAtom(atomVector, linkingBond.atom2);
+                        vectorHead = getAtom(atomVector, linkingBond.atom1);
+                    }
 
+                    lineAtom = rotateAboutVector(lineAtom, vectorTail, vectorHead);
 
-        }
+            }
 
          atomVector.push_back(lineAtom);
 

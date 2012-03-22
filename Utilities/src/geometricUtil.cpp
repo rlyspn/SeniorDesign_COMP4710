@@ -146,6 +146,39 @@ double getAngle(Atom atom1, Atom atom2, Atom atom3){
 
 }
 
+Point getNormal(Plane p){
+    //normal vector = (point2 - point1) CROSS (point3 - point1)
+    double atomAX = p.atom2.x - p.atom1.x;
+    double atomAY = p.atom2.y - p.atom1.y;
+    double atomAZ = p.atom2.z - p.atom1.z;
+    Point atomA = createPoint(atomAX, atomAY, atomAZ);
+
+    double atomBX = p.atom3.x - p.atom1.x;
+    double atomBY = p.atom3.y - p.atom1.y;
+    double atomBZ = p.atom3.z - p.atom1.z;
+    Point atomB = createPoint(atomBX, atomBY, atomBZ);
+    
+    //calculate the cross product of atomA and atomB
+    double normX = atomA.y * atomB.z - atomA.z * atomB.y;
+    double normY = atomA.z * atomB.x - atomA.x * atomB.z;
+    double normZ = atomA.x * atomB.y - atomA.y * atomB.x;
+    return createPoint(normX, normY, normZ); 
+}
+
+double getAngle(Plane p1, Plane p2){
+
+    //the normal vectors for each plane defined by a poin
+    Point normal1 = getNormal(p1);
+    Point normal2 = getNormal(p2);
+
+    Atom a1 = createAtom(-1, normal1.x, normal1.y, normal1.z);
+    Atom a2 = createAtom(-1, 0, 0, 0);
+    Atom a3 = createAtom(-1, normal2.x, normal1.y, normal1.z);
+
+    return getAngle(a1, a2, a3);
+
+}
+
 Atom translateAtom(Atom atom, double x, double y, double z){
     atom.x += x;
     atom.y += y;
@@ -175,7 +208,7 @@ Atom rotateAboutZ(Atom atom, double theta){
     return atom;
 }
 
-Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3, double theta){
+Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
     //Translate atom2 to the origin
     //translate (-atom2.x, -atom2.y, -atom2.z)
     atom1 = translateAtom(atom1, -atom2.x, -atom2.y, -atom2.z);
@@ -207,3 +240,49 @@ Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3, double theta){
     return atom1;
 }
 
+Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
+    //Translate all atoms so that atom2 is at the origin.
+    //The rotation axis needs to pass through the origin
+    atom1 = translateAtom(atom1, -atom2.x, -atom2.y, -atom3.z);
+    atom2 = translateAtom(atom2, -atom2.x, -atom2.y, -atom3.z);
+    atom3 = translateAtom(atom3, -atom2.x, -atom2.y, -atom3.z);
+
+    //find the angle between the vector and xz plane
+    Atom xzNormal = createAtom(-1, 0, 1, 0);
+    double xzAngle = getAngle(atom3, atom2, xzNormal);  
+    //rotate about z axis so that vector is parallel to xz plane
+    atom1 = rotateAboutZ(atom1, xzAngle);
+    //atom2 should not change because atom2 is at the origin
+    atom2 = rotateAboutZ(atom2, xzAngle);
+    atom3 = rotateAboutZ(atom3, xzAngle);
+
+    //find the angle between the vector and the z axis
+    Atom zAxis = createAtom(-1, 0, 0, 1);
+    double zAngle = getAngle(atom3, atom1, zAxis);
+    //rotate about y axis so that the vector is parallel to z axis
+    atom1 = rotateAboutY(atom1, zAngle);
+    atom2 = rotateAboutY(atom2, zAngle);
+    atom3 = rotateAboutY(atom3, zAngle);
+
+    //rotate atom1 theta about the z axis.
+    atom1 = rotateAboutZ(atom1, theta);
+
+    //invert rotation about y axis
+    atom1 = rotateAboutY(atom1, -zAngle);
+    atom2 = rotateAboutY(atom2, -zAngle);
+    atom3 = rotateAboutY(atom3, -zAngle);
+
+    //invert rotation about z axis
+    atom1 = rotateAboutZ(atom1, -xzAngle);
+    atom2 = rotateAboutZ(atom2, -xzAngle);
+    atom3 = rotateAboutZ(atom3, -xzAngle);
+    
+    //invert translation to origin
+    atom1 = translateAtom(atom1, atom2.x, atom2.y, atom3.z);
+    atom2 = translateAtom(atom2, atom2.x, atom2.y, atom3.z);
+    atom3 = translateAtom(atom3, atom2.x, atom2.y, atom3.z);
+
+    //the inversions for atoms 2 and 3 are not neccesary b/c of copy by value.
+
+    return atom1;
+}

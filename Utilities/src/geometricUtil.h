@@ -65,7 +65,7 @@ Atom getAtom(vector<Atom> atoms, unsigned long atomID);
   @param a1 - the first atom needed in the bond
   @param a2 - the second atom needed in the bond
   @return - the bond containing a1 and a2
-          - 0 if a suitable bond has not been found
+          - Bond(-1,-1,false) if a suitable bond has not been found
  */
 Bond getBond(vector<Bond> bonds, unsigned long a1, unsigned long a2);
 
@@ -161,6 +161,23 @@ double getDistance(Atom atom1, Atom atom2);
 double getAngle(Atom atom1, Atom atom2, Atom atom3);
 
 /**
+  Returns the acute angle between the two planes.
+  @param p1 - the first plane that creates the angle.
+  @param p2 - the second plane that creates the angle.
+  @return - the acute angle in degrees between the planes.
+          - returns 90 degrees if the planes are perdenicular.
+*/
+double getAngle(Plane p1, Plane p2);
+
+/**
+  Returns the normal vector of a plane.
+  The vector has a start point of 0,0,0 and an end point of @return.
+  @param p - the plane used to find the normal.
+  @return - the end point of the normal vector
+*/
+Point getNormal(Plane p);
+
+/**
   Translates the atom by x, y, z
   @param atom - the atom to be translated.
   @param x - the distance in the x direction to be translated.
@@ -200,6 +217,14 @@ Atom rotateAboutZ(Atom atom, double theta);
   @param atom3 - the atom used to complete the plane.
   @param theta - the number of degrees to be rotated.
 */
-Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3, double theta);
+Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta);
+
+/**
+  Rotates atom1 about the vector defined by atom3 and atom2.
+  @param atom1 - the atom to be rotated.
+  @param atom2 - the atom defining the start point of the vector.
+  @param atom3 - the atom defining the end point of the vector.
+*/
+Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta);
 
 #endif //GEOMETRICUTIL_H
