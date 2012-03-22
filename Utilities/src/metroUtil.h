@@ -99,6 +99,20 @@ struct Dihedral{
 */
 Dihedral createDihedral(int atom1, int atom2, double value, bool variable);
 
+/**
+  Atom pairs and their node distance(hops) away from each other
+  used in the fudge factor, for total energy calculations
+  @param atom1 - the starting atom
+  @param atom2 - the ending atom
+  @param hop  - the number of nodes between start and finish
+*/
+struct Hop{
+    int atom1;
+	 int atom2;
+	 int hop;
+};
+
+Hop createHop(int atom1, int atom2, int hops);
 
 // Structure to represent 
 struct Molecule{
@@ -108,11 +122,13 @@ struct Molecule{
     Bond *bonds; // array of bonds of the atoms in the molecule.
     Angle *angles; // angles in the molecule between atoms
     Dihedral *dihedrals; // array of dihedrals in the molecule
+	 Hop *hops; //array containing a list of atoms that are less than 4 nodes away
 
     int numOfAtoms; // the number of atoms in the molecule
     int numOfBonds; // the number of bonds in the molecule
     int numOfAngles; // the number of angles in the molecule
     int numOfDihedrals; // the number of dihedrals in the atom
+	 int numOfHops; // the number of Hops or pairs of atoms that are less than 4 nodes away
 };
 
 /**
@@ -128,6 +144,22 @@ struct Molecule{
 Molecule createMolecule(int id,
                         Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals,
                         int atomCount, int angleCount, int bondCount, int dihedralCount );
+
+/**
+    @param id - the integer id of the molecule
+    @param name - the name of the molecule
+    @param atoms - an array of the atoms in the molecule
+    @param bonds - an array of the bonds in the atom
+    @pararm dihedrals - array of dihedrals in the atom
+    @param atomCount - the number of atoms in the molecule
+    @param bondCount - the number of bonds in the atom
+    @param dihedralCount - the number of dihedrals in the molecule
+*/
+Molecule createMolecule(int id,
+                        Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals, Hop *hops,
+                        int atomCount, int angleCount, int bondCount, int dihedralCount, int hopsCount );
+
+								
 /**
     @param id - the integer id of the molecule
     @param name - the name of the molecule
