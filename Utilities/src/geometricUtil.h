@@ -23,16 +23,6 @@ struct Point{
 */
 Point createPoint(double X, double Y, double Z);
 
-/**
-  Structure representing a geometric plane.
-  A plane is described by three points.
-*/
-struct Plane{
-    Point point1;
-    Point point2;
-    Point point3;
-};
-
 struct Vector{
     Point origin;
     Point end;
@@ -43,12 +33,23 @@ Vector createVector(Point startPoint, Point endPoint);
 Vector createVector(Point startPoint, double deltaX, double deltaY, double deltaZ);
 
 /**
+  Structure representing a geometric plane.
+  A plane is described by three points.
+*/
+struct Plane{
+    Atom atom1;
+    Atom atom2;
+    Atom atom3;
+};
+
+
+/**
   @param p1 - the first point in the plane.
   @param p2 - the second point in the plane.
   @param p3 - the third point in the plane.
   @return - a plane represented by points p1, p2 and p3
 */
-Plane createPlane(Point p1, Point p2, Point p3);
+Plane createPlane(Atom p1, Atom p2, Atom p3);
 
 /**
   Returns a specific atom from a vector of atoms.
@@ -84,6 +85,14 @@ vector<unsigned long> getAllBonds(vector<Bond> bonds, unsigned long atomID);
 */
 vector<unsigned long> getIntersection(vector<unsigned long> v1, vector<unsigned long> v2);
 
+/**
+  Determines wheter the atom is a member of the vector.
+  @param atoms - the list of atom ids to check.
+  @param toCheck - the atomID to be checked for in the vector.
+  @return - true if toCheck is a member of the vector.
+            false if toCheck is not a member of the vector.
+*/
+bool isMember(vector<unsigned long> atoms, unsigned long toCheck);
 
 /**
   @param degrees - the measure of an angle in degrees

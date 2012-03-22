@@ -209,22 +209,31 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                                  
                 //find bond that bonds together two of the atoms in the intersection
                 Bond linkingBond = createBond(-1, -1, -1, false);
+
+                // this could possibly be abstracted into its own function and may made not to be and n^3 algorithm. ugh
                 for(int i = 0; i < intersection.size() - 1; i++){
                     for(int j = i + 1; i < intersection.size(); i++){
                         for(int k = 0; k < bondVector.size(); k++){
                             if(getOppositeAtom(bondVector[k], intersection[i]) == intersection[j]){
-                //                linkingBond = bondVector[k];
+                                linkingBond = bondVector[k];
                             }
                         }
                     }
                 } 
          
                 /**
-                plane 1 is lineAtom and atoms in linking bond
+                plane 1 is lineAtom and atoms in linking bond and will be rotated
                 plane 2 is otherAtom and atoms in linking bond
                 the bond creates the vector about which lineAtom will be rotated.
                 lineAtom is rotated about the 
                 */    
+                Plane rotatePlane = createPlane(lineAtom,
+                        getAtom(atomVector, linkingBond.atom1),
+                        getAtom(atomVector, linkingBond.atom2));
+
+                Plane nonMovingPlan = createPlane(otherAtom,
+                        getAtom(atomVector, linkingBond.atom1),
+                        getAtom(atomVector, linkingBond.atom2));
                 
                 //find the angle between the planes.
                 //find the angle needed to rotate.

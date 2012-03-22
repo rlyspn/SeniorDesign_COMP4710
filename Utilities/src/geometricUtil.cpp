@@ -8,11 +8,11 @@ Point createPoint(double X, double Y, double Z){
     return p;
 }
 
-Plane createPlane(Point p1, Point p2, Point p3){
+Plane createPlane(Atom a1, Atom a2, Atom a3){
     Plane p;
-    p.point1 = p1;
-    p.point2 = p2;
-    p.point3 = p3;
+    p.atom1 = a1;
+    p.atom2 = a2;
+    p.atom3 = a3;
     return p;
 }
 
@@ -54,6 +54,14 @@ vector<unsigned long> getIntersection(vector<unsigned long> v1, vector<unsigned 
         }
     }
     return intersection;
+}
+
+bool isMember(vector<unsigned long> atoms, unsigned long toCheck){
+    for(int i = 0; i < atoms.size(); i++){
+        if(atoms[i] == toCheck)
+            return true;
+    }
+    return false;
 }
 
 double degreesToRadians(double degrees){
