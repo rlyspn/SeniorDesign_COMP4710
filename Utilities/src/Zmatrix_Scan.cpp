@@ -211,8 +211,10 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 Bond linkingBond = createBond(-1, -1, -1, false);
                 for(int i = 0; i < intersection.size() - 1; i++){
                     for(int j = i + 1; i < intersection.size(); i++){
-                        if(getOppositeAtom(bondVector, intersection[i]) == intersection[j]){
-                            //linkingBond = getBond(bondVector, intersection[i], intersection[j]);
+                        for(int k = 0; k < bondVector.size(); k++){
+                            if(getOppositeAtom(bondVector[k], intersection[i]) == intersection[j]){
+                //                linkingBond = bondVector[k];
+                            }
                         }
                     }
                 } 
@@ -221,6 +223,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 plane 1 is lineAtom and atoms in linking bond
                 plane 2 is otherAtom and atoms in linking bond
                 the bond creates the vector about which lineAtom will be rotated.
+                lineAtom is rotated about the 
                 */    
                 
                 //find the angle between the planes.
