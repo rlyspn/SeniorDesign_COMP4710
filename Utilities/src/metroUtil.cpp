@@ -74,6 +74,29 @@ Molecule createMolecule(int id,
     return molecule;
 }
 
+//returns an instance of a molecule object
+Molecule createMolecule(int id, 
+                        Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals, Hop *hops, 
+                        int atomCount, int angleCount, int bondCount, int dihedralCount, int hopCount){
+    Molecule molecule;
+    molecule.id = id;
+
+    molecule.atoms = atoms;
+    molecule.angles = angles;
+    molecule.bonds = bonds;
+    molecule.dihedrals = dihedrals;
+	 molecule.hops = hops;
+
+    molecule.numOfAtoms = atomCount;
+    molecule.numOfAngles = angleCount;
+    molecule.numOfBonds = bondCount;
+    molecule.numOfDihedrals = dihedralCount;
+	 molecule.numOfHops = hopCount; 	
+
+    return molecule;
+}
+
+
 // returns an instance of the molecule struct
 Molecule createMolecule(int id, Atom *atoms, int atomCount){
     Molecule molecule;
@@ -117,6 +140,16 @@ Angle createAngle(int atom1, int atom2, double value, bool variable){
     return angle;
 }
 
+Hop createHop(int atom1, int atom2, int hop){
+    Hop hops;
+    hops.atom1 = atom1;
+    hops.atom2 = atom2;
+    hops.hop = hop;
+
+    return hops;
+}
+
+
 //utility to print off Atom coordinate data
 void printAtoms(Atom *atoms, int count){
     for(int i = 0; i < count; i++){
@@ -158,24 +191,29 @@ void copyMolecule(Molecule *molec1, Molecule *molec2){
     molec1->bonds = (Bond *)malloc(sizeof(Bond) * molec2->numOfBonds);
     molec1->angles = (Angle *)malloc(sizeof(Angle) * molec2->numOfAngles);
     molec1->dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * molec2->numOfDihedrals);
+	 molec1->hops = (Hop *)malloc(sizeof(Hop) * molec2->numOfHops);
 
     molec1->numOfAtoms = molec2->numOfAtoms;
     molec1->numOfBonds = molec2->numOfBonds;
     molec1->numOfAngles = molec2->numOfAngles;
     molec1->numOfDihedrals = molec2->numOfDihedrals;
+	 molec1->numOfHops =  molec2->numOfHops;
     molec1->id = molec2->id;
 
     for(int i = 0; i < molec1->numOfAtoms; i++){
-        molec1->atoms[i] = molec2->atoms[2];
+        molec1->atoms[i] = molec2->atoms[i];
     }
     for(int i = 0; i < molec1->numOfBonds; i++){
-        molec1->bonds[i] = molec2->bonds[2];
+        molec1->bonds[i] = molec2->bonds[i];
     }
     for(int i = 0; i < molec1->numOfAngles; i++){
-        molec1->angles[i] = molec2->angles[2];
+        molec1->angles[i] = molec2->angles[i];
     }
-    for(int i = 0; i < molec1->numOfBonds; i++){
-        molec1->dihedrals[i] = molec2->dihedrals[2];
+    for(int i = 0; i < molec1->numOfDihedrals; i++){
+        molec1->dihedrals[i] = molec2->dihedrals[i];
+    }
+	 for(int i = 0; i < molec1->numOfHops; i++){
+        molec1->hops[i] = molec2->hops[i];
     }
 
 

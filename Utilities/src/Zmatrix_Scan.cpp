@@ -259,6 +259,119 @@ void Zmatrix_Scan::handleZAdditions(string line, int cmdFormat){
 	 }
 }
 
+//returns a vector containing all the node to node hops that 
+//are more than 3.
+vector<Hop> Zmatrix_Scan::calculateHops(Molecule molec){
+    vector<Hop> newHops;
+    int **graph;
+	 int size = molec.numOfAtoms;
+    
+	 
+	 //cout << "ZMATRIX-- Creating Graph "<<endl;
+	 buildAdjacencyMatrix(graph,molec);
+	 //cout << "ZMATRIX-- Creating Graph Sucessful " <<endl;
+	 
+    /* cout << "  ";
+    for(int r=0;r<size; r++)
+       cout<< r+1 << " ";
+    cout << endl;
+      
+   	
+    for(int r=0;r<size; r++){
+       cout << r+1 << " ";
+       for(int c=0;c<size; c++)
+          cout << graph[r][c]<<" ";
+       cout << endl;
+    }	// DEBUG */
+	 
+	 for(int atom1=0; atom1<size; atom1++){
+	     for(int atom2=atom1+1; atom2<size; atom2++){
+		     //cout << "ZMATRIX-- Finding Hops "<< atom1+1<<" - "<<atom2+1<<endl;
+		     int distance = findHopDistance(atom1,atom2,size,graph);
+			  //cout << "ZMATRIX-- Hop Distance: "<< distance << endl;
+			  if(distance >3){
+			      Hop tempHop = createHop(atom1+1,atom2+1,distance); //+1 because atoms start at 1
+				   newHops.push_back(tempHop);					
+			      //cout << "ZMATRIX-- Creating and Adding new Hop atom1: "<< atom1+1<<" atom2: "<< atom2+1<<" \n--Distance: " << distance<<endl;
+			  }  		      
+		  }
+	 }
+	 return newHops; 
+}
+
+//checks to see if int item is pressent in the vector
+//liear search
+bool Zmatrix_Scan::contains(vector<int> &vect, int item){
+     for(int i=0; i<vect.size(); i++){
+        if(vect[i]==item)
+           return true;
+     }
+     return false;
+}
+
+
+//returns the node hop distance between two atoms
+int Zmatrix_Scan::findHopDistance(int atom1,int atom2,int size, int **graph){
+    map<int,int> distance;
+    queue<int> Queue;
+    vector<int> checked;
+    vector<int> bonds;
+   
+      
+    Queue.push(atom1);
+    checked.push_back(atom1);
+    distance.insert( pair<int,int>(atom1,0) );	
+   	
+    while(!Queue.empty()){
+       int target = Queue.front();
+       Queue.pop();
+       if(target == atom2)
+          return distance[target];
+       //if(distance[target]>4)
+       //   return -1;
+      	
+    	//get/push all bonds that are conected to target
+       bonds.clear();
+       for(int col=0;col<size;col++){
+          if( graph[target][col]==1 )
+             bonds.push_back(col);
+       }
+         
+       for(int x=0; x<bonds.size();x++){
+          int currentBond = bonds[x];
+          if(!contains(checked,currentBond) ){
+             checked.push_back(currentBond);
+             int newDistance = distance[target]+1;
+             distance.insert(pair<int,int>(currentBond, newDistance));
+             Queue.push(currentBond);
+          }
+       }
+    }
+}
+
+//Creates a graph or Adjacency matrix so the createHops function knows
+//which nodes/atoms are neighbors/linked
+void Zmatrix_Scan::buildAdjacencyMatrix(int **&graph, Molecule molec){
+    int size = molec.numOfAtoms;	
+	 graph =  new int*[size]; //create colums
+	 for(int i=0; i<size; i++) //create rows
+	      graph[i]=new int[size];	
+	 
+	 //fill with zero
+    for(int c=0; c<size; c++)
+        for(int r=0; r<size; r++)
+            graph[c][r]=0;
+	 
+	 //cout << "ZMATRIX-- Number of Bonds: "<< molec.numOfBonds <<endl;
+	 //fill with adjacent array with bonds
+	 for(int x=0; x<molec.numOfBonds; x++){
+	     Bond bond = molec.bonds[x];
+		  //cout << "ZMATRIX-- Bonds: "<< x<< " atom1: "<< molec.bonds[x].atom1<< " atom2: "<< molec.bonds[x].atom2 <<endl;
+	     graph[bond.atom1-1][bond.atom2-1]=1;
+		  graph[bond.atom2-1][bond.atom1-1]=1;
+	 }
+}
+
 //return a vector of all the molecules scanned in.
 //resed the id's of all molecules and atoms to be the location in Atom array
 //based on the startingID. Atoms adn Molecules should be stored one behind the other.
@@ -281,13 +394,23 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
 	      Dihedral *dihedCopy = new Dihedral[ moleculePattern[i].numOfDihedrals];
 			for(int a=0; a <  moleculePattern[i].numOfDihedrals ; a++)
 			    dihedCopy[a]=  moleculePattern[i].dihedrals[a];
+			
+			//calculate and add array of Hops to the molecule
+			vector<Hop> calculatedHops;
+			//cout << "ZMATRIX-- calculating hops " << startingID <<endl; 
+			calculatedHops = calculateHops(moleculePattern[i]);
+			int numOfHops = calculatedHops.size();
+			Hop *hopCopy = new Hop[numOfHops];
+			for(int a=0; a < numOfHops; a++)
+			    hopCopy[a] = calculatedHops[a];
 
 			
-			Molecule molecCopy = createMolecule(-1,atomCopy, angleCopy, bondCopy, dihedCopy, 
+			Molecule molecCopy = createMolecule(-1,atomCopy, angleCopy, bondCopy, dihedCopy, hopCopy, 
 			                                     moleculePattern[i].numOfAtoms, 
 															 moleculePattern[i].numOfAngles,
 															 moleculePattern[i].numOfBonds,
-															 moleculePattern[i].numOfDihedrals);
+															 moleculePattern[i].numOfDihedrals,
+															 numOfHops);
 															 
 		   newMolecules.push_back(molecCopy);	      
 	  }
@@ -314,7 +437,7 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
             int atomID = newMolecule.atoms[i].id - 1;
 				//cout << "ZMATRIX-- atomID: " <<  atomID <<endl;
 				//cout << "ZMATRIX-- atomID memory Loc: " << &newMolecules[j].atoms[i]  <<endl;
-            newMolecule.atoms[i].id = atomID + startingID;
+            newMolecule.atoms[i].id = atomID + newMolecule.id;
 				//cout << "ZMATRIX-- newMolecule.atoms[i] ID + Molec ID: " <<  newMolecule.atoms[i].id <<endl;
         }
         for (int i = 0; i < newMolecule.numOfBonds; i++){
@@ -338,6 +461,14 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
             newMolecule.dihedrals[i].atom1 = atom1ID + newMolecule.id;
             newMolecule.dihedrals[i].atom2 = atom2ID + newMolecule.id;
         }
+		   for (int i = 0; i < newMolecule.numOfHops; i++){
+            int atom1ID = newMolecule.hops[i].atom1 - 1;
+            int atom2ID = newMolecule.hops[i].atom2 - 1;
+            
+            newMolecule.hops[i].atom1 = atom1ID + newMolecule.id;
+            newMolecule.hops[i].atom2 = atom2ID + newMolecule.id;
+        }
+
     }
 
     return newMolecules;
