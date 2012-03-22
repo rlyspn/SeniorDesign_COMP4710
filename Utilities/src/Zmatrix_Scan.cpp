@@ -96,19 +96,25 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         Angle lineAngle;
         Dihedral lineDihedral;
 
+        bool hasBond = false;
+        bool hasAngle = false;
+        bool hasDihedral = false;
+
         if (oplsA.compare("-1") != 0)
         {
             lineAtom = oplsScanner->getAtom(oplsA);
             lineAtom.id = atoi(atomID.c_str());
-            atomVector.push_back(lineAtom);
+        //    atomVector.push_back(lineAtom);
         }
         else//dummy atom
         {
             lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1);
-            atomVector.push_back(lineAtom); 
+        //    atomVector.push_back(lineAtom); 
         }
 
         if (bondWith.compare("0") != 0){
+            hasBond = true;
+
             lineBond.atom1 = lineAtom.id;
             lineBond.atom2 = atoi(bondWith.c_str());
             lineBond.distance = atof(bondDistance.c_str());
@@ -117,6 +123,8 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
 
         if (angleWith.compare("0") != 0){
+            hasAngle = true;
+
             lineAngle.atom1 = lineAtom.id;
             lineAngle.atom2 = atoi(angleWith.c_str());
             lineAngle.value = atof(angleMeasure.c_str());
@@ -125,12 +133,105 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
 
         if (dihedralWith.compare("0") != 0){
+            hasDihedral = true;
+
             lineDihedral.atom1 = lineAtom.id;
             lineDihedral.atom2 = atoi(dihedralWith.c_str());
             lineDihedral.value = atof(dihedralMeasure.c_str());
 				lineDihedral.variable = false;
             dihedralVector.push_back(lineDihedral);
         }
+       
+        /******************************************
+            BUILDING MOLECULE WITH CORRECT POSITIONS
+         ******************************************/        
+         // must not be a dummy atom
+         if(lineAtom.z != -1 && lineAtom.y != -1 && lineAtom.x != -1){
+            if(hasBond){
+
+                // Get other atom in bond
+                unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
+                Atom otherAtom = getAtom(atomVector, otherID);
+                if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
+                        && otherAtom.z == -1){
+                    
+                    // this should be an error but I don't know what kind.
+                    cout << "Other atom not found. Error?" << endl;
+                }
+                
+                // Move newAtom bond distance away from other atom in y direction.
+                lineAtom.x = otherAtom.x;
+                lineAtom.y = otherAtom.y + lineBond.distance;
+                lineAtom.z = otherAtom.z;
+            }
+            if(hasAngle){
+                // Get other atom in angle
+                Atom otherAtom = createAtom(-1, -1, -1, -1);
+                unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
+                otherAtom = getAtom(atomVector, otherID);
+                if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
+                        && otherAtom.z == -1){
+                    
+                    // this should be an error but I don't know what kind.
+                    cout << "Other atom not found. Error?" << endl;
+                }
+                
+                // Get common atom that lineAtom and otherAtom are bonded to
+                unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
+                       otherID);
+                Atom commonAtom = getAtom(atomVector, commonID);
+
+                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
+                double angleChange = lineAngle.value - currentAngle;
+
+                lineAtom = rotateAtom(lineAtom, commonAtom, otherAtom, angleChange);
+            }
+            if(hasDihedral){
+                //get other atom in the dihedral
+                unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
+                Atom otherAtom = getAtom(atomVector, otherID);
+
+                /*********
+                  There are guranteed to be 4 atoms involved in the dihedral
+                  because it takes atleast 4 atoms to define two non equal
+                  planes.
+                **********/
+                
+                //get all of the atoms bonded to lineAtom
+                vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
+                //get all of the atoms bonded to  otherAtom
+                vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
+                
+                /*find the intersection of the two previous vectors.
+                because of how the zMatrix file is set up the intersection
+                should be of size 1*/
+                vector<unsigned long> intersection = getIntersection(bondedToLineAtom, bondedToOtherAtom);
+                                 
+                //find bond that bonds together two of the atoms in the intersection
+                Bond linkingBond = createBond(-1, -1, -1, false);
+                for(int i = 0; i < intersection.size() - 1; i++){
+                    for(int j = i + 1; i < intersection.size(); i++){
+                        if(getOppositeAtom(bondVector, intersection[i]) == intersection[j]){
+                            //linkingBond = getBond(bondVector, intersection[i], intersection[j]);
+                        }
+                    }
+                } 
+         
+                /**
+                plane 1 is lineAtom and atoms in linking bond
+                plane 2 is otherAtom and atoms in linking bond
+                the bond creates the vector about which lineAtom will be rotated.
+                */    
+                
+                //find the angle between the planes.
+                //find the angle needed to rotate.
+                //rotate lineAtom needed degrees about linkbond.
+
+
+        }
+
+         atomVector.push_back(lineAtom);
+
     }
     else if(format == 2)
         startNewMolecule = true;
@@ -142,8 +243,9 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
 	 		  
 	     
 	 previousFormat = format;
-}
 
+    }
+}
 // check if line contains the right format...
 int Zmatrix_Scan::checkFormat(string line){
     int format =-1; 

@@ -13,6 +13,7 @@
 #include <queue>
 #include "metroUtil.h"
 #include "Opls_Scan.h"
+#include "geometricUtil.h"
 using namespace std;
 
 

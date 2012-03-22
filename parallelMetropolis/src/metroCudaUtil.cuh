@@ -197,7 +197,7 @@ __global__ void testGetFValue(Atom *atom1List, Atom *atom2List, Molecule *molecu
 /**
   Kernel function that will be used to test the calcCharge() function.
 */
-__global__ void testCalcCharge();
+__global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *charges, Environment *enviro);
 
 /**
     Kernel call that will be used to test the getXFromIndexFunction

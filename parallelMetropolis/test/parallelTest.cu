@@ -605,6 +605,169 @@ void testGetDistanceWrapper(){
 }
 
 
+void testRotateMolecule(){
+    //Testing on a molecule that is not totaly unlike water
+    double bondDistance = 0.9584; // angstroms
+    double maxRotation = 10.0; // degrees
+    int numOfAtoms = 3;
+    int numOfAngles = 1;
+    int numOfBonds = 2;
+    int numOfDihedrals = 0;
+
+    Atom oxygen = createAtom(1, 0, 0, 0);
+    Atom hydrogen1 = createAtom(2, 0, bondDistance, 0);
+    Atom hydrogen2 = createAtom(3, bondDistance, 0, 0);
+
+    Atom *atoms = (Atom *)malloc(sizeof(Atom) * 3);
+    atoms[0] = oxygen;
+    atoms[1] = hydrogen1;
+    atoms[2] = hydrogen2;
+    
+    vector<Atom> atomVector;
+    atomVector[0] = oxygen;
+    atomVector[1] = hydrogen1;
+    atomVector[2] = hydrogen2;
+
+    Bond b1 = createBond(1,2, bondDistance, false);
+    Bond b2 = createBond(1,3, bondDistance, false);
+    
+    Bond *bonds = (Bond *)malloc(sizeof(Bond) * 2);
+    bonds[0] = b1;
+    bonds[1] = b2;
+
+    Angle a1 = createAngle(2,3,90,false);
+    Angle *angles = (Angle *)malloc(sizeof(Angle));
+    angles[0] = a1;
+
+    Dihedral *dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * 0);
+
+    Molecule molec;
+    molec = createMolecule(1, atoms, angles, bonds, dihedrals,
+            numOfAtoms, numOfAngles, numOfBonds, numOfDihedrals);
+    
+    int testNumber = 10;
+   
+    for(int i = 0 ; i < testNumber; i++){
+        //pick atom to rotate about.  Cycle through all of them
+        Atom toRotate = atoms[i % numOfAtoms];
+        rotateMolecule(molec, toRotate, maxRotation);
+
+        //test that rotation is within limit
+        Atom newAtom1 = atoms[(i + 1) % numOfAtoms];
+        Atom origAtom1 = getAtom(atomVector, newAtom1.id);
+        double angleChange1 = getAngle(newAtom1, toRotate, origAtom1);
+        printf("Atom1 angle change = %f\n", angleChange1);
+        assert(angleChange1 < maxRotation);
+
+        Atom newAtom2 = atoms[(i + 2) % numOfAtoms];
+        Atom origAtom2 = getAtom(atomVector, newAtom2.id);
+        double angleChange2 = getAngle(newAtom2, toRotate, origAtom2);
+        
+        printf("Atom2 angle change = %f\n", angleChange2);
+        assert(angleChange2 < maxRotation);
+
+
+        //reset atoms
+        molec.atoms[0] = oxygen; 
+        molec.atoms[1] = hydrogen1;
+        molec.atoms[2] = hydrogen2;
+    }
+    
+    printf("rotateMolecule passed tests.\n");
+}
+
+double calcRValue(Atom atom1, Atom atom2, Environment enviro){
+    
+}
+
+void testCalcChargeWrapper(){
+    int numberOfTests = 10;
+    
+    // data on the host
+    Atom *atoms1_h;
+    Atom *atoms2_h;
+    Environment *enviro_h;
+    double *answers_h;
+
+    // data on the device
+    Atom *atoms1_d;
+    Atom *atoms2_d;
+    Environment *enviro_d;
+    double *answers_d;
+
+    // get sizes of data
+    size_t atomSize = sizeof(Atom) * numberOfTests;
+    size_t enviroSize = sizeof(Environment);
+    size_t answerSize = sizeof(double) * numberOfTests;
+
+    // mallocate on host
+    atoms1_h = (Atom *)malloc(atomSize);
+    atoms2_h = (Atom *)malloc(atomSize);
+    enviro_h = (Environment *)malloc(enviroSize);
+    answers_h = (double *) malloc(answerSize);
+
+    // mallocate on device
+    cudaMalloc((void **) &atoms1_d, atomSize);
+    cudaMalloc((void **) &atoms2_d, atomSize);
+    cudaMalloc((void **) &enviro_d, enviroSize);
+    cudaMalloc((void **) &answers_d, answerSize);
+
+    double xSize = 10;
+    double ySize = xSize;
+    double zSize = ySize;
+
+    //generate atoms for test
+    srand(time(NULL));
+    for(int i = 0; i < numberOfTests; i++){
+        atoms1_h[i].x = (double) rand() / (double) RAND_MAX * xSize;
+        atoms2_h[i].x = (double) rand() / (double) RAND_MAX * xSize;
+        
+        atoms1_h[i].y = (double) rand() / (double) RAND_MAX * ySize;
+        atoms2_h[i].y = (double) rand() / (double) RAND_MAX * ySize;
+        
+        atoms1_h[i].z = (double) rand() / (double) RAND_MAX * zSize;
+        atoms2_h[i].z = (double) rand() / (double) RAND_MAX * zSize;
+   
+        atoms1_h[i].charge = (double) rand() / (double) RAND_MAX * 2 - 1;
+        atoms2_h[i].charge = (double) rand() / (double) RAND_MAX * 2 - 1; 
+    }
+
+    enviro_h->x = xSize;
+    enviro_h->y = ySize;
+    enviro_h->z = zSize;
+    enviro_h->numOfAtoms = numberOfTests;
+
+    //transfer data to the device
+    cudaMemcpy(atoms1_d, atoms1_h, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(atoms2_d, atoms2_h, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(enviro_d, enviro_h, enviroSize, cudaMemcpyHostToDevice);
+
+    //call test function
+    int numOfBlocks = 1;
+    int threadsPerBlock = 64;
+    
+    testCalcCharge<<<numOfBlocks, threadsPerBlock>>>(atoms1_d, atoms2_d, answers_d, enviro_d);
+
+    //transfer answers from device to host
+    cudaMemcpy(answers_h, answers_d, answerSize, cudaMemcpyDeviceToHost);
+
+    //TEST ANSWERS
+    for(int i = 0; i < numberOfTests; i++){
+        double expected = calc_charge(atoms1_h[i], atoms2_h[i], *enviro_h);
+        assert((expected - answers_h[i]) / expected < .01);
+    }
+
+    free(atoms1_h);
+    free(atoms2_h);
+    free(enviro_h);
+    free(answers_h);
+
+    cudaFree(atoms1_d);
+    cudaFree(atoms2_d);
+    cudaFree(enviro_d);
+    cudaFree(answers_d);
+}
+
 int main(){
     testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();

@@ -22,13 +22,13 @@ demo: cudaUtil metroUtil $(PARA)$(SRC)inClassDemo.cu
 
 metroSim: cudaUtil metroUtil stateScan configScan zMatrix OPLSScan $(PARA)$(SRC)metropolisSimulation.cu
 	$(NV) $(FLAGS) -c $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)metropolisSimulation.o 
-	$(NV) $(FLAGS) $(BIN)State_Scan.o $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroCudaUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o -o $(BIN)$(EXE) 
+	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)State_Scan.o $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroCudaUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o -o $(BIN)$(EXE) 
 
 kryptonSim: cudaUtil metroUtil $(PARA)$(SRC)kryptonSimulation.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(PARA)$(SRC)kryptonSimulation.cu -o $(BIN)$(KRYPTONEXE)	
 
-tests: cudaUtil metroUtil baseTest $(PARA)$(TST)parallelTest.cu $(PARA)$(TST)parallelTest.cuh
-	$(NV) $(FLAGS) $(BIN)baseTests.o $(BIN)metroCudaUtil.o  $(BIN)metroUtil.o $(PARA)$(TST)parallelTest.cu -o $(BIN)$(TSTEXE)
+tests: cudaUtil geoUtil metroUtil baseTest $(PARA)$(TST)parallelTest.cu $(PARA)$(TST)parallelTest.cuh
+	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)baseTests.o $(BIN)metroCudaUtil.o  $(BIN)metroUtil.o $(PARA)$(TST)parallelTest.cu -o $(BIN)$(TSTEXE)
 
 baseTest: $(PARA)$(TST)baseTests.h $(PARA)$(TST)baseTests.cpp
 	$(NV) $(FLAGS) -c $(PARA)$(TST)baseTests.cpp -o $(BIN)baseTests.o
@@ -40,13 +40,16 @@ metroUtil: OPLSScan zMatrix $(UTIL)$(SRC)metroUtil.h $(UTIL)$(SRC)metroUtil.cpp
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)metroUtil.cpp -o $(BIN)metroUtil.o
 
 utilTests: stateScan stateTest configTest metroUtil zMatrix OPLSScan
-	$(NV) $(BIN)configurationTest.o $(BIN)Config_Scan.o $(BIN)stateTest.o $(BIN)metroUtil.o $(BIN)State_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
+	$(NV) $(BIN)geometricUtil.o $(BIN)configurationTest.o $(BIN)Config_Scan.o $(BIN)stateTest.o $(BIN)metroUtil.o $(BIN)State_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
 
-zMatrix: $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
+zMatrix: geoUtil $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Zmatrix_Scan.cpp -o $(BIN)Zmatrix_Scan.o
 
 OPLSScan: $(UTIL)$(SRC)Opls_Scan.cpp $(UTIL)$(SRC)Opls_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Opls_Scan.cpp -o $(BIN)Opls_Scan.o
+
+geoUtil: $(UTIL)$(SRC)geometricUtil.cpp $(UTIL)$(SRC)geometricUtil.h
+	$(NV) $(FLAGS) -c $(UTIL)$(SRC)geometricUtil.cpp -o $(BIN)geometricUtil.o
 
 stateTest: metroUtil $(UTIL)$(TST)stateTest.cpp $(UTIL)$(TST)stateTest.h 
 	$(NV) $(FLAGS) -c $(UTIL)$(TST)stateTest.cpp -o $(BIN)stateTest.o

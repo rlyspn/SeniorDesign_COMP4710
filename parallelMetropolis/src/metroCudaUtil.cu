@@ -229,7 +229,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
     int cacheIndex = threadIdx.x;
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    double lj_energy;
+    double lj_energy,charge_energy, fValue;
 
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
 
@@ -244,7 +244,10 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         yAtom = atoms[yAtom_pos];
 
         lj_energy = calc_lj(xAtom,yAtom,*enviro);
-        energySum[idx] = lj_energy;
+        charge_energy = calcCharge(xAtom, yAtom, enviro);
+        fValue = 1.0; //TODO: make this the proper function call when the signature is finalized
+        
+        energySum[idx] = fValue * (lj_energy + charge_energy);
     }
     else {
         lj_energy = 0.0;
@@ -433,6 +436,14 @@ double soluteSolventTotalEnergy(){
 #ifdef DEBUG
 
 //these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
+
+__global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *answers, Environment *enviro){
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if(idx < enviro->numOfAtoms){
+        answers[idx] = calcCharge(atoms1[idx], atoms2[idx], enviro);
+    }
+}
 
 __global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
         Environment enviros, int numberOfTests, int *answers){

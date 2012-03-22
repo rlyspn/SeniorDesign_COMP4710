@@ -23,4 +23,8 @@ double calculate_energy(Atom *atoms, Environment *enviro);
 //retrieves the difference in time
 long timevaldiff(struct timeval *starttime, struct timeval *finishtime);
 
+double calc_r_value(Atom a1, Atom a2, Environment enviro);
+
+double calc_charge(Atom a1, Atom a2, Environment enviro);
+
 #endif //BASETEST_H
