@@ -150,7 +150,3 @@ void testRotateAboutZ(){
     cout << "testRotateAboutZ completed successfully" << endl;    
 }
 
-void testRotateAtom(){
-    
-}
-

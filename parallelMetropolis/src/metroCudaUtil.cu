@@ -49,36 +49,79 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
     double maxY = 0.0;
     double maxZ = 0.0;
 
+    double minX = 0.0;
+    double minY = 0.0;
+    double minZ = 0.0;
+
     //determine extreme boundaries for molecule
     for (int i = 0; i < molecule->numOfAtoms; i++){
         double currentX = molecule->atoms[i].x;
         double currentY = molecule->atoms[i].y;
         double currentZ = molecule->atoms[i].z;
+
         if (currentX > maxX)
            maxX = currentX;
+        else if (currentX < minX)
+           minX = currentX;
+
         if (currentY > maxY)
             maxY = currentY;
+        else if (currentY < minY)
+            minY = currentY;
+
         if (currentZ > maxZ)
             maxZ = currentZ;
+        else if (currentZ < minZ)
+            minZ = currentZ;
+    
     }
 
+    bool isFullyOutX = (minX > enviro->x || maxX < 0);
+    bool isFullyOutY = (minY > enviro->y || maxY < 0);
+    bool isFullyOutZ = (minZ > enviro->z || maxZ < 0);
+
     //for each axis, determine if the molecule escapes the environment 
-    //and translate it into the environment if it does
-    if (maxX > enviro->x){
-        for (int i = 0; i < molecule->numOfAtoms; i++){
-            molecule->atoms[i].x -= (maxX - enviro->x);
+    //and wrap it around into the environment
+    for (int i = 0; i < molecule->numOfAtoms; i++){
+        double* currentX = &(molecule->atoms[i].x);
+        double* currentY = &(molecule->atoms[i].y);
+        double* currentZ = &(molecule->atoms[i].z);
+        if (maxX > enviro->x){
+            if (!isFullyOutX)
+                *currentX += (enviro->x - minX);
+            *currentX = wrapBox(*currentX, enviro->x);
         }
-    }
-    if (maxY > enviro->y){
-        for (int i = 0; i < molecule->numOfAtoms; i++){
-            molecule->atoms[i].y -= (maxY - enviro->y);
+        else if (minX < 0){
+            if (!isFullyOutX)
+                *currentX -= maxX;
+            *currentX = wrapBox(*currentX, enviro->x);
         }
-    }
-    if (maxZ > enviro->z){
-        for (int i = 0; i < molecule->numOfAtoms; i++){
-            molecule->atoms[i].z -= (maxZ - enviro->z);
+
+        if (maxY > enviro->y){
+            if (!isFullyOutY)
+                *currentY += (enviro->y - minY);
+            *currentY = wrapBox(*currentY, enviro->y);
         }
+        else if (minY < 0){
+            if (!isFullyOutY)
+                *currentY -= maxY;
+            *currentY = wrapBox(*currentY, enviro->y);
+        }
+
+        if (maxZ > enviro->z){
+            if (!isFullyOutZ)
+                *currentZ += (enviro->z - minZ);
+            *currentZ = wrapBox(*currentZ, enviro->z);
+        }
+        else if (minZ < 0){
+            if (!isFullyOutZ)
+                *currentZ -= maxZ;
+            *currentZ = wrapBox(*currentZ, enviro->z);
+        }
+    
+    
     }
+
 }
 //calculate Lennard-Jones energy between two atoms
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){

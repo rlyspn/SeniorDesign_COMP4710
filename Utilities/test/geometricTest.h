@@ -27,10 +27,5 @@ void testRotateAboutY();
 */
 void testRotateAboutZ();
 
-/**
-    tests the rotateAtom function
-*/
-void testRotateAtom();
-
 
 #endif //GEOMETRICTEST_H
