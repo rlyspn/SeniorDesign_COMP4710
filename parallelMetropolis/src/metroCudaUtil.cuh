@@ -117,12 +117,13 @@ __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
 
 /**
-  Returns the bond distance between atom1 and atom2 in the molecule
-  @param atom1 - the source atom in the molecule
-  @param atom2 - the destination atom in the molecule
+  Return if the two atom ids are have a hop value >=3
+  returns 1 if true and 0 if false
+  @param atom1 - the id of the starting atom
+  @param atom2 - the id of the ending atom
   @param molecule - the molecule that contains atom1 and atom 2
 */
-__device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule, Environment enviro);
+__device__ int hopGE3(int atom1, int atom2, Molecule molecule);
 
 /**
   Returns sqrt(d1 * d2)

@@ -27,5 +27,4 @@ void testRotateAboutY();
 */
 void testRotateAboutZ();
 
-
 #endif //GEOMETRICTEST_H

@@ -52,7 +52,7 @@ class Zmatrix_Scan{
 		Checks the format of the line being read in
 		returns false if the format of the line is invalid
 		@param line -  a line from the zmatrix file
-        @param stringCount - number of strings in a line you're looking at
+      @param stringCount - number of strings in a line you're looking at
 		*/
         int checkFormat(string line);
 
