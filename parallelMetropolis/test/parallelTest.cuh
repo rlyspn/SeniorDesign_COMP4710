@@ -79,6 +79,14 @@ void testCalcChargeWrapper();
 void testGetDistanceWrapper();
 
 /**
+  @param pivot - the atom about which the rotation will take place.
+  @param toRotate - the atom to rotate
+  @param rotation - the amount to rotate about each axis
+  @return - the position of the atom after the max rotation.
+*/
+Atom findMaxRotation(Atom pivot, Atom toRotate, double rotation);
+
+/**
   Tests that the function that rotates about a certain atom in a molecule is correct
 */
 void testRotateMolecule();

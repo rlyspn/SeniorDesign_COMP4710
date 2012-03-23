@@ -397,7 +397,7 @@ void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation){
 
     //rotate molecule about origin
     for (int axis = 0; axis < 3; axis++){
-        double rotation = ((double) rand() / RAND_MAX) * maxRotation * dtr;
+        double rotation = ((double) rand() / (double) RAND_MAX) * maxRotation * dtr;
         double sinrot = sin(rotation);
         double cosrot = cos(rotation);
         if (axis == 0){ //rotate about x-axis
