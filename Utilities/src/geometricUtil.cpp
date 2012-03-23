@@ -108,23 +108,26 @@ Atom translateAtom(Atom atom, double x, double y, double z){
 
 Atom rotateAboutX(Atom atom, double theta){
     double thetaRadians = degreesToRadians(theta);
-    atom.y = atom.y * cos(thetaRadians) - atom.z * sin(thetaRadians);
-    atom.z = atom.y * sin(thetaRadians) - atom.z * cos(thetaRadians);
-    return atom;
+    Atom returnAtom = atom;
+    returnAtom.y = atom.y * cos(thetaRadians) + atom.z * sin(thetaRadians);
+    returnAtom.z = atom.z * cos(thetaRadians) - atom.y * sin(thetaRadians);
+    return returnAtom;
 }
 
 Atom rotateAboutY(Atom atom, double theta){
     double thetaRadians = degreesToRadians(theta);
-    atom.z = atom.z * cos(thetaRadians) - atom.x * sin(thetaRadians);
-    atom.x = atom.z * sin(thetaRadians) + atom.x * cos(thetaRadians);
-    return atom; 
+    Atom returnAtom = atom;
+    returnAtom.z = atom.z * cos(thetaRadians) + atom.x * sin(thetaRadians);
+    returnAtom.x = atom.x * cos(thetaRadians) - atom.z * sin(thetaRadians);
+    return returnAtom; 
 }
 
 Atom rotateAboutZ(Atom atom, double theta){
     double thetaRadians = degreesToRadians(theta);
-    atom.x = atom.x * cos(thetaRadians) - atom.y * sin(thetaRadians);
-    atom.y = atom.x * cos(thetaRadians) + atom.y * cos(thetaRadians);
-    return atom;
+    Atom returnAtom = atom;
+    returnAtom.x = atom.x * cos(thetaRadians) + atom.y * sin(thetaRadians);
+    returnAtom.y = atom.y * cos(thetaRadians) - atom.x * sin(thetaRadians);
+    return returnAtom;
 }
 
 Atom rotateAtom(Atom atom1, Atom atom2, Atom atom3, double theta){

@@ -3,6 +3,7 @@
 #include "../src/State_Scan.h"
 #include "stateTest.h"
 #include "configurationTest.h"
+#include "geometricTest.h"
 #include <assert.h>
 #include <iostream>
 #include <sstream>
@@ -409,7 +410,11 @@ int main(){
     testGetFourier(scanner);
     testPDBoutput();
     testZmatrixScanner(scanner);
-	 testZmatrixScanner_multpleSingle(scanner);
-	 testZmatrixScanner_multpleAmount(scanner);
+	testZmatrixScanner_multpleSingle(scanner);
+	testZmatrixScanner_multpleAmount(scanner);
+    testTranslateAtom();
+    testRotateAboutX();
+    testRotateAboutY();
+    testRotateAboutZ();
 
 }

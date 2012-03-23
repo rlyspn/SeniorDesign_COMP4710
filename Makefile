@@ -39,8 +39,8 @@ cudaUtil: metroUtil $(PARA)$(SRC)metroCudaUtil.cuh $(PARA)$(SRC)metroCudaUtil.cu
 metroUtil: OPLSScan zMatrix $(UTIL)$(SRC)metroUtil.h $(UTIL)$(SRC)metroUtil.cpp
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)metroUtil.cpp -o $(BIN)metroUtil.o
 
-utilTests: stateScan stateTest configTest metroUtil zMatrix OPLSScan
-	$(NV) $(BIN)geometricUtil.o $(BIN)configurationTest.o $(BIN)Config_Scan.o $(BIN)stateTest.o $(BIN)metroUtil.o $(BIN)State_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
+utilTests: stateScan stateTest configTest metroUtil zMatrix OPLSScan geoTest
+	$(NV) $(BIN)geometricUtil.o $(BIN)configurationTest.o $(BIN)Config_Scan.o $(BIN)stateTest.o $(BIN)metroUtil.o $(BIN)State_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)Opls_Scan.o $(BIN)geometricTest.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
 
 zMatrix: geoUtil $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 	$(NV) $(FLAGS) -c $(UTIL)$(SRC)Zmatrix_Scan.cpp -o $(BIN)Zmatrix_Scan.o
@@ -62,6 +62,9 @@ stateScan: $(UTIL)$(SRC)State_Scan.cpp $(UTIL)$(SRC)State_Scan.h
 
 configTest: configScan $(UTIL)$(TST)configurationTest.h $(UTIL)$(TST)configurationTest.cpp
 	$(NV) $(FLAGS) -c $(UTIL)$(TST)configurationTest.cpp -o $(BIN)configurationTest.o
+
+geoTest: geoUtil $(UTIL)$(TST)geometricTest.cpp $(UTIL)$(TST)geometricTest.h
+	$(NV) $(FLAGS) -c $(UTIL)$(TST)geometricTest.cpp -o $(BIN)geometricTest.o
 
 dir:
 	mkdir -p $(BIN)
