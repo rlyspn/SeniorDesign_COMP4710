@@ -43,6 +43,43 @@ double wrapBox(double x, double box){
     return x;
 }
 
+void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
+
+    double maxX = 0.0;
+    double maxY = 0.0;
+    double maxZ = 0.0;
+
+    //determine extreme boundaries for molecule
+    for (int i = 0; i < molecule->numOfAtoms; i++){
+        double currentX = molecule->atoms[i].x;
+        double currentY = molecule->atoms[i].y;
+        double currentZ = molecule->atoms[i].z;
+        if (currentX > maxX)
+           maxX = currentX;
+        if (currentY > maxY)
+            maxY = currentY;
+        if (currentZ > maxZ)
+            maxZ = currentZ;
+    }
+
+    //for each axis, determine if the molecule escapes the environment 
+    //and translate it into the environment if it does
+    if (maxX > enviro->x){
+        for (int i = 0; i < molecule->numOfAtoms; i++){
+            molecule->atoms[i].x -= (maxX - enviro->x);
+        }
+    }
+    if (maxY > enviro->y){
+        for (int i = 0; i < molecule->numOfAtoms; i++){
+            molecule->atoms[i].y -= (maxY - enviro->y);
+        }
+    }
+    if (maxZ > enviro->z){
+        for (int i = 0; i < molecule->numOfAtoms; i++){
+            molecule->atoms[i].z -= (maxZ - enviro->z);
+        }
+    }
+}
 //calculate Lennard-Jones energy between two atoms
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     //store LJ constants locally
@@ -82,9 +119,9 @@ __global__ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, 
 
     //for each atom...
     if (idx < enviro->numOfAtoms){
-        atoms[idx].x = dev_doublesX[idx] * enviro->x;
-        atoms[idx].y = dev_doublesY[idx] * enviro->y;
-        atoms[idx].z = dev_doublesZ[idx] * enviro->z;
+        atoms[idx].x = dev_doublesX[idx] * enviro->x + atoms[idx].x;
+        atoms[idx].y = dev_doublesY[idx] * enviro->y + atoms[idx].y;
+        atoms[idx].z = dev_doublesZ[idx] * enviro->z + atoms[idx].z;
     }
 }
 
