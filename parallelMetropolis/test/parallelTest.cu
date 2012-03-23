@@ -676,9 +676,7 @@ void testRotateMolecule(){
         //test that rotation is within limit
         Atom newAtom1 = atoms[2];
         Atom origAtom1 = getAtom(atomVector, newAtom1.id);
-
-        printf("atom1 = %f, %f, %f\n", origAtom1.x, origAtom1.y, origAtom1.z);
-        printf("atom1 = %f, %f, %f\n", newAtom1.x, newAtom1.y, newAtom1.z);
+        
         double angleChange1 = getAngle(newAtom1, toRotate, origAtom1);
         printf("Atom1 angle change = %f\n", angleChange1);
 
@@ -686,16 +684,24 @@ void testRotateMolecule(){
         Atom origAtom2 = getAtom(atomVector, newAtom2.id);
         double angleChange2 = getAngle(newAtom2, toRotate, origAtom2);
         
+        printf("Atom2 angle change = %f\n", angleChange2);
+        
+        Atom maxAtom1 = findMaxRotation(toRotate, newAtom1, maxRotation);
+        Atom maxAtom2 = findMaxRotation(toRotate, newAtom2, maxRotation);
+        double maxAngle1 = getAngle(maxAtom1, toRotate, origAtom1);
+        double maxAngle2 = getAngle(maxAtom2, toRotate, origAtom2);
+       
+       /** 
+        printf("maxRotation = %f", getAngle(maxAtom1, toRotate, origAtom1));
+        printf("atom1 = %f, %f, %f\n", origAtom1.x, origAtom1.y, origAtom1.z);
+        printf("atom1 = %f, %f, %f\n", newAtom1.x, newAtom1.y, newAtom1.z);
         printf("atom2 = %f, %f, %f\n", origAtom2.x, origAtom2.y, origAtom2.z);
         printf("atom2 = %f, %f, %f\n", newAtom2.x, newAtom2.y, newAtom2.z);
-        
         printf("rotate = %f %f %f\n", toRotate.x, toRotate.y, toRotate.z);
         printf("rotate = %f %f %f\n", atoms[1].x, atoms[1].y, atoms[1].z);
-
-
-        printf("Atom2 angle change = %f\n", angleChange2);
-        assert(angleChange1 < maxRotation);
-        assert(angleChange2 < maxRotation);
+        */
+        assert(angleChange1 <= maxAngle1);
+        assert(angleChange2 <= maxAngle2);
 
 
         //reset atoms
