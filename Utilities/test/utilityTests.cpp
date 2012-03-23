@@ -167,12 +167,6 @@ bool percentDifference(double d1, double d2){
 //Test Z-matrix files using mesh.z
 Molecule createMeshZMolecules(Opls_Scan scanner){
 
-       
-    Atom *atomPtr = new Atom[8];
-    Bond *bondPtr = new Bond[7];
-    Angle *anglePtr = new Angle[6];
-    Dihedral *dihedPtr = new Dihedral[5];
-
     //1 S    200    0    0    0.000000   0    0.000000   0    0.000000        0  
     Atom atom1=scanner.getAtom("200");
     atom1.id=1;
@@ -221,14 +215,35 @@ Molecule createMeshZMolecules(Opls_Scan scanner){
 	 Angle angle8=createAngle(8,6,108.527646,true);
 	 Dihedral dihed8=createDihedral(8,1,238.946114,true);
 	 
+	 /* HOPS and BONDS Diagram of Mesh.z
+	 //      1--2--3
+	 //      |\
+    //      | \
+    //      4  5
+	 //        /|\
+    //       / | \
+    //      6  7  8
+	 */
+	 //All hops that have a hop distance > 4
+	 Hop hop1= createHop(3,6,4);
+	 Hop hop2= createHop(3,7,4);
+	 Hop hop3= createHop(3,8,4);
+	 
+	 Atom *atomPtr = new Atom[8];
+    Bond *bondPtr = new Bond[7];
+    Angle *anglePtr = new Angle[6];
+    Dihedral *dihedPtr = new Dihedral[5];
+	 Hop *hopPtr = new Hop[3];
+	 
 
-        atomPtr[0]=atom1;  atomPtr[1]=atom2; atomPtr[2]=atom3; atomPtr[3]=atom4; atomPtr[4]=atom5; atomPtr[5]=atom6; atomPtr[6]=atom7; atomPtr[7]=atom8;
-        bondPtr[0]=bond2; bondPtr[1]=bond3; bondPtr[2]=bond4; bondPtr[3]=bond5; bondPtr[4]=bond6; bondPtr[5]=bond7; bondPtr[6]=bond8;
-        anglePtr[0]=angle3; anglePtr[1]=angle4; anglePtr[2]=angle5; anglePtr[3]=angle6; anglePtr[4]=angle7; anglePtr[5]=angle8;
-        dihedPtr[0]=dihed4; dihedPtr[1]=dihed5; dihedPtr[2]=dihed6; dihedPtr[3]=dihed7; dihedPtr[4]=dihed8;
+    atomPtr[0]=atom1;  atomPtr[1]=atom2; atomPtr[2]=atom3; atomPtr[3]=atom4; atomPtr[4]=atom5; atomPtr[5]=atom6; atomPtr[6]=atom7; atomPtr[7]=atom8;
+    bondPtr[0]=bond2; bondPtr[1]=bond3; bondPtr[2]=bond4; bondPtr[3]=bond5; bondPtr[4]=bond6; bondPtr[5]=bond7; bondPtr[6]=bond8;
+    anglePtr[0]=angle3; anglePtr[1]=angle4; anglePtr[2]=angle5; anglePtr[3]=angle6; anglePtr[4]=angle7; anglePtr[5]=angle8;
+    dihedPtr[0]=dihed4; dihedPtr[1]=dihed5; dihedPtr[2]=dihed6; dihedPtr[3]=dihed7; dihedPtr[4]=dihed8;
+	 hopPtr[0]=hop1; hopPtr[1]=hop2; hopPtr[2]=hop3;
  
  
-	 return createMolecule(1,atomPtr,anglePtr,bondPtr,dihedPtr,8,6,7,5);
+	 return createMolecule(1,atomPtr,anglePtr,bondPtr,dihedPtr,hopPtr,8,6,7,5,3);
 }
 
 //checks to see if two molecule objects are equal
@@ -289,8 +304,6 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
 	  //check dihederals
         //cout << endl << "Testing Dihederals Array" << endl;
         //cout << "-- Moleculde1 # dihedrals: " << molec1.numOfBonds << " Moleculde2 # dihedrals: " << molec2.numOfBonds << endl;
-	 assert(molec1.numOfAngles == molec2.numOfAngles);
-
 	 assert(molec1.numOfDihedrals == molec2.numOfDihedrals);
 	 for(int i=0; i< molec1.numOfDihedrals; i++){
             //cout << "-- Atom1#: " << i <<endl;
@@ -304,6 +317,22 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
 	     assert(percentDifference(molec1.dihedrals[i].value,molec2.dihedrals[i].value));
 	     assert(asserTwoBool(molec1.dihedrals[i].variable,molec2.dihedrals[i].variable));
 	 }
+	 //check hops
+        //cout << endl << "Testing Hops Array" << endl;
+        //cout << "-- Moleculde1 # hops: " << molec1.numOfHops << " Moleculde2 # hops: " << molec2.numOfHops << endl;
+	 assert(molec1.numOfHops == molec2.numOfHops);
+	 for(int i=0; i< molec1.numOfHops; i++){
+            //cout << "-- Atom1#: " << i <<endl;
+            //cout << "-- Atom1 atom1: " << molec1.hops[i].atom1 << " Atom2 atom1: " << molec2.hops[i].atom1 <<endl;
+            //cout << "-- Atom1 atom2: " << molec1.hops[i].atom2 << " Atom2 atom2: " << molec2.hops[i].atom2 <<endl;
+            //cout << "-- Atom1 distance: " << molec1.hops[i].value << " Atom2 distance: " << molec2.hops[i].value <<endl;
+            //cout << "-- Atom1 variable: " << molec1.hops[i].variable << " Atom2 variable: " << molec2.hops[i].variable <<endl;
+
+	     assert(molec1.hops[i].atom1 == molec2.hops[i].atom1);
+	     assert(molec1.hops[i].atom2 == molec2.hops[i].atom2);
+	     assert(molec1.hops[i].hop == molec2.hops[i].hop);
+	 }
+
 }
 
 void testZmatrixScanner(Opls_Scan opls){
@@ -316,7 +345,7 @@ void testZmatrixScanner(Opls_Scan opls){
 	 if(open == -1)
 	     cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
     else{
-	     for(int x=0; x<5; x++)
+	     //for(int x=0; x<5; x++)
 	         scannedInMolecules = zScan.buildMolecule(1);
 		  }
     //cout << "-- # Scanned in molecules:" << scannedInMolecules.size() <<endl;

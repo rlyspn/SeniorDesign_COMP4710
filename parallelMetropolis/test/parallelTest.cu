@@ -676,6 +676,10 @@ void testRotateMolecule(){
     printf("rotateMolecule passed tests.\n");
 }
 
+double calcRValue(Atom atom1, Atom atom2, Environment enviro){
+    
+}
+
 void testCalcChargeWrapper(){
     int numberOfTests = 10;
     
@@ -712,11 +716,6 @@ void testCalcChargeWrapper(){
     double ySize = xSize;
     double zSize = ySize;
 
-    double sigmaMax = 10;
-    double sigmaMin = -10;
-    double epsilonMax = 10;
-    double epsilonMin = -10;
-
     //generate atoms for test
     srand(time(NULL));
     for(int i = 0; i < numberOfTests; i++){
@@ -729,8 +728,8 @@ void testCalcChargeWrapper(){
         atoms1_h[i].z = (double) rand() / (double) RAND_MAX * zSize;
         atoms2_h[i].z = (double) rand() / (double) RAND_MAX * zSize;
    
-        //ASSIGN SIGMA AND EPSILON
-        //TODO
+        atoms1_h[i].charge = (double) rand() / (double) RAND_MAX * 2 - 1;
+        atoms2_h[i].charge = (double) rand() / (double) RAND_MAX * 2 - 1; 
     }
 
     enviro_h->x = xSize;
@@ -753,7 +752,10 @@ void testCalcChargeWrapper(){
     cudaMemcpy(answers_h, answers_d, answerSize, cudaMemcpyDeviceToHost);
 
     //TEST ANSWERS
-    //TODO
+    for(int i = 0; i < numberOfTests; i++){
+        double expected = calc_charge(atoms1_h[i], atoms2_h[i], *enviro_h);
+        assert((expected - answers_h[i]) / expected < .01);
+    }
 
     free(atoms1_h);
     free(atoms2_h);

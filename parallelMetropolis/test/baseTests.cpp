@@ -121,3 +121,18 @@ long timevaldiff(struct timeval *starttime, struct timeval *finishtime)
     msec += (finishtime->tv_usec - starttime->tv_usec)/1000;
     return msec;
 }
+
+double calc_r_value(Atom a1, Atom a2, Environment enviro){
+    double dx = make_periodic(a1.x - a2.x, enviro.x);
+    double dy = make_periodic(a1.y - a2.y, enviro.y);
+    double dz = make_periodic(a1.z - a2.z, enviro.z);
+
+    return sqrt(dx * dx + dy * dy + dz * dz);
+
+}
+
+double calc_charge(Atom a1, Atom a2, Environment enviro){
+    double e = 1.602176565 * pow(10.f,-19.f);  
+
+    return (a1.charge * a2.charge * pow(e, 2)) / calc_r_value(a1, a2, enviro);
+}
