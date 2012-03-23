@@ -40,10 +40,10 @@ double wrapBox(double x, double box);
 
 /**
     Keeps a molecule intact within the box
-    @param molecules - the array of molecules
+    @param molecule - molecule to keep in box
     @param enviro - environment structure to keep bounds
 */
-__global__ void keepMoleculeInBox(Molecule *molecules, Environment *enviro);
+void keepMoleculeInBox(Molecule *molecule, Environment *enviro);
 
 /**
   Calculates the energy between 2 atoms

@@ -43,47 +43,42 @@ double wrapBox(double x, double box){
     return x;
 }
 
-__global__ void keepMoleculeInBox(Molecule *molecules, Environment *enviro){
+void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
 
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    double maxX = 0.0;
+    double maxY = 0.0;
+    double maxZ = 0.0;
 
-    if (idx < enviro->numOfMolecules){
-        double maxX = 0.0;
-        double maxY = 0.0;
-        double maxZ = 0.0;
-
-        //determine extreme boundaries for molecule
-        for (int j = 0; j < molecules[idx].numOfAtoms; j++){
-            double currentX = molecules[idx].atoms[j].x;
-            double currentY = molecules[idx].atoms[j].y;
-            double currentZ = molecules[idx].atoms[j].z;
-            if (currentX > maxX)
-               maxX = currentX;
-            if (currentY > maxY)
-                maxY = currentY;
-            if (currentZ > maxZ)
-                maxZ = currentZ;
-        }
-
-        //for each axis, determine if the molecule escapes the environment 
-        //and translate it into the environment if it does
-        if (maxX > enviro->x){
-            for (int j = 0; j < molecules[idx].numOfAtoms; j++){
-                molecules[idx].atoms[j].x -= (maxX - enviro->x);
-            }
-        }
-        if (maxY > enviro->y){
-            for (int j = 0; j < molecules[idx].numOfAtoms; j++){
-                molecules[idx].atoms[j].y -= (maxY - enviro->y);
-            }
-        }
-        if (maxZ > enviro->z){
-            for (int j = 0; j < molecules[idx].numOfAtoms; j++){
-                molecules[idx].atoms[j].z -= (maxZ - enviro->z);
-            }
-        }
+    //determine extreme boundaries for molecule
+    for (int i = 0; i < molecule->numOfAtoms; i++){
+        double currentX = molecule->atoms[i].x;
+        double currentY = molecule->atoms[i].y;
+        double currentZ = molecule->atoms[i].z;
+        if (currentX > maxX)
+           maxX = currentX;
+        if (currentY > maxY)
+            maxY = currentY;
+        if (currentZ > maxZ)
+            maxZ = currentZ;
     }
 
+    //for each axis, determine if the molecule escapes the environment 
+    //and translate it into the environment if it does
+    if (maxX > enviro->x){
+        for (int i = 0; i < molecule->numOfAtoms; i++){
+            molecule->atoms[i].x -= (maxX - enviro->x);
+        }
+    }
+    if (maxY > enviro->y){
+        for (int i = 0; i < molecule->numOfAtoms; i++){
+            molecule->atoms[i].y -= (maxY - enviro->y);
+        }
+    }
+    if (maxZ > enviro->z){
+        for (int i = 0; i < molecule->numOfAtoms; i++){
+            molecule->atoms[i].z -= (maxZ - enviro->z);
+        }
+    }
 }
 //calculate Lennard-Jones energy between two atoms
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
