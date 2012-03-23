@@ -39,6 +39,13 @@ __device__ double makePeriodic(double x, const double box);
 double wrapBox(double x, double box);
 
 /**
+    Keeps a molecule intact within the box
+    @param molecules - the array of molecules
+    @param enviro - environment structure to keep bounds
+*/
+__global__ void keepMoleculeInBox(Molecule *molecules, Environment *enviro);
+
+/**
   Calculates the energy between 2 atoms
   @param atom1 - the first atom in the pair
   @param atom2 - the second atom in the pair
