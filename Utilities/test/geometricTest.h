@@ -32,5 +32,4 @@ void testRotateAboutZ();
 */
 void testRotateAtom();
 
-
 #endif //GEOMETRICTEST_H

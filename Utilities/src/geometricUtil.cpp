@@ -137,8 +137,8 @@ double getAngle(Atom atom1, Atom atom2, Atom atom3){
     double d2_3 = getDistance(atom2, atom3); // distance atom2 to atom3
     double d3_1 = getDistance(atom3, atom1); // distance atom3 to atom1
     
-    double numerator = pow(d3_1, 2) - pow(d1_2, 2);
-    double denominator = 2 * d1_2 * d2_3; 
+    double numerator = pow(d3_1, 2) - pow(d1_2, 2) - pow(d2_3, 2);
+    double denominator = -2 * d1_2 * d2_3; 
 
     double radians = acos(numerator / denominator);
 
