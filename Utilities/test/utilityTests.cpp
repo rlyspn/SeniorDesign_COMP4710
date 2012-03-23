@@ -228,22 +228,30 @@ Molecule createMeshZMolecules(Opls_Scan scanner){
 	 Hop hop1= createHop(3,6,4);
 	 Hop hop2= createHop(3,7,4);
 	 Hop hop3= createHop(3,8,4);
+	 Hop hop4= createHop(3,5,3);
+	 Hop hop5= createHop(3,4,3);
+	 Hop hop6= createHop(2,6,3);
+	 Hop hop7= createHop(2,7,3);
+	 Hop hop8= createHop(2,8,3);
+	 Hop hop9= createHop(4,6,3);
+	 Hop hop10= createHop(4,7,3);
+	 Hop hop11= createHop(4,8,3);
 	 
 	 Atom *atomPtr = new Atom[8];
     Bond *bondPtr = new Bond[7];
     Angle *anglePtr = new Angle[6];
     Dihedral *dihedPtr = new Dihedral[5];
-	 Hop *hopPtr = new Hop[3];
+	 Hop *hopPtr = new Hop[11];
 	 
 
     atomPtr[0]=atom1;  atomPtr[1]=atom2; atomPtr[2]=atom3; atomPtr[3]=atom4; atomPtr[4]=atom5; atomPtr[5]=atom6; atomPtr[6]=atom7; atomPtr[7]=atom8;
     bondPtr[0]=bond2; bondPtr[1]=bond3; bondPtr[2]=bond4; bondPtr[3]=bond5; bondPtr[4]=bond6; bondPtr[5]=bond7; bondPtr[6]=bond8;
     anglePtr[0]=angle3; anglePtr[1]=angle4; anglePtr[2]=angle5; anglePtr[3]=angle6; anglePtr[4]=angle7; anglePtr[5]=angle8;
     dihedPtr[0]=dihed4; dihedPtr[1]=dihed5; dihedPtr[2]=dihed6; dihedPtr[3]=dihed7; dihedPtr[4]=dihed8;
-	 hopPtr[0]=hop1; hopPtr[1]=hop2; hopPtr[2]=hop3;
+	 hopPtr[0]=hop1; hopPtr[1]=hop2; hopPtr[2]=hop3; hopPtr[3]=hop4; hopPtr[4]=hop5; hopPtr[5]=hop6;  hopPtr[6]=hop7; hopPtr[7]=hop8; hopPtr[8]=hop9; hopPtr[9]=hop10; hopPtr[10]=hop11;
  
  
-	 return createMolecule(1,atomPtr,anglePtr,bondPtr,dihedPtr,hopPtr,8,6,7,5,3);
+	 return createMolecule(1,atomPtr,anglePtr,bondPtr,dihedPtr,hopPtr,8,6,7,5,11);
 }
 
 //checks to see if two molecule objects are equal

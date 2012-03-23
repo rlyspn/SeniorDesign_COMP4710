@@ -364,16 +364,19 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 
     if(m1 != m2)
         return 1.0;
-    else if(getDistance(atom1, atom2, molec, *enviro) >= 3)
-        return 0.5;
-    else
-        return 0.0;
+	 else if( hopGE3(atom1.id, atom2.id,molecules[m1]) )     
+		  return 0.5;
+	 else
+		  return 0.0;
 }
 
-__device__ int getDistance(Atom atom1, Atom atom2, Molecule molecule, Environment enviro){
-    //TODO
-    return 3;
-
+__device__ int hopGE3(int atom1, int atom2, Molecule molecule){
+    for(int x=0; x< molecule.numOfHops; x++){
+		      Hop myHop = molecule.hops[x];
+				if(myHop.atom1==atom1 && myHop.atom2==atom2)
+				    return 1;
+	 }
+	 return 0;
 }
 
 void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation){

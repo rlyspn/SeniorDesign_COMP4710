@@ -391,7 +391,7 @@ void Zmatrix_Scan::handleZAdditions(string line, int cmdFormat){
 }
 
 //returns a vector containing all the node to node hops that 
-//are more than 3.
+//are >= 3.
 vector<Hop> Zmatrix_Scan::calculateHops(Molecule molec){
     vector<Hop> newHops;
     int **graph;
@@ -420,7 +420,7 @@ vector<Hop> Zmatrix_Scan::calculateHops(Molecule molec){
 		     //cout << "ZMATRIX-- Finding Hops "<< atom1+1<<" - "<<atom2+1<<endl;
 		     int distance = findHopDistance(atom1,atom2,size,graph);
 			  //cout << "ZMATRIX-- Hop Distance: "<< distance << endl;
-			  if(distance >3){
+			  if(distance >=3){
 			      Hop tempHop = createHop(atom1+1,atom2+1,distance); //+1 because atoms start at 1
 				   newHops.push_back(tempHop);					
 			      //cout << "ZMATRIX-- Creating and Adding new Hop atom1: "<< atom1+1<<" atom2: "<< atom2+1<<" \n--Distance: " << distance<<endl;
