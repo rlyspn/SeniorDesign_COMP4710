@@ -255,7 +255,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                         vectorHead = getAtom(atomVector, linkingBond.atom1);
                     }
 
-                    lineAtom = rotateAboutVector(lineAtom, vectorTail, vectorHead);
+                    lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
 
             }
 

@@ -646,7 +646,9 @@ void testRotateMolecule(){
             numOfAtoms, numOfAngles, numOfBonds, numOfDihedrals);
     
     int testNumber = 10;
-   
+    
+    printf("Testing rotateMolecule\n");
+
     for(int i = 0 ; i < testNumber; i++){
         //pick atom to rotate about.  Cycle through all of them
         Atom toRotate = atoms[i % numOfAtoms];
@@ -676,11 +678,10 @@ void testRotateMolecule(){
     printf("rotateMolecule passed tests.\n");
 }
 
-double calcRValue(Atom atom1, Atom atom2, Environment enviro){
-    
-}
-
 void testCalcChargeWrapper(){
+    
+    printf("Testing calcCharge()\n");
+    
     int numberOfTests = 10;
     
     // data on the host
@@ -757,6 +758,8 @@ void testCalcChargeWrapper(){
         assert((expected - answers_h[i]) / expected < .01);
     }
 
+    printf("calcCharge passed tests.\n");
+
     free(atoms1_h);
     free(atoms2_h);
     free(enviro_h);
@@ -769,6 +772,9 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
+    testRotateMolecule();
+    /**
+    testCalcChargeWrapper();
     testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();
     testWrapBox();
@@ -778,7 +784,7 @@ int main(){
     testGeneratePoints();
     testCalcEnergy();
     testCalcEnergyWithMolecules();
-    
+    */
     return 0;
 }
 
