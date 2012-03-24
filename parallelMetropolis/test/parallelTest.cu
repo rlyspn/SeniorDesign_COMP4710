@@ -234,7 +234,7 @@ void testCalcEnergy(){
 
     Atom *atoms = new Atom[numberOfAtoms];
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, -1.0, -1.0, -1.0, kryptonSigma, kryptonEpsilon);
+        atoms[i] = createAtom(i, 0.0, 0.0, 0.0, kryptonSigma, kryptonEpsilon);
     }
 
     generatePoints(atoms, enviro);
@@ -284,7 +284,7 @@ void testCalcEnergyWithMolecules(){
 
     Atom *atoms = new Atom[numberOfAtoms];
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, -1.0, -1.0, -1.0, kryptonSigma, kryptonEpsilon);
+        atoms[i] = createAtom(i, 0.0, 0.0, 0.0, kryptonSigma, kryptonEpsilon);
     }
     enviro->numOfMolecules = numberOfAtoms;
     generatePoints(atoms, enviro);
