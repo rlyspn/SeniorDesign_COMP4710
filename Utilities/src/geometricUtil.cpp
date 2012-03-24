@@ -142,8 +142,13 @@ double getAngle(Atom atom1, Atom atom2, Atom atom3){
 
     double radians = acos(numerator / denominator);
 
-    return radiansToDegrees(radians);
+    double degrees = radiansToDegrees(radians);
 
+    if(degrees > 180){
+        degrees -= 180;
+    }
+
+    return degrees;
 }
 
 Point getNormal(Plane p){
@@ -229,7 +234,9 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
 }
 
 Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
+    printf("Rotating atom %f degrees.\n", theta);
     theta *= -1;
+    printf("Rotating atom %f degrees.\n", theta);
     //Translate all atoms so that atom2 is at the origin.
     //The rotation axis needs to pass through the origin
     atom1 = translateAtom(atom1, -atom2.x, -atom2.y, -atom3.z);
