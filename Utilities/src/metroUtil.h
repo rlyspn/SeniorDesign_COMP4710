@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <time.h>
 
 using namespace std;
 
@@ -183,11 +184,23 @@ void copyMolecule(Molecule *molec1, Molecule *molec2);
   @param count - number of atoms
 */
 void printAtoms(Atom *atoms, int count);
+
 /**
   @param atoms - array of atoms to be written to the file
   @param enviro - structure holding environmental data.
   @param filename - the name of the file that is to be written
 */
 void writePDB(Atom *atoms, Environment enviro, string filename);
+
+#define DEFAULT 0
+#define START 1
+#define OPLS 2
+#define Z_MATRIX 3
+/**
+  Logs output to the OutputLog file
+  @param text - the text to be written to the output log
+*/
+
+void writeToLog(string text, int stamp=0 );
 
 #endif //METROUTIL_H

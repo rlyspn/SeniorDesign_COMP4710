@@ -1,4 +1,5 @@
 NV=nvcc
+#NV=g++
 
 SRC=src/
 TST=test/
@@ -8,6 +9,7 @@ LIN=LinearMetropolis/
 BIN=bin/
 
 FLAGS=-arch sm_13 -lcurand -g
+#FLAGS=-g
 
 TSTEXE=parallelTest
 EXE=metroSim
