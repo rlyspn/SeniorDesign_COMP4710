@@ -108,7 +108,7 @@
          }
          else//dummy atom
          {
-            lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1);
+            lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1, -1, -1);
          //    atomVector.push_back(lineAtom); 
          }
       
@@ -145,19 +145,24 @@
         /******************************************
             BUILDING MOLECULE WITH CORRECT POSITIONS
          ******************************************/        
+         cout << "Starting building " << lineAtom.id << endl;
+         cout << atomVector.size() << endl;
          // must not be a dummy atom
-         if(lineAtom.z != -1 && lineAtom.y != -1 && lineAtom.x != -1){
+         if(lineAtom.epsilon != -1 || lineAtom.sigma != -1){
             if(hasBond){
             
                 // Get other atom in bond
                unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
+               cout << "otherID= " << otherID << endl;
+               cout << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
                Atom otherAtom = getAtom(atomVector, otherID);
-               if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
+               cout << "otherAtom.id " << otherAtom.id << endl;
+               /**if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
                         && otherAtom.z == -1){
                     
                     // this should be an error but I don't know what kind.
                   cout << "Other atom not found. Error?" << endl;
-               }
+               }*/
                 
                 // Move newAtom bond distance away from other atom in y direction.
                lineAtom.x = otherAtom.x;
@@ -258,7 +263,7 @@
                lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
             
             }
-         
+            
             atomVector.push_back(lineAtom);
          
          }//end of atom placing
