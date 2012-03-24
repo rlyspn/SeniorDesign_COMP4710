@@ -198,7 +198,8 @@
             
                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
                double angleChange = lineAngle.value - currentAngle;
-            
+           
+               printf("angleChange = %f\n", angleChange); 
                lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
                printf("After Rotation:\n");
                printAtoms(&lineAtom, 1);
