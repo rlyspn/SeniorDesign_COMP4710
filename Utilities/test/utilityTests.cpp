@@ -492,9 +492,9 @@ int main(){
     testGetFourier(scanner);
     testPDBoutput();
 	 testLogOutput();
-   /*testZmatrixScanner(scanner); commented out since not working
-	//testZmatrixScanner_multpleSingle(scanner);
-	//testZmatrixScanner_multpleAmount(scanner);*/
+   testZmatrixScanner(scanner); 
+	testZmatrixScanner_multpleSingle(scanner);
+	testZmatrixScanner_multpleAmount(scanner);
     testTranslateAtom();
     testRotateAboutX();
     testRotateAboutY();
