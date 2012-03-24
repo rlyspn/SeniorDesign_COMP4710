@@ -8,6 +8,37 @@
 #include <cstdlib>
 #include <time.h>
 
+/*
+    tests the getNormal function
+*/
+void testGetNormal();
+
+/*
+    tests the getAngle(Plane, Plane) function
+*/
+void testGetAngleBetweenPlanes();
+
+/*
+    tests the getBond function
+*/
+void testGetBond();
+
+/*
+    tests the getAllBonds function
+*/
+void testGetAllBonds();
+
+/*
+    tests the getIntersection function
+*/
+void testGetIntersection();
+
+/*
+    tests the isMember function
+*/
+void testIsMember();
+
+
 /**
     tests the translateAtom function
 */

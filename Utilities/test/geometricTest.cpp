@@ -1,5 +1,74 @@
 #include "geometricTest.h"
 
+
+void testGetNormal(){
+    Atom atom1, atom2, atom3;
+    atom1.x = 3.2;
+    atom1.y = 4.6;
+    atom1.z = 0.2;
+    atom2.x = 7.1;
+    atom2.y = 1.4;
+    atom2.z = 10.0;
+    atom3.x = 0.0;
+    atom3.y = 0.0;
+    atom3.z = 0.0;
+
+    Plane testPlane = createPlane(atom1, atom2, atom3);
+
+    Point expected = createPoint(45.72, -30.58, -28.18);
+
+    Point test = getNormal(testPlane);
+    
+    test.x = ((double) ((int) (test.x * 100))) / 100.0;
+    test.y = ((double) ((int) (test.y * 100))) / 100.0;
+    test.z = ((double) ((int) (test.z * 100))) / 100.0;
+    assert(test.x == expected.x);
+    assert(test.y == expected.y);
+    assert(test.z == expected.z);
+
+    printf("testGetNormal completed successfully.\n");
+}
+
+void testGetAngleBetweenPlanes(){
+    //TODO after getAngle test is written
+}
+
+void testGetBond(){
+    vector<Bond> bonds;
+
+    Bond bond1 = createBond(1, 2, 3.0, false);
+    Bond bond2 = createBond(3, 4, 3.0, false);
+    Bond bond3 = createBond(2, 3, 3.0, false);
+
+    bonds.push_back(bond1);
+    bonds.push_back(bond2);
+    bonds.push_back(bond3);
+
+    Bond testBond1 = getBond(bonds, 1, 2);
+    Bond testBond2 = getBond(bonds, 3, 4);
+    Bond testBond3 = getBond(bonds, 2, 3);
+    Bond testBond4 = getBond(bonds, 1, 4);
+
+    assert(bond1.atom1 == testBond1.atom1 && bond1.atom2 == testBond1.atom2 && bond1.distance == testBond1.distance);
+    assert(bond2.atom1 == testBond2.atom1 && bond2.atom2 == testBond2.atom2 && bond2.distance == testBond2.distance);
+    assert(bond3.atom1 == testBond3.atom1 && bond3.atom2 == testBond3.atom2 && bond3.distance == testBond3.distance);
+    assert(testBond4.atom1 == -1 && testBond4.atom2 == -1 && testBond4.distance == -1.0);
+
+    printf("testGetBond completed successfully.\n");
+}
+
+void testGetAllBonds(){
+
+}
+
+void testGetIntersection(){
+
+}
+
+void testIsMember(){
+
+}
+
 void testTranslateAtom(){
     srand(time(NULL));
     Atom testAtom;

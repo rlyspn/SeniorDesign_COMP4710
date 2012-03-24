@@ -29,7 +29,7 @@ Bond getBond(vector<Bond> bonds, unsigned long a1, unsigned long a2){
         if(getOppositeAtom(bonds[i], a1) == a2)
             return bonds[i];
     }
-    return createBond(-1, -1, -1, false);
+    return createBond(-1, -1, -1.0, false);
 }
 
 vector<unsigned long> getAllBonds(vector<Bond> bonds, unsigned long atomID){

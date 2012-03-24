@@ -449,7 +449,9 @@ int main(){
     testPDBoutput();
     testZmatrixScanner(scanner);
 	testZmatrixScanner_multpleSingle(scanner);
-	testZmatrixScanner_multpleAmount(scanner);
+    testZmatrixScanner_multpleAmount(scanner);
+    testGetNormal();
+    testGetBond();
     testTranslateAtom();
     testRotateAboutX();
     testRotateAboutY();
