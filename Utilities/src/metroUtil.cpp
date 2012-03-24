@@ -215,9 +215,37 @@ void copyMolecule(Molecule *molec1, Molecule *molec2){
 	 for(int i = 0; i < molec1->numOfHops; i++){
         molec1->hops[i] = molec2->hops[i];
     }
+}
 
-
-
+void writeToLog(string text,int stamp){
+    string filename = "OutputLog";
+	 ofstream logFile;
+	 logFile.open(filename.c_str(),ios::out|ios::app);
+	 switch(stamp){
+	     case START://The start of a new simulation
+		      logFile << "\n\n\n\n\n\n" << endl;
+				logFile << "======================================================================"<<endl;
+				logFile << "                       Starting Simulation: ";
+				time_t current_time;
+            struct tm * time_info;
+            char timeString[9];  // space for "HH:MM:SS\0"
+            time(&current_time);
+            time_info = localtime(&current_time);
+            strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
+				logFile << timeString;
+				logFile << "======================================================================"<<endl;
+	     case OPLS:
+	         logFile << "--OPLS: ";
+		      break;
+	     case Z_MATRIX:
+	         logFile << "--Z_Matrix: ";
+		      break;
+	     default:
+	         logFile << "";
+		      break;		
+	 }
+	 logFile << text << endl;
+	 logFile.close();	 
 }
 
 

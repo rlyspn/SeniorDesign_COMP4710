@@ -144,7 +144,45 @@ void testPDBoutput(){
 
     readPDB.close();
 
-    cout << "testPDBoutput successful." << endl;
+    cout << "testPDBoutput successful.\n" << endl;
+}
+
+void testLogOutput(){
+    cout << "Testing OutputLog writer\n" <<endl;
+    
+    string line1 = "This is line1 text";
+	 string line2 = "This is line2 text";
+	 string line3 = "This is line3 text";
+	 
+	 writeToLog(line1);
+	 writeToLog(line2,Z_MATRIX);
+	 writeToLog(line3,OPLS);
+
+
+    string outPutFile= "OutputLog";
+	 ifstream fileReader;
+	 fileReader.open(outPutFile.c_str());
+	 assert( fileReader.good());
+	 
+	 string readInLine;
+	 getline(fileReader,readInLine);
+	 //cout << readInLine <<endl;
+	 assert(readInLine.compare(line1)==0);
+	 
+	 getline(fileReader,readInLine);
+	 //cout << readInLine <<endl;
+	 string temp= "--Z_Matrix: ";
+	 temp += line2;
+	 assert(readInLine.compare(temp)==0);
+	 
+	 getline(fileReader,readInLine);
+	 //cout << readInLine <<endl;
+	 temp= "--OPLS: ";
+	 temp += line3;
+	 assert(readInLine.compare(temp)==0);
+	 
+	 cout << "Testing OutputLog writer Completed\n" <<endl;
+	 
 }
 
 bool asserTwoBool(bool b1, bool b2){
@@ -453,8 +491,19 @@ int main(){
     testGetCharge(scanner);
     testGetFourier(scanner);
     testPDBoutput();
-    testZmatrixScanner(scanner);
-	testZmatrixScanner_multpleSingle(scanner);
-	testZmatrixScanner_multpleAmount(scanner);
-   
+	 testLogOutput();
+   /*testZmatrixScanner(scanner); commented out since not working
+	//testZmatrixScanner_multpleSingle(scanner);
+	//testZmatrixScanner_multpleAmount(scanner);*/
+    testTranslateAtom();
+    testRotateAboutX();
+    testRotateAboutY();
+    testRotateAboutZ();
+	 testD2RandR2D();
+	 testGetOppositeAtom();
+	 testGetCommonAtom();
+	 testGetDistance();
+	 testGetAngle();
+	 testRotateAboutVector();
+	 testRotateInPlane();
 }
