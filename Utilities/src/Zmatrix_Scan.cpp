@@ -276,9 +276,11 @@
                 
                 //find the angle between the planes.
                double initialAngle = getAngle(rotatePlane, nonMovingPlane);
+               printf("initialAngle: %f\n", initialAngle);
                 //find the angle needed to rotate.
                double toRotate = initialAngle - lineDihedral.value;
-                //rotate lineAtom needed degrees about linkbond.
+                printf("toRotate plane: %f\n", toRotate);
+               //rotate lineAtom needed degrees about linkbond.
                     //determine which atom in linkingBond is vector head and tail
                Atom vectorHead;
                Atom vectorTail;
