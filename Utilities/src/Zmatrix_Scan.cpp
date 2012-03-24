@@ -195,8 +195,10 @@
                printAtoms(&lineAtom, 1);
                printAtoms(&commonAtom, 1);
                printAtoms(&otherAtom, 1);
-            
+           
+
                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
+               printf("Current Angle: %f\n", currentAngle);
                double angleChange = lineAngle.value - currentAngle;
            
                printf("angleChange = %f\n", angleChange); 

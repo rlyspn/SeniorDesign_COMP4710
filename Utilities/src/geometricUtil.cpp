@@ -215,7 +215,13 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
     //Create a plane.
     Plane atomPlane = createPlane(atom1, atom2, atom3);
     //Find the normal vector.
-    Point normal = getNormal(atomPlane);
+    Point normal;
+    if(getAngle(atom1, atom2, atom3) == 0){
+        normal = createPoint(1, 0, 0);
+    }
+    else{
+        normal = getNormal(atomPlane);
+    }
     Atom vectorEnd = createAtom(-1, atom2.x + normal.x, atom2.y + normal.y,
             atom2.z + normal.z);
     //Rotate about that normal vector 
