@@ -591,14 +591,4 @@ __global__ void testCalcLJ(Atom *atoms, Environment *enviro, double *energy){
     *energy = testEnergy;
 }
 
-__global__ void testGetDistance(Atom *atom1List, Atom *atom2List, Molecule molecule,
-         Environment *enviro, int *distances, int numberOfTests){
- 
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (idx < numberOfTests){
-        distances[idx] = getDistance(atom1List[idx], atom2List[idx], molecule, *enviro);
-    }    
-}
-
 #endif //DEBUG

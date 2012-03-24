@@ -193,13 +193,13 @@ void setupCalc_lj(){
 
 void testGeneratePoints(){
     //init atoms, environment
-    int numberOfAtoms = 3000;
+    int numberOfAtoms = 1000;
     Atom *atoms = (Atom *) malloc(numberOfAtoms * sizeof(Atom));
 
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, -1.0, -1.0, -1.0);
+        atoms[i] = createAtom(i, i, 1.1*i, 1.2*i);
     }
-    Environment enviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
+    Environment enviro = createEnvironment(10.0, 20.0, 35.0, 1.0, 298.15, numberOfAtoms);
 
     generatePoints(atoms, &enviro);
 
@@ -209,9 +209,9 @@ void testGeneratePoints(){
         double dim_y = atoms[i].y;
         double dim_z = atoms[i].z;
 
-        assert(dim_x >= 0.0 && dim_x <= enviro.x &&
-               dim_y >= 0.0 && dim_y <= enviro.y &&
-               dim_z >= 0.0 && dim_z <= enviro.z);
+        assert(dim_x >= i && dim_x <= (enviro.x + i) &&
+               dim_y >= (1.1 * i) && dim_y <= (enviro.y + 1.1 * i) &&
+               dim_z >= (1.2 * i) && dim_z <= (enviro.z + 1.2 * i));
     }
     printf("testGeneratePoints successful.\n");
 
@@ -533,77 +533,6 @@ void testGetFValueWrapper(){
     cudaFree(dev_fvalues);
 }
 
-void testGetDistanceWrapper(){
-    Environment *enviro, *dev_enviro;
-    Molecule molecule, dev_molecule;
-    Atom *mol1_atoms, *mol2_atoms, *atom1List, *atom2List, *dev_atom1List, *dev_atom2List;
-    int *distances, *dev_distances;
-    Bond *mol1_bonds, *blankBonds;
-    Angle *blankAngles;
-    Dihedral *blankDihedrals;
-
-    int numberOfTests = 3;
-
-    Environment stable_enviro = createEnvironment(5.0,5.0,5.0,1.0,270.0,5);
-    enviro = &stable_enviro;
-    mol1_atoms = (Atom *)malloc(sizeof(Atom)*4);
-    atom1List = (Atom *)malloc(sizeof(Atom)*3);
-    atom2List = (Atom *)malloc(sizeof(Atom)*3);
-
-    distances = (int *)malloc(sizeof(int)*4);
-    
-    for (int i = 0; i < 4; i++){
-        mol1_atoms[i] = createAtom(i+1,1.0,1.0,1.0);
-    }
-    for (int i = 0; i < 3; i++){
-        atom1List[i] = mol1_atoms[0];
-        atom2List[i] = mol1_atoms[i+1];
-    }
-
-    mol1_bonds = (Bond *)malloc(sizeof(Bond)*3);
-    for (int i = 0; i < 3; i++){
-        mol1_bonds[i] = createBond(i+1,i+2, 0.5, false);
-    }
-
-    molecule = createMolecule(1, mol1_atoms, blankAngles, mol1_bonds, blankDihedrals, 4, 0, 3, 0);
-
-    cudaMalloc((void **) &dev_enviro, sizeof(Environment));
-    cudaMalloc((void **) &dev_atom1List, sizeof(Atom)*4);
-    cudaMalloc((void **) &dev_atom2List, sizeof(Atom)*4);
-    cudaMalloc((void **) &dev_distances, sizeof(int)*4);
-
-    cudaMemcpy(dev_enviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
-    cudaMemcpy(&dev_molecule, &molecule, sizeof(Molecule), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_atom1List, atom1List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_atom2List, atom2List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
-
-    int blocks = 1;
-    int threadsPerBlock = 64;
-
-    testGetDistance <<<blocks, threadsPerBlock>>>(dev_atom1List, dev_atom2List, dev_molecule, dev_enviro, dev_distances, numberOfTests);
-
-    cudaMemcpy(distances, dev_distances, sizeof(int)*4, cudaMemcpyDeviceToHost);
-
-    int *expected = (int *)malloc(sizeof(int)*3);
-    expected[0] = 1;
-    expected[1] = 2;
-    expected[2] = 3;
-    for(int i = 0 ; i < numberOfTests; i++){
-        assert(expected[i] == distances[i]);
-    }
-
-    printf("testGetDistance passed tests.\n");
-   
-    free(mol1_atoms);
-    free(atom1List);
-    free(atom2List);
-    free(distances);
-    cudaFree(dev_enviro);
-    cudaFree(dev_atom1List);
-    cudaFree(dev_atom2List);
-    cudaFree(dev_distances);
-}
-
 Atom findMaxRotation(Atom pivot, Atom toRotate, double rotation){
     toRotate.x -= pivot.x;
     toRotate.y -= pivot.y;
@@ -808,9 +737,7 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
-    printf("Rotating.\n");
     testRotateMolecule();
-    /**
     testCalcChargeWrapper();
     testCalcBlendingWrapper();
     testGetMoleculeFromIDWrapper();
@@ -821,7 +748,6 @@ int main(){
     testGeneratePoints();
     testCalcEnergy();
     testCalcEnergyWithMolecules();
-    */
     return 0;
 }
 
