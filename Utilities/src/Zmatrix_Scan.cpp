@@ -206,9 +206,11 @@
                printf("After Rotation:\n");
                printAtoms(&lineAtom, 1);
             }
-            /*if(hasDihedral){
+            if(hasDihedral){
+                printf("Dihedral : %d %d.\n", lineDihedral.atom1, lineDihedral.atom2);
                 //get other atom in the dihedral
-               unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
+                printf("Getting other id.\n");
+                unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
                Atom otherAtom = getAtom(atomVector, otherID);
             
                   //There are guranteed to be 4 atoms involved in the dihedral
@@ -216,29 +218,47 @@
                   //planes.
                 
                 //get all of the atoms bonded to lineAtom
+               printf("Getting all of the atoms bonded to lineAtom.\n");
                vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
+               printf("Number bonded to line atom: %d\n", bondedToLineAtom.size());
                 //get all of the atoms bonded to  otherAtom
+               printf("Getting all of the atoms bonded to otherAtom.\n");
                vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
+               printf("Number bonded to otherAtom: %d\n", bondedToOtherAtom.size());
                 
                 //find the intersection of the two previous vectors.
                 //because of how the zMatrix file is set up the intersection
                 //should be of size 1
+               printf("Getting the common bonded atoms.\n");
                vector<unsigned long> intersection = getIntersection(bondedToLineAtom, bondedToOtherAtom);
-                                 
+               printf("number of common atoms: %d\n", intersection.size());                 
+
                 //find bond that bonds together two of the atoms in the intersection
                Bond linkingBond = createBond(-1, -1, -1, false);
-            
+                bool foundBond = false; 
                 // this could possibly be abstracted into its own function and may made not to be and n^3 algorithm. ugh
-               for(int i = 0; i < intersection.size() - 1; i++){
-                  for(int j = i + 1; i < intersection.size(); i++){
-                     for(int k = 0; k < bondVector.size(); k++){
-                        if(getOppositeAtom(bondVector[k], intersection[i]) == intersection[j]){
-                           linkingBond = bondVector[k];
+               printf("Finding the bond that links the two atoms.\n");
+               for(int i = 0; i < bondedToLineAtom.size(); i++){
+                    unsigned long currentToLine = bondedToLineAtom[i];
+                    for(int j = 0; j < bondedToOtherAtom.size(); j++){
+                        unsigned long currentToOther = bondedToOtherAtom[i];
+                        for(int k = 0; k < bondVector.size(); k++){
+                            Bond currentBond = bondVector[k];
+                            if(getOppositeAtom(currentBond, currentToOther) == currentToLine){
+                                linkingBond = currentBond;
+                                foundBond = true;
+                            }
+                            if(foundBond)
+                                break;
                         }
-                     }
-                  }
-               } 
-            
+                        if(foundBond)
+                            break;
+                    }
+                    if(foundBond)
+                        break;
+               }
+           
+               printf("Atoms in dihedral: %d %d %d %d\n", lineAtom.id, linkingBond.atom1, linkingBond.atom2, otherAtom.id);
                 
                 //plane 1 is lineAtom and atoms in linking bond and will be rotated
                 //plane 2 is otherAtom and atoms in linking bond
@@ -274,7 +294,7 @@
             
                lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
             
-            }*/
+            }
             atomVector.push_back(lineAtom);
          
          }//end of atom placing
