@@ -430,6 +430,10 @@ void testZmatrixScanner_multpleAmount(Opls_Scan opls){
 
 
 int main(){
+    
+    testRotateAboutVector();
+    
+    /**
     runStateTests();
     testConfigScan();    
     
@@ -453,5 +457,6 @@ int main(){
     testRotateAboutX();
     testRotateAboutY();
     testRotateAboutZ();
-
+    
+    */
 }
