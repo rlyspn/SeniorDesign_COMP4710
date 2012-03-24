@@ -108,7 +108,7 @@
          }
          else//dummy atom
          {
-            lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1);
+            lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1, -1, -1);
          //    atomVector.push_back(lineAtom); 
          }
       
@@ -145,19 +145,28 @@
         /******************************************
             BUILDING MOLECULE WITH CORRECT POSITIONS
          ******************************************/        
+         cout << "\nStarting building " << lineAtom.id << endl;
+         cout << atomVector.size() << endl;
          // must not be a dummy atom
-         if(lineAtom.z != -1 && lineAtom.y != -1 && lineAtom.x != -1){
+         //if(lineAtom.epsilon != -1 || lineAtom.sigma != -1){
+         if(1 < 10){
+            lineAtom.x = 0.0;
+            lineAtom.y = 0.0;
+            lineAtom.z = 0.0;
             if(hasBond){
             
                 // Get other atom in bond
                unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
+               cout << "otherID= " << otherID << endl;
+               cout << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
                Atom otherAtom = getAtom(atomVector, otherID);
-               if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
+               cout << "otherAtom.id " << otherAtom.id << endl;
+               /**if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
                         && otherAtom.z == -1){
                     
                     // this should be an error but I don't know what kind.
                   cout << "Other atom not found. Error?" << endl;
-               }
+               }*/
                 
                 // Move newAtom bond distance away from other atom in y direction.
                lineAtom.x = otherAtom.x;
@@ -173,39 +182,47 @@
                         && otherAtom.z == -1){
                     
                     // this should be an error but I don't know what kind.
-                  cout << "Other atom not found. Error?" << endl;
+             //     cout << "Other atom not found. Error?" << endl;
                }
-                
+               
                 // Get common atom that lineAtom and otherAtom are bonded to
                 //it will be the vertex of the angle.
                unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
                        otherID);
                Atom commonAtom = getAtom(atomVector, commonID);
-            
+
+               printf("Atoms in Angle\n");
+               printAtoms(&lineAtom, 1);
+               printAtoms(&commonAtom, 1);
+               printAtoms(&otherAtom, 1);
+           
+
                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
+               printf("Current Angle: %f\n", currentAngle);
                double angleChange = lineAngle.value - currentAngle;
-            
+           
+               printf("angleChange = %f\n", angleChange); 
                lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
+               printf("After Rotation:\n");
+               printAtoms(&lineAtom, 1);
             }
-            if(hasDihedral){
+            /*if(hasDihedral){
                 //get other atom in the dihedral
                unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
                Atom otherAtom = getAtom(atomVector, otherID);
             
-                /*********
-                  There are guranteed to be 4 atoms involved in the dihedral
-                  because it takes atleast 4 atoms to define two non equal
-                  planes.
-                **********/
+                  //There are guranteed to be 4 atoms involved in the dihedral
+                  //because it takes atleast 4 atoms to define two non equal
+                  //planes.
                 
                 //get all of the atoms bonded to lineAtom
                vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
                 //get all of the atoms bonded to  otherAtom
                vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
                 
-                /*find the intersection of the two previous vectors.
-                because of how the zMatrix file is set up the intersection
-                should be of size 1*/
+                //find the intersection of the two previous vectors.
+                //because of how the zMatrix file is set up the intersection
+                //should be of size 1
                vector<unsigned long> intersection = getIntersection(bondedToLineAtom, bondedToOtherAtom);
                                  
                 //find bond that bonds together two of the atoms in the intersection
@@ -222,12 +239,12 @@
                   }
                } 
             
-                /**
-                plane 1 is lineAtom and atoms in linking bond and will be rotated
-                plane 2 is otherAtom and atoms in linking bond
-                the bond creates the vector about which lineAtom will be rotated.
-                lineAtom is rotated about the 
-                */    
+                
+                //plane 1 is lineAtom and atoms in linking bond and will be rotated
+                //plane 2 is otherAtom and atoms in linking bond
+                //the bond creates the vector about which lineAtom will be rotated.
+                //lineAtom is rotated about the 
+                    
                Plane rotatePlane = createPlane(lineAtom,
                         getAtom(atomVector, linkingBond.atom1),
                         getAtom(atomVector, linkingBond.atom2));
@@ -257,8 +274,7 @@
             
                lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
             
-            }
-         
+            }*/
             atomVector.push_back(lineAtom);
          
          }//end of atom placing
@@ -399,7 +415,6 @@
       int **graph;
       int size = molec.numOfAtoms;
     
-    
     //cout << "ZMATRIX-- Creating Graph "<<endl;
       buildAdjacencyMatrix(graph,molec);
     //cout << "ZMATRIX-- Creating Graph Sucessful " <<endl;
@@ -500,8 +515,12 @@
       for(int x=0; x<molec.numOfBonds; x++){
          Bond bond = molec.bonds[x];
         //cout << "ZMATRIX-- Bonds: "<< x<< " atom1: "<< molec.bonds[x].atom1<< " atom2: "<< molec.bonds[x].atom2 <<endl;
+         
+         //SEGMENTATION FAULT HERE
          graph[bond.atom1-1][bond.atom2-1]=1;
          graph[bond.atom2-1][bond.atom1-1]=1;
+         //SEGMENTATION FAULT HERE
+
       }
    }
 

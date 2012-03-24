@@ -468,6 +468,13 @@ void testZmatrixScanner_multpleAmount(Opls_Scan opls){
 
 
 int main(){
+     testTranslateAtom();
+    testRotateAboutX();
+    testRotateAboutY();
+    testRotateAboutZ();
+    testRotateAboutVector();
+    testRotateInPlane(); 
+    
     runStateTests();
     testConfigScan();    
     
@@ -485,9 +492,9 @@ int main(){
     testGetFourier(scanner);
     testPDBoutput();
 	 testLogOutput();
-   //testZmatrixScanner(scanner);
+   /*testZmatrixScanner(scanner); commented out since not working
 	//testZmatrixScanner_multpleSingle(scanner);
-	//testZmatrixScanner_multpleAmount(scanner);
+	//testZmatrixScanner_multpleAmount(scanner);*/
     testTranslateAtom();
     testRotateAboutX();
     testRotateAboutY();
@@ -497,5 +504,6 @@ int main(){
 	 testGetCommonAtom();
 	 testGetDistance();
 	 testGetAngle();
-
+	 testRotateAboutVector();
+	 testRotateInPlane();
 }

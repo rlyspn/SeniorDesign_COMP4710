@@ -216,6 +216,10 @@ Atom rotateAboutZ(Atom atom, double theta);
   @param atom2 - the atom about which atom1 will be rotated.
   @param atom3 - the atom used to complete the plane.
   @param theta - the number of degrees to be rotated.
+  @return - atom that has been rotated theta degrees in the plane defined
+  by the locations of atom1, atom2 and atom3.
+  If these points are collinear then the atom will be rotated about the 
+  vector created by atom2 and (atom2.x + 1, atom2.y, atom2.z)
 */
 Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta);
 
