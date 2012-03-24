@@ -153,7 +153,7 @@ Hop createHop(int atom1, int atom2, int hop){
 //utility to print off Atom coordinate data
 void printAtoms(Atom *atoms, int count){
     for(int i = 0; i < count; i++){
-        printf("%f, %f, %f\n", atoms[i].x, atoms[i].y, atoms[i].z);
+        printf("%d, %f, %f, %f\n", atoms[i].id, atoms[i].x, atoms[i].y, atoms[i].z);
     }
 }
 

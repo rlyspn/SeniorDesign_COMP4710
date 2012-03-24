@@ -2,6 +2,7 @@
 #define GEOMETRICTEST_H
 
 #include "../src/geometricUtil.h"
+#include "../src/metroUtil.h"
 #include <assert.h>
 #include <iostream>
 #include <cstdlib>
@@ -26,5 +27,17 @@ void testRotateAboutY();
     tests the rotateAboutZ function
 */
 void testRotateAboutZ();
+
+
+/**
+  tests rotating an atom about a vector.
+*/
+void testRotateAboutVector();
+
+/**
+  tests rotating within a plane
+*/
+void testRotateInPlane();
+
 
 #endif //GEOMETRICTEST_H

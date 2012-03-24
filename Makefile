@@ -7,7 +7,7 @@ PARA=parallelMetropolis/
 LIN=LinearMetropolis/
 BIN=bin/
 
-FLAGS=-arch sm_13 -lcurand
+FLAGS=-arch sm_13 -lcurand -g
 
 TSTEXE=parallelTest
 EXE=metroSim
