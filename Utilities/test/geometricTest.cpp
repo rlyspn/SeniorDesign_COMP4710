@@ -163,4 +163,42 @@ void testRotateAboutVector(){
     assert(fabs(rotated.y - 0.0) < .01);
     assert(fabs(rotated.x - 0.0) < .01);
     assert(fabs(rotated.z - 1.0) < .01);
+
+    rotation = 45;
+    
+    rotated = rotateAtomAboutVector(toRotate, vertex, head, rotation);
+    printAtoms(&rotated, 1);
+    printf("Angle = %f\n", getAngle(rotated, vertex, toRotate));
+    assert(fabs(rotated.y - sqrt(.5)) < .01);
+    assert(fabs(rotated.x - 0.0) < .01);
+    assert(fabs(rotated.z - sqrt(.5)) < .01);
+
+
+    printf("rotateAtomAboutVectorPassed()\n");
+}
+
+void testRotateInPlane(){
+     double rotation = 90;
+    Atom vertex = createAtom(-1, 0, 0, 0);
+    Atom head = createAtom(-1, 0, 0, -1);
+    Atom toRotate = createAtom(-1, 0, 1, 0);
+
+    printAtoms(&toRotate, 1);
+    Atom rotated = rotateAtomInPlane(toRotate, vertex, head, rotation);
+    printAtoms(&rotated, 1);
+    printf("Angle = %f\n", getAngle(rotated, vertex, toRotate));
+    assert(fabs(rotated.y - 0.0) < .01);
+    assert(fabs(rotated.x - 0.0) < .01);
+    assert(fabs(rotated.z - 1.0) < .01);
+ 
+    rotation = 45;
+    
+    rotated = rotateAtomInPlane(toRotate, vertex, head, rotation);
+    printAtoms(&rotated, 1);
+    printf("Angle = %f\n", getAngle(rotated, vertex, toRotate));
+    assert(fabs(rotated.y - sqrt(.5)) < .01);
+    assert(fabs(rotated.x - 0.0) < .01);
+    assert(fabs(rotated.z - sqrt(.5)) < .01);
+  
+    printf("rotateAtomInPlanePassed()\n");
 }

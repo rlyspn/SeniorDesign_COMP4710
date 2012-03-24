@@ -37,7 +37,7 @@ void testRotateAboutVector();
 /**
   tests rotating within a plane
 */
-void testRotatInPlane();
+void testRotateInPlane();
 
 
 #endif //GEOMETRICTEST_H

@@ -233,19 +233,15 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     //find the angle between the vector and xz plane
     Atom xzVector = createAtom(-1, 1, 0, 0);
     double xzAngle = getAngle(atom3, atom2, xzVector);  
-    printf("xzAngle = %f\n", xzAngle);
     //rotate about z axis so that vector is parallel to xz plane
     atom1 = rotateAboutZ(atom1, xzAngle);
     //atom2 should not change because atom2 is at the origin
     //atom2 = rotateAboutZ(atom2, xzAngle);
-    printAtoms(&atom3, 1);
     atom3 = rotateAboutZ(atom3, xzAngle);
-    printAtoms(&atom3, 1);
 
     //find the angle between the vector and the z axis
     Atom zAxis = createAtom(-1, 0, 0, 1);
     double zAngle = getAngle(atom3, atom2, zAxis);
-    printf("zAngle = %f\n", zAngle);
     //rotate about y axis so that the vector is parallel to z axis
     atom1 = rotateAboutY(atom1, zAngle);
     atom2 = rotateAboutY(atom2, zAngle);
