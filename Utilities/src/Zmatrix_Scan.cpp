@@ -43,7 +43,23 @@
                bondArray = (Bond*) malloc(sizeof(Bond) * bondVector.size());
                angleArray = (Angle*) malloc(sizeof(Angle) * angleVector.size());
                dihedralArray = (Dihedral*) malloc(sizeof(Dihedral) * dihedralVector.size());
-            
+                
+               /***
+                 Set dummy atoms back to -1,-1,-1
+              */
+               for(int i = 0; i < dummies.size(); i++){
+                    for(int j = 0; j < atomVector.size(); j++){
+                        if(atomVector[j].id == dummies[i]){
+                            printf("Restoring Atom %d to dummy position\n", dummies[i]);
+                            atomVector[j].x = -1;
+                            atomVector[j].y = -1;
+                            atomVector[j].z = -1;
+                        }
+                    }
+               }
+
+
+
                for (int i = 0; i < atomVector.size(); i++){
                   atomArray[i] = atomVector[i];
                }
@@ -104,6 +120,9 @@
          {
             lineAtom = oplsScanner->getAtom(oplsA);
             lineAtom.id = atoi(atomID.c_str());
+            lineAtom.x = 0;
+            lineAtom.y = 0;
+            lineAtom.z = 0;
          //    atomVector.push_back(lineAtom);
          }
          else//dummy atom
@@ -146,10 +165,17 @@
             BUILDING MOLECULE WITH CORRECT POSITIONS
          ******************************************/        
          cout << "\nBuilding Atom: " << lineAtom.id << endl;
+         if(compareDoubleDifference(lineAtom.x, -1, DOUBPREC) &&
+            compareDoubleDifference(lineAtom.y, -1, DOUBPREC) &&
+            compareDoubleDifference(lineAtom.z, -1, DOUBPREC)){
+            printf("Atom %d is a dummy atom.\n");
+            dummies.push_back(lineAtom.id);
+         }
          //cout << atomVector.size() << endl;
          // must not be a dummy atom
          //if(lineAtom.epsilon != -1 || lineAtom.sigma != -1){
          if(1 < 10){
+
             lineAtom.x = 0.0;
             lineAtom.y = 0.0;
             lineAtom.z = 0.0;
