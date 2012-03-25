@@ -26,6 +26,7 @@ class Zmatrix_Scan{
       vector<Bond> bondVector;
       vector<Angle> angleVector;
       vector<Dihedral> dihedralVector;
+      vector<unsigned long> dummies;
 
       bool startNewMolecule;
 		int previousFormat;
