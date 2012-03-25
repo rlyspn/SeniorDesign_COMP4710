@@ -298,7 +298,6 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
     Plane atomPlane = createPlane(atom1, atom2, atom3);
     //Find the normal vector.
     Point normal;
-    printf("Angle = %f\n", getAngle(atom1, atom2, atom3));
     //Arbitrarily assigned percent diff.
     if(fabs(getAngle(atom1, atom2, atom3)) < .0001){
         //find a line that is perpendicular to the line of atoms as the normal. 
@@ -309,22 +308,23 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
     }
     Atom vectorEnd = createAtom(-1, atom2.x + normal.x, atom2.y + normal.y,
             atom2.z + normal.z);
-   //Rotate about that normal vector
-    printf("Vector start: ");
+    
+    /*printf("Vector start: ");
     printAtoms(&atom2, 1);
     printf("Normal: ");
     printPoint(normal);
     printf("Vector end: ");
-    printAtoms(&vectorEnd, 1);
+    printAtoms(&vectorEnd, 1);*/
     
+   //Rotate about that normal vector
     return rotateAtomAboutVector(atom1, atom2, vectorEnd, theta);
 }
 
 Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
-    printf("Rotating atom %f degrees.\n", theta);
     theta *= -1;
  
     /*
+    printf("Rotating atom %f degrees.\n", theta);
     printf("Before translation:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -342,6 +342,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     atom2 = translateAtom(atom2, -originalAtom2.x, -originalAtom2.y, -originalAtom2.z);
     atom3 = translateAtom(atom3, -originalAtom2.x, -originalAtom2.y, -originalAtom2.z);
 
+    /**
     printf("After translation:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -349,7 +350,8 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
-    
+    */  
+
     //find the angle between the vector and xz plane
     double xzAngle = 0.0; 
     if(!inXZPlane(atom2) || !inXZPlane(atom3)){ // rotation axis not in xz plane
@@ -364,8 +366,8 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
             xzVector = createAtom(-1, atom3.x, 0, atom3.z);
 
         }
-        printf("xzVector = ");
-        printAtoms(&xzVector, 1);
+       // printf("xzVector = ");
+        //printAtoms(&xzVector, 1);
         xzAngle = getAngle(atom3, atom2, xzVector);  
         
         //rotate about z axis so that vector is parallel to xz plane
@@ -375,9 +377,12 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
         atom3 = rotateAboutZ(atom3, xzAngle);
 
     }
-    printf("xzAngle = %f\n", xzAngle);
+    //find the angle between the vector and the z axis
+    Atom zAxis = createAtom(-1, 0, 0, 1);
+    double zAngle = getAngle(atom3, atom2, zAxis);
     
     /*
+    printf("xzAngle = %f\n", xzAngle);
     printf("After rotation into xz:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -385,11 +390,8 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
-    */
-    //find the angle between the vector and the z axis
-    Atom zAxis = createAtom(-1, 0, 0, 1);
-    double zAngle = getAngle(atom3, atom2, zAxis);
     printf("zAngle = %f\n", zAngle);
+    */
     //rotate about y axis so that the vector is parallel to z axis
     atom1 = rotateAboutY(atom1, zAngle);
     atom2 = rotateAboutY(atom2, zAngle);
@@ -403,10 +405,10 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
+    printf("Theta = %f\n", theta);
     */
 
     //rotate atom1 theta about the z axis.
-    printf("Theta = %f\n", theta);
     atom1 = rotateAboutZ(atom1, theta);
     
     /*
@@ -442,11 +444,9 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
 bool compareDoubleDifference(double a, double b, double precision){
     
     if(fabs(a - b) < precision){
-        printf("%f == %f\n");
         return true;
     }
     else{
-        printf("%f == %f\n");
         return false;
     }
 }

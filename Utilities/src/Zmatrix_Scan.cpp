@@ -145,8 +145,8 @@
         /******************************************
             BUILDING MOLECULE WITH CORRECT POSITIONS
          ******************************************/        
-         cout << "\nStarting building " << lineAtom.id << endl;
-         cout << atomVector.size() << endl;
+         cout << "\nBuilding Atom: " << lineAtom.id << endl;
+         //cout << atomVector.size() << endl;
          // must not be a dummy atom
          //if(lineAtom.epsilon != -1 || lineAtom.sigma != -1){
          if(1 < 10){
@@ -157,10 +157,8 @@
             
                 // Get other atom in bond
                unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
-               cout << "otherID= " << otherID << endl;
-               cout << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
+               cout << "Building Bond:\n" << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
                Atom otherAtom = getAtom(atomVector, otherID);
-               cout << "otherAtom.id " << otherAtom.id << endl;
                /**if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
                         && otherAtom.z == -1){
                     
@@ -178,8 +176,6 @@
                Atom otherAtom = createAtom(-1, -1, -1, -1);
                unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
                otherAtom = getAtom(atomVector, otherID);
-               printf("otherAtom in angle: ");
-               printAtoms(&otherAtom, 1);
                if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
                         && otherAtom.z == -1){
                     
@@ -192,29 +188,31 @@
                unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
                        otherID);
                Atom commonAtom = getAtom(atomVector, commonID);
-
-               printf("Atoms in Angle\n");
+                
+               printf("Building Angle:\n%d -- %d -- %d\n", lineAtom.id,
+                       commonAtom.id, otherAtom.id);
+               /*printf("Atoms in Angle\n");
                printAtoms(&lineAtom, 1);
                printAtoms(&commonAtom, 1);
-               printAtoms(&otherAtom, 1);
+               printAtoms(&otherAtom, 1);*/
            
 
                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
-               printf("Current Angle: %f\n", currentAngle);
+               //printf("Current Angle: %f\n", currentAngle);
                double angleChange = lineAngle.value - currentAngle;
            
-               printf("angleChange = %f\n", angleChange); 
+               //printf("angleChange = %f\n", angleChange); 
                lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
-               printf("After Rotation:\n");
+               /*printf("After Rotation:\n");
                printAtoms(&lineAtom, 1);
                
                printf("Atoms in Angle\n");
                printAtoms(&lineAtom, 1);
                printAtoms(&commonAtom, 1);
-               printAtoms(&otherAtom, 1);
+               printAtoms(&otherAtom, 1);*/
             }
             if(hasDihedral){
-                printf("\nDihedral : %d %d.\n", lineDihedral.atom1, lineDihedral.atom2);
+               // printf("\nDihedral : %d %d.\n", lineDihedral.atom1, lineDihedral.atom2);
                 //get other atom in the dihedral
                 unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
                Atom otherAtom = getAtom(atomVector, otherID);
@@ -225,11 +223,11 @@
                 
                 //get all of the atoms bonded to lineAtom
                vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
-               printf("Number bonded to line atom: %d\n", bondedToLineAtom.size());
+               //printf("Number bonded to line atom: %d\n", bondedToLineAtom.size());
                 //get all of the atoms bonded to  otherAtom
                vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
-               printf("Number bonded to otherAtom: %d\n", bondedToOtherAtom.size());
-               printf("%d\n%d\n", bondedToOtherAtom[0], bondedToLineAtom[0]); 
+               //printf("Number bonded to otherAtom: %d\n", bondedToOtherAtom.size());
+               //printf("%d\n%d\n", bondedToOtherAtom[0], bondedToLineAtom[0]); 
 
                 //find bond that bonds together two of the atoms in the intersection
                Bond linkingBond = createBond(-1, -1, -1, false);
@@ -266,8 +264,9 @@
                         }
                    }
                }
-               printf("Atoms in dihedral: %d %d %d %d\n", lineAtom.id, linkingBond.atom1, linkingBond.atom2, otherAtom.id);
-                
+               //printf("Atoms in dihedral: %d %d %d %d\n", lineAtom.id, linkingBond.atom1, linkingBond.atom2, otherAtom.id);
+                printf("Building Dihedral:\n%d -- (%d %d) -- %d\n", lineAtom.id,
+                        linkingBond.atom1, linkingBond.atom2, otherAtom.id);
                 //plane 1 is lineAtom and atoms in linking bond and will be rotated
                 //plane 2 is otherAtom and atoms in linking bond
                 //the bond creates the vector about which lineAtom will be rotated.
@@ -283,10 +282,10 @@
                 
                 //find the angle between the planes.
                double initialAngle = getAngle(rotatePlane, nonMovingPlane);
-               printf("initialAngle: %f\n", initialAngle);
+               //printf("initialAngle: %f\n", initialAngle);
                 //find the angle needed to rotate.
                double toRotate = initialAngle - lineDihedral.value;
-                printf("toRotate plane: %f\n", toRotate);
+                //printf("toRotate plane: %f\n", toRotate);
                //rotate lineAtom needed degrees about linkbond.
                     //determine which atom in linkingBond is vector head and tail
                Atom vectorHead;
@@ -305,7 +304,7 @@
                lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
             
             }
-            printf("Atom final position: ");
+            printf("Built Atom:\n");
             printAtoms(&lineAtom, 1);
             atomVector.push_back(lineAtom);
          
