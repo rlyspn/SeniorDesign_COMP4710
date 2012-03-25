@@ -178,6 +178,8 @@
                Atom otherAtom = createAtom(-1, -1, -1, -1);
                unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
                otherAtom = getAtom(atomVector, otherID);
+               printf("otherAtom in angle: ");
+               printAtoms(&otherAtom, 1);
                if(otherAtom.id == -1 && otherAtom.x == -1 && otherAtom.y == -1
                         && otherAtom.z == -1){
                     
@@ -205,6 +207,11 @@
                lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
                printf("After Rotation:\n");
                printAtoms(&lineAtom, 1);
+               
+               printf("Atoms in Angle\n");
+               printAtoms(&lineAtom, 1);
+               printAtoms(&commonAtom, 1);
+               printAtoms(&otherAtom, 1);
             }
             if(hasDihedral){
                 printf("\nDihedral : %d %d.\n", lineDihedral.atom1, lineDihedral.atom2);
@@ -298,6 +305,8 @@
                lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
             
             }
+            printf("Atom final position: ");
+            printAtoms(&lineAtom, 1);
             atomVector.push_back(lineAtom);
          
          }//end of atom placing

@@ -433,21 +433,33 @@ void testRotateAboutVector(){
 }
 
 void testRotateInPlane(){
+    printf("\nTesting Rotation in Plane.\n");
      double rotation = 90;
-    Atom vertex = createAtom(-1, 0, 0, 0);
-    Atom head = createAtom(-1, 0, 0, -1);
+    Atom vertex = createAtom(-1, 0, .5, 0);
+    Atom head = createAtom(-1, 0, 0, 0);
     Atom toRotate = createAtom(-1, 0, 1, 0);
-
+    
     printAtoms(&toRotate, 1);
+    printAtoms(&vertex, 1);
+    printAtoms(&head, 1);
+
+
     Atom rotated = rotateAtomInPlane(toRotate, vertex, head, rotation);
+    
     printAtoms(&rotated, 1);
+    printAtoms(&vertex, 1);
+    printAtoms(&head, 1);
     printf("Angle = %f\n", getAngle(rotated, vertex, toRotate));
-    assert(fabs(rotated.y - 0.0) < .01);
-    assert(fabs(rotated.x - 0.0) < .01);
-    assert(fabs(rotated.z - 1.0) < .01);
+    assert(fabs(rotated.y - .5) < .01);
  
     rotation = 45;
     
+    printf("rotating 45 degrees\n");
+
+    vertex = createAtom(-1, 0, 0, 0);
+    head = createAtom(-1, 0, 0, -1);
+    toRotate = createAtom(-1, 0, 1, 0);
+
     rotated = rotateAtomInPlane(toRotate, vertex, head, rotation);
     printAtoms(&rotated, 1);
     printf("Angle = %f\n", getAngle(rotated, vertex, toRotate));
