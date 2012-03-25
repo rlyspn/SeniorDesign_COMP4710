@@ -8,6 +8,7 @@
 #include <curand_kernel.h>
 #include <math.h>
 #include "../../Utilities/src/metroUtil.h"
+#include "../test/baseTests.h"
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
 #define PI 3.14159265358979323
@@ -83,6 +84,16 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro);
   @param enviro - the environment of the system.
 */
 double calcEnergyWrapper(Molecule *molecules, Environment *enviro);
+
+/**
+  This calculates energy between two atoms on host for fringe
+  disagreeable atoms.
+  @param atom1 - first atom
+  @param atom2 - second atom
+  @parm enviro - the environment for the system
+*/
+double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro);
+
 
 /**
   Calculates the energy between n atoms where n is the

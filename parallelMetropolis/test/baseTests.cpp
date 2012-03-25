@@ -43,6 +43,8 @@ double calculate_energy(Atom *atoms, Environment *enviro){
     int atomNumber = enviro->numOfAtoms;
     double sigma = atoms[0].sigma;
     double epsilon = atoms[0].epsilon;
+    
+    const double e = 1.602176565 * pow(10.f,-19.f);
 
     double totalEnergy = 0;
     
@@ -62,20 +64,25 @@ double calculate_energy(Atom *atoms, Environment *enviro){
                               (deltaY * deltaY) + 
                               (deltaZ * deltaZ);
 
+            const double r = sqrt(r2);
+
             const double sig2OverR2 = pow(sigma, 2) / r2;
             const double sig6OverR6 = pow(sig2OverR2, 3);
             const double sig12OverR12 = pow(sig6OverR6, 2);
-            const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
+            const double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
+
+            const double charge_energy = (atoms[i].charge * atoms[j].charge * pow(e,2) / r);
+
+            const double fValue = 1.0;
             
             int N = (j * j - j ) / 2 + i;
 
             //printf("energy[%d]: %f | r2 = %f ", N, energy, r2);
             //printf(" | atomX = {id:%d, x:%f, y:%f, z:%f} ", atoms[j].id, atoms[j].x, atoms[j].y, atoms[j].z);
             //printf(" | atomY = {id:%d, x:%f, y:%f, z:%f}\n", atoms[i].id, atoms[i].x, atoms[i].y, atoms[i].z);
-            totalEnergy += energy;
+            totalEnergy += fValue * (lj_energy + charge_energy);
         }
     }
-    printf("number of atoms: %d", atomNumber);
     //printf("Sigma: %f\n", sigma);
     //printf("Epsilon: %f\n", epsilon);
     return totalEnergy;

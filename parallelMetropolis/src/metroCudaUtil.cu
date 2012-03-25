@@ -1,7 +1,5 @@
 #include "metroCudaUtil.cuh"
 
-//const int THREADS_PER_BLOCK = 128;
-
 //calculates X (larger indexed atom) for energy calculation based on index in atom array
 __device__ int getXFromIndex(int idx){
     int c = -2 * idx;
@@ -126,8 +124,8 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
 //calculate Lennard-Jones energy between two atoms
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     //store LJ constants locally
-    double sigma = atom1.sigma;
-    double epsilon = atom1.epsilon;
+    double sigma = calcBlending(atom1.sigma, atom2.sigma);
+    double epsilon = calcBlending(atom1.epsilon, atom2.epsilon);
     
     //calculate difference in coordinates
     double deltaX = atom1.x - atom2.x;
@@ -265,7 +263,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
 
     //calculate CUDA thread mgmt
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
-    int blocks = N / THREADS_PER_BLOCK + (N % THREADS_PER_BLOCK == 0 ? 0 : 1);
+    int blocks = N / THREADS_PER_BLOCK + (N % THREADS_PER_BLOCK == 0 ? 0 : 1); 
 
     //The number of bytes of shared memory per block of
     size_t sharedSize = sizeof(double) * THREADS_PER_BLOCK;
@@ -287,9 +285,28 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost);
 
     for(int i = 0; i < N; i++){
+
+        int c = -2 * i;
+        int discriminant = 1 - 4 * c;
+        int qv = (-1 + sqrtf(discriminant)) / 2;
+        int atomXid = qv + 1;
+        
+        int atomYid =  i - (atomXid * atomXid - atomXid) / 2;
+
+        double xx = atoms[atomXid].x;
+        double xy = atoms[atomXid].y;
+        double xz = atoms[atomXid].z;
+
+        double yx = atoms[atomYid].x;
+        double yy = atoms[atomYid].y;
+        double yz = atoms[atomYid].z;
+
+        if (isnan(energySum_host[i]) != 0 || isinf(energySum_host[i]) != 0){
+            energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
+        }
+
         totalEnergy += energySum_host[i];
-        //printf("energySum_host[%d] = %f\n", i, energySum_host[i]);
-        //printf("totalEnergy: %f\n" , totalEnergy);
+
     }
 
     //cleanup
@@ -298,6 +315,40 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
     free(energySum_host);
 
     return totalEnergy;
+}
+
+double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
+    const double e = 1.602176565 * pow(10.f,-19.f);
+
+    double sigma = sqrt(atom1.sigma * atom2.sigma);
+    double epsilon = sqrt(atom1.epsilon * atom2.epsilon);
+    
+    double deltaX = atom1.x - atom2.x;
+    double deltaY = atom1.y - atom2.y;
+    double deltaZ = atom1.z - atom2.z;
+  
+    deltaX = make_periodic(deltaX, enviro->x);
+    deltaY = make_periodic(deltaY, enviro->y);
+    deltaZ = make_periodic(deltaZ, enviro->z);
+
+    const double r2 = (deltaX * deltaX) +
+                      (deltaY * deltaY) + 
+                      (deltaZ * deltaZ);
+
+    const double r = sqrt(r2);
+
+    const double sig2OverR2 = pow(sigma, 2) / r2;
+    const double sig6OverR6 = pow(sig2OverR2, 3);
+    const double sig12OverR12 = pow(sig6OverR6, 2);
+    const double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
+
+    const double charge_energy = (atom2.charge * atom1.charge * pow(e,2) / r);
+
+    const double fValue = 1.0; //TODO: make this right
+    
+
+    return fValue * (lj_energy + charge_energy);
+
 }
 
 __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
@@ -328,9 +379,10 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         fValue = 1.0; //TODO: make this the proper function call when the signature is finalized
         
         energySum[idx] = fValue * (lj_energy + charge_energy);
+
     }
     else {
-        lj_energy = 0.0;
+        energySum[idx] = 0.0;
     }
 
 

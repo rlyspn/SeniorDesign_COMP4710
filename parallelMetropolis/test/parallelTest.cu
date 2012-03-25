@@ -171,6 +171,8 @@ void setupCalc_lj(){
     generatePoints(atoms, enviro);
     atoms[0].sigma = kryptonSigma;
     atoms[0].epsilon = kryptonEpsilon; 
+    atoms[1].sigma = kryptonSigma;
+    atoms[1].epsilon = kryptonEpsilon;
 
     cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
     cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
@@ -263,7 +265,7 @@ void testCalcEnergy(){
     printf("Parallel Total Energy: %f \n", te_parallel);
     printf("In %d ms\n", pl_runTime);
     assert(compareDouble(te_linear, te_parallel, .05));
-    printf("testCalcEnergy successful.");
+    printf("testCalcEnergy successful.\n");
 
     
 }
@@ -320,7 +322,7 @@ void testCalcEnergyWithMolecules(){
     printf("Parallel Total Energy: %f \n", te_parallel);
     printf("In %d ms\n", pl_runTime);
     assert(compareDouble(te_linear, te_parallel, .05));
-    printf("testCalcEnergyWithMolecules successful.");
+    printf("testCalcEnergyWithMolecules successful.\n");
 
     
 }
