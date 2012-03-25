@@ -49,7 +49,7 @@ vector<unsigned long> getIntersection(vector<unsigned long> v1, vector<unsigned 
     //not effecient but I will be working with small data sets.
     for(int i = 0; i < v1.size(); i++){
         for(int j = 0; j < v2.size(); j++){
-            if(v1[i] == v2[i])
+            if(v1[i] == v2[j])
                 intersection.push_back(v1[i]);
         }
     }

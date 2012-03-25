@@ -29,7 +29,7 @@ void testGetNormal(){
 }
 
 void testGetAngleBetweenPlanes(){
-    //TODO after getAngle test is written
+    //TODO by alex
 }
 
 void testGetBond(){
@@ -57,15 +57,67 @@ void testGetBond(){
 }
 
 void testGetAllBonds(){
-    //TODO by alex
+    vector<Bond> bonds;
+
+    Bond bond1 = createBond(1, 2, 3.0, false);
+    Bond bond2 = createBond(3, 4, 3.0, false);
+    Bond bond3 = createBond(2, 3, 3.0, false);
+
+    bonds.push_back(bond1);
+    bonds.push_back(bond2);
+    bonds.push_back(bond3);
+
+    vector<unsigned long> testBonds1 = getAllBonds(bonds, 1);
+    vector<unsigned long> testBonds2 = getAllBonds(bonds, 2);
+    vector<unsigned long> testBonds3 = getAllBonds(bonds, 3);
+    vector<unsigned long> testBonds4 = getAllBonds(bonds, 4);
+    vector<unsigned long> testBonds5 = getAllBonds(bonds, 5);
+
+    assert(testBonds1[0] == 2 && testBonds1.size() == 1);
+    assert(testBonds2[0] == 1 && testBonds2[1] == 3 && testBonds2.size() == 2);
+    assert(testBonds3[0] == 4 && testBonds3[1] == 2 && testBonds3.size() == 2);
+    assert(testBonds4[0] == 3 && testBonds4.size() == 1);
+    assert(testBonds5.size() == 0);
+
+    printf("testGetAllBonds completed successfully.\n");
 }
 
 void testGetIntersection(){
-    //TODO by alex
+    vector<unsigned long> section1, section2;
+
+    section1.push_back(1);
+    section1.push_back(2);
+    section1.push_back(3);
+    section1.push_back(4);
+
+    section2.push_back(2);
+    section2.push_back(4);
+    section2.push_back(6);
+    section2.push_back(8);
+
+    vector<unsigned long> intersection = getIntersection(section1, section2);
+
+    assert(intersection[0] == 2 && intersection[1] == 4 && intersection.size() == 2);
+
+    printf("testGetIntersection completed successfully.\n");
+
 }
 
 void testIsMember(){
-    //TODO by alex
+    vector<unsigned long> section;
+
+    section.push_back(1);
+    section.push_back(2);
+    section.push_back(3);
+    section.push_back(4);
+
+    assert(isMember(section, 1));
+    assert(isMember(section, 2));
+    assert(isMember(section, 3));
+    assert(isMember(section, 4));
+    assert(!isMember(section, 5));
+
+    printf("testIsMember completed successfully.\n");
 }
 
 bool percentDifferenceG(double d1, double d2){
