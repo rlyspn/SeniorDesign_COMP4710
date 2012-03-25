@@ -4,6 +4,7 @@
 #include "metroUtil.h"
 #include <math.h>
 
+#define DOUBPREC .000001
 #define PI 3.14159265
 
 /**
@@ -253,4 +254,12 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta);
 */
 Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta);
 
+/**
+  @param a - the first double to compare.
+  @param b - the second double to compare.
+  @param precision - the threshold for equality
+  @return if the difference in a & b is less than precision then returns true
+         - else returns false.
+*/
+bool compareDoubleDifference(double a, double b, double precision);
 #endif //GEOMETRICUTIL_H

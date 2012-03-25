@@ -316,6 +316,7 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
     printPoint(normal);
     printf("Vector end: ");
     printAtoms(&vectorEnd, 1);
+    
     return rotateAtomAboutVector(atom1, atom2, vectorEnd, theta);
 }
 
@@ -323,6 +324,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printf("Rotating atom %f degrees.\n", theta);
     theta *= -1;
  
+    /*
     printf("Before translation:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -330,6 +332,8 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
+    */
+
     //Translate all atoms so that atom2 is at the origin.
     //The rotation axis needs to pass through the origin
     Atom originalAtom2 = atom2;
@@ -349,7 +353,19 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     //find the angle between the vector and xz plane
     double xzAngle = 0.0; 
     if(!inXZPlane(atom2) || !inXZPlane(atom3)){ // rotation axis not in xz plane
-        Atom xzVector = createAtom(-1, atom3.x, 0, atom3.z);
+        //determin if the rotation axis is vertical
+        Atom xzVector;
+        if(compareDoubleDifference(atom2.x, atom3.x, DOUBPREC) &&
+                compareDoubleDifference(atom2.z, atom3.z, DOUBPREC)){
+            xzVector = createAtom(-1, atom3.x + 1, atom2.y, atom3.z);
+        }
+        else
+        {
+            xzVector = createAtom(-1, atom3.x, 0, atom3.z);
+
+        }
+        printf("xzVector = ");
+        printAtoms(&xzVector, 1);
         xzAngle = getAngle(atom3, atom2, xzVector);  
         
         //rotate about z axis so that vector is parallel to xz plane
@@ -361,6 +377,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     }
     printf("xzAngle = %f\n", xzAngle);
     
+    /*
     printf("After rotation into xz:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -368,7 +385,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
-    
+    */
     //find the angle between the vector and the z axis
     Atom zAxis = createAtom(-1, 0, 0, 1);
     double zAngle = getAngle(atom3, atom2, zAxis);
@@ -378,6 +395,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     atom2 = rotateAboutY(atom2, zAngle);
     atom3 = rotateAboutY(atom3, zAngle);
 
+    /*
     printf("After rotation onto z axis:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -385,11 +403,13 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
-    
+    */
+
     //rotate atom1 theta about the z axis.
     printf("Theta = %f\n", theta);
     atom1 = rotateAboutZ(atom1, theta);
     
+    /*
     printf("After rotation about z axis:\n");
     printf("Atom3: ");
     printAtoms(&atom3, 1);
@@ -397,6 +417,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     printAtoms(&atom2, 1);
     printf("Atom1: ");
     printAtoms(&atom1, 1);
+*/
 
     //invert rotation about y axis
     atom1 = rotateAboutY(atom1, -zAngle);
@@ -416,4 +437,16 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     //the inversions for atoms 2 and 3 are not neccesary b/c of copy by value.
 
     return atom1;
+}
+
+bool compareDoubleDifference(double a, double b, double precision){
+    
+    if(fabs(a - b) < precision){
+        printf("%f == %f\n");
+        return true;
+    }
+    else{
+        printf("%f == %f\n");
+        return false;
+    }
 }
