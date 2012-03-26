@@ -46,7 +46,6 @@
                 
                /***
                  Set dummy atoms back to -1,-1,-1
-              */
                for(int i = 0; i < dummies.size(); i++){
                     for(int j = 0; j < atomVector.size(); j++){
                         if(atomVector[j].id == dummies[i]){
@@ -57,6 +56,7 @@
                         }
                     }
                }
+              */
 
 
 
