@@ -492,10 +492,11 @@ int main(){
     testGetFourier(scanner);
     testPDBoutput();
 	testLogOutput();
-    testZmatrixScanner(scanner); 
-	testZmatrixScanner_multpleSingle(scanner);
-    testZmatrixScanner_multpleAmount(scanner);
+    //testZmatrixScanner(scanner); 
+	//testZmatrixScanner_multpleSingle(scanner);
+    //testZmatrixScanner_multpleAmount(scanner);
     testGetNormal();
+    testGetAngleBetweenPlanes();
     testGetBond();
     testGetAllBonds();
     testGetIntersection();
