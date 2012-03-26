@@ -191,7 +191,7 @@ void testWrapBox(){
     
     //generate random numbers
     for(int i = 0; i < numberOfTests; i++){
-        testDoubles[i] = ((double) (rand() % 100));
+        testDoubles[i] = (double) rand() / (double) RAND_MAX;
     }
 
      //check that values are the same as known correct function

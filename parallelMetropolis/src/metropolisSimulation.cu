@@ -9,6 +9,7 @@
 #include "../../Utilities/src/metroUtil.h"
 #include "../../Utilities/src/Zmatrix_Scan.h"
 #include "../../Utilities/src/State_Scan.h"
+#include "../../Utilities/src/geometricUtil.h"
 
 #include "metroCudaUtil.cuh"
 /**
@@ -22,11 +23,35 @@ Author(s): Riley Spahn, Seth Wooten, Alexander Luchs
 // boltzman constant
 const double kBoltz = 1.987206504191549E-003;
 
+const double maxRotation = 10.0; // degrees
 
 double randomFloat(const double start, const double end)
 {
     return (end-start) * (double(rand()) / RAND_MAX) + start;
 }
+
+Molecule moveMolecule(Molecule molec, Atom pivot, double xTrans, double yTrans,
+        double zTrans, double xRot, double yRot, double zRot){
+    
+    for(int i = 0; i < molec.numOfAtoms; i++){
+        //translate molecule to the origin to rotate
+        molec.atoms[i] = translateAtom(molec.atoms[i], -pivot.x, -pivot.y, -pivot.z);
+        //rotateAboutX
+        molec.atoms[i] = rotateAboutX(molec.atoms[i], xRot);
+        //rotateAboutY
+        molec.atoms[i] = rotateAboutY(molec.atoms[i], yRot);
+        //rotateAboutZ
+        molec.atoms[i] = rotateAboutZ(molec.atoms[i], zRot);
+        //translate to original position
+        molec.atoms[i] = translateAtom(molec.atoms[i], pivot.x, pivot.y, pivot.z);
+
+        //translate atom to final position
+        molec.atoms[i] = translateAtom(molec.atoms[i], xTrans, yTrans, zTrans);
+    }
+    
+    return molec;
+}
+
 
 void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, string stateFile, string pdbFile){
     int accepted = 0; // number of accepted moves
@@ -35,7 +60,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
     double maxTranslation = enviro->maxTranslation;
     double temperature = enviro->temperature;
     double kT = kBoltz * temperature;
-    
+   
     Atom *atoms;
     atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
     //create array of atoms from arrays in the molecules
@@ -68,19 +93,37 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
     cout << "points generated" << endl;
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
-
+        
+        /**
         int atomIndex = randomFloat(0, numberOfAtoms);
         Atom oldAtom = atoms[atomIndex];
-       
+        */
+        //Pick a molecule to move
+        int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
+        Molecule toMove = molecules[moleculeIndex];
+        //Pick an atom in the molecule about which to rotate
+        int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
+        Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
+
         //From here ========== to 
         const double deltaX = randomFloat(-maxTranslation, maxTranslation);
         const double deltaY = randomFloat(-maxTranslation, maxTranslation);
         const double deltaZ = randomFloat(-maxTranslation, maxTranslation);
 
+        const double degreesX = randomFloat(-maxRotation, maxRotation);
+        const double degreesY = randomFloat(-maxRotation, maxRotation);
+        const double degreesZ = randomFloat(-maxRotation, maxRotation); 
+        
+        toMove = moveMolecule(toMove, vertex, deltaX, deltaY, deltaZ,
+                degreesX, degreesY, degreesZ);
+
+        molecules[moleculeIndex] = toMove;
+        /**
         double newX = wrapBox(oldAtom.x + deltaX, enviro->x);
         double newY = wrapBox(oldAtom.y + deltaY, enviro->y);
         double newZ = wrapBox(oldAtom.z + deltaZ, enviro->z);
         atoms[atomIndex] = createAtom((unsigned long) atomIndex,newX, newY, newZ, oldAtom.sigma, oldAtom.epsilon);
+        */
         //here ===== could be its own function
 
         double newEnergy = calcEnergyWrapper(molecules, enviro);
@@ -107,8 +150,16 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         else{
             rejected++;
             //restore previous configuration
-            atoms[atomIndex] = oldAtom;
+            //atoms[atomIndex] = oldAtom;
+            toMove = molecules[moleculeIndex];
+            toMove = moveMolecule(toMove, vertex, -deltaX, -deltaY, -deltaZ,
+                    -degreesX, -degreesY, -degreesZ);
+            molecules[moleculeIndex] = toMove;
         }
+
+        /**
+          Print the state every 100 moves.
+        */
         if(move % 100 == 0){
              atomTotal = 0;
              aIndex = 0;
@@ -202,7 +253,7 @@ int main(int argc, char ** argv){
         int moleculeIndex = 0;
         int atomCount = 0;
         while(moleculeIndex < enviro.numOfMolecules){
-            vector<Molecule> molecVec = zMatrixScan.buildMolecule(moleculeIndex);
+            vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
             //cout << "Vector size = " << molecVec.size() << endl;
             //cycle through the number of molecules from the zMatrix
             for(int j = 0; j < molecVec.size(); j++){
