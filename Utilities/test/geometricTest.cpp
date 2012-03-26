@@ -65,16 +65,20 @@ void testGetAngleBetweenPlanes(){
     
         double numerator = aNormal.x * bNormal.x + aNormal.y * bNormal.y + aNormal.z * bNormal.z;
         double aMag = sqrt(aNormal.x * aNormal.x + aNormal.y * aNormal.y + aNormal.z * aNormal.z);
-        double bMag = sqrt(bNormal.x * aNormal.x + aNormal.y * aNormal.y + aNormal.z * aNormal.z);
+        double bMag = sqrt(bNormal.x * bNormal.x + bNormal.y * bNormal.y + bNormal.z * bNormal.z);
         double denominator = aMag * bMag;
 
         double thetaR = acos(numerator / denominator);
-        double thetaD = radiansToDegrees(thetaR);
+        double expectedTheta = radiansToDegrees(thetaR);
 
         double testTheta = getAngle(a, b);
 
-        assert(testTheta == thetaD);
+        if (!((testTheta - expectedTheta) / expectedTheta < PRECISION)){
+            printf("testGetAngleBetweenPlanes #%d failed. testTheta = %f | expectedTheta = %f.\n", i, testTheta, expectedTheta);
+        }
+        assert((testTheta - expectedTheta) / expectedTheta < PRECISION);
     }
+    printf("testGetAngleBetweenPlanes completed successfully.\n");
 }
 
 void testGetBond(){
@@ -362,10 +366,6 @@ void testRotateAboutX(){
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
 
-    /*assert(testAtom.y == cos(theta*dtr) * oldY + sin(theta*dtr) * oldZ);
-    assert(testAtom.z == cos(theta*dtr) * oldZ - sin(theta*dtr) * oldY);*/
-
-
     cout << "testRotateAboutX completed successfully" << endl;    
 }
 
@@ -406,10 +406,6 @@ void testRotateAboutY(){
     assert((testAtom.x - expectedX) / expectedX < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
     
-    /*assert(testAtom.x == cos(theta*dtr) * oldX - sin(theta*dtr) * oldZ);
-    assert(testAtom.z == cos(theta*dtr) * oldZ + sin(theta*dtr) * oldX);*/
-
-
     cout << "testRotateAboutY completed successfully" << endl;    
 }
 
@@ -450,10 +446,6 @@ void testRotateAboutZ(){
     assert((testAtom.x - expectedX) / expectedX < PRECISION);
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     
-    /*assert(testAtom.x == cos(theta*dtr) * oldX + sin(theta*dtr) * oldY);
-    assert(testAtom.y == cos(theta*dtr) * oldY - sin(theta*dtr) * oldX);*/
-
-
     cout << "testRotateAboutZ completed successfully" << endl;    
 }
 

@@ -144,7 +144,7 @@ double getDistance(Atom atom1, Atom atom2){
 }
 
 double getAngle(Atom atom1, Atom atom2, Atom atom3){
-    // uses law of cosines, (d3_1)^2 = (d1_2)^2 - 2(d1_2)(d2_3)*cos(theta)
+    // uses law of cosines, (d3_1)^2 = (d1_2)^2 + (d2_3)^2 - 2(d1_2)(d2_3)*cos(theta)
     // theta = arccos(((d3_1)^2 - (d1_2)^2)/(2(d1_2)(d2_3)))
     double d1_2 = getDistance(atom1, atom2); // distance atom1 to atom2
     double d2_3 = getDistance(atom2, atom3); // distance atom2 to atom3
@@ -248,17 +248,15 @@ Point getNormal(Atom atom1, Atom atom2, Atom atom3){
 }
 
 double getAngle(Plane p1, Plane p2){
-
-    //the normal vectors for each plane defined by a poin
+    //the normal vectors for each plane defined by a point
     Point normal1 = getNormal(p1);
     Point normal2 = getNormal(p2);
 
     Atom a1 = createAtom(-1, normal1.x, normal1.y, normal1.z);
     Atom a2 = createAtom(-1, 0, 0, 0);
-    Atom a3 = createAtom(-1, normal2.x, normal1.y, normal1.z);
+    Atom a3 = createAtom(-1, normal2.x, normal2.y, normal2.z);
 
     return getAngle(a1, a2, a3);
-
 }
 
 Atom translateAtom(Atom atom, double x, double y, double z){
