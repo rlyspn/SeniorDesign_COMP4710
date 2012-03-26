@@ -76,6 +76,7 @@ void testGetAngleBetweenPlanes(){
         if (!((testTheta - expectedTheta) / expectedTheta < PRECISION)){
             printf("testGetAngleBetweenPlanes #%d failed. testTheta = %f | expectedTheta = %f.\n", i, testTheta, expectedTheta);
         }
+
         assert((testTheta - expectedTheta) / expectedTheta < PRECISION);
     }
     printf("testGetAngleBetweenPlanes completed successfully.\n");

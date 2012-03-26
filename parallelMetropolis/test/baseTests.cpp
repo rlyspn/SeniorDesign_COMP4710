@@ -39,7 +39,7 @@ double calculate_energy(double **coords,  int n_atoms,  double *box_size,
 }
 
 //Same as above but uses the new enviorment struct
-double calculate_energy(Atom *atoms, Environment *enviro){
+double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
     int atomNumber = enviro->numOfAtoms;
     double sigma = atoms[0].sigma;
     double epsilon = atoms[0].epsilon;
@@ -72,8 +72,11 @@ double calculate_energy(Atom *atoms, Environment *enviro){
             const double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
 
             const double charge_energy = (atoms[i].charge * atoms[j].charge * pow(e,2) / r);
-
-            const double fValue = 1.0;
+            double fValue = 1.0;
+            if (molecules != NULL)
+            {
+                fValue = getFValueLinear(atoms[i], atoms[j], molecules, enviro);
+            }
             
             int N = (j * j - j ) / 2 + i;
 
@@ -142,4 +145,45 @@ double calc_charge(Atom a1, Atom a2, Environment enviro){
     double e = 1.602176565 * pow(10.f,-19.f);  
 
     return (a1.charge * a2.charge * pow(e, 2)) / calc_r_value(a1, a2, enviro);
+}
+
+//returns the molecule that contains a given atom
+int getMoleculeFromIDLinear(Atom a1, Molecule *molecules, Environment enviro){
+    int atomId = a1.id;
+    int currentIndex = enviro.numOfMolecules - 1;
+    int molecId = molecules[currentIndex].id;
+    while(atomId < molecId && currentIndex > 0){
+        currentIndex -= 1;
+        molecId = molecules[currentIndex].id;
+    }
+    return molecId;
+
+}
+
+double getFValueLinear(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
+    int m1 = getMoleculeFromIDLinear(atom1, molecules, *enviro);
+    int m2 = getMoleculeFromIDLinear(atom2, molecules, *enviro);
+    Molecule molec = molecules[0];
+    for(int i = 0; i < enviro->numOfMolecules; i++){
+        if(molecules[i].id == m1){
+            molec = molecules[i];
+            break;
+        }
+    }
+
+    if(m1 != m2)
+        return 1.0;
+	 else if( hopGE3Linear(atom1.id, atom2.id, molecules[m1]) )     
+		  return 0.5;
+	 else
+		  return 0.0;
+}
+
+int hopGE3Linear(int atom1, int atom2, Molecule molecule){
+    for(int x=0; x< molecule.numOfHops; x++){
+		      Hop myHop = molecule.hops[x];
+				if(myHop.atom1==atom1 && myHop.atom2==atom2)
+				    return 1;
+	 }
+	 return 0;
 }

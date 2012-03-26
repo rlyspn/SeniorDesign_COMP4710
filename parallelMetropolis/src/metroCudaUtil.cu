@@ -255,7 +255,7 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
     return calcEnergyWrapper(atoms, enviro);
 }
 
-double calcEnergyWrapper(Atom *atoms, Environment *enviro){
+double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     //setup CUDA storage
     double totalEnergy = 0.0;
     Atom *atoms_device;
@@ -295,16 +295,12 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro){
         
         int atomYid =  i - (atomXid * atomXid - atomXid) / 2;
 
-        double xx = atoms[atomXid].x;
-        double xy = atoms[atomXid].y;
-        double xz = atoms[atomXid].z;
-
-        double yx = atoms[atomYid].x;
-        double yy = atoms[atomYid].y;
-        double yz = atoms[atomYid].z;
-
         if (isnan(energySum_host[i]) != 0 || isinf(energySum_host[i]) != 0){
             energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
+        }
+
+        if (molecules != NULL){
+            energySum_host[i] = energySum_host[i] * getFValueHost(atoms[atomXid], atoms[atomYid], molecules, enviro); 
         }
 
         totalEnergy += energySum_host[i];
@@ -378,7 +374,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 
         lj_energy = calc_lj(xAtom,yAtom,*enviro);
         charge_energy = calcCharge(xAtom, yAtom, enviro);
-        fValue = 1.0; //TODO: make this the proper function call when the signature is finalized
+        fValue = 1.0; //TODO: Fix after fValue calculation is moved to device
         
         energySum[idx] = fValue * (lj_energy + charge_energy);
 
@@ -461,13 +457,54 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 
     if(m1 != m2)
         return 1.0;
-	 else if( hopGE3(atom1.id, atom2.id,molecules[m1]) )     
+	 else if( hopGE3(atom1.id, atom2.id, molecules[m1]) )     
 		  return 0.5;
 	 else
 		  return 0.0;
 }
 
 __device__ int hopGE3(int atom1, int atom2, Molecule molecule){
+    for(int x=0; x< molecule.numOfHops; x++){
+		      Hop myHop = molecule.hops[x];
+				if(myHop.atom1==atom1 && myHop.atom2==atom2)
+				    return 1;
+	 }
+	 return 0;
+}
+
+//returns the molecule that contains a given atom
+int getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro){
+    int atomId = a1.id;
+    int currentIndex = enviro.numOfMolecules - 1;
+    int molecId = molecules[currentIndex].id;
+    while(atomId < molecId && currentIndex > 0){
+        currentIndex -= 1;
+        molecId = molecules[currentIndex].id;
+    }
+    return molecId;
+
+}
+
+double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
+    int m1 = getMoleculeFromAtomIDHost(atom1, molecules, *enviro);
+    int m2 = getMoleculeFromAtomIDHost(atom2, molecules, *enviro);
+    Molecule molec = molecules[0];
+    for(int i = 0; i < enviro->numOfMolecules; i++){
+        if(molecules[i].id == m1){
+            molec = molecules[i];
+            break;
+        }
+    }
+
+    if(m1 != m2)
+        return 1.0;
+	 else if( hopGE3Host(atom1.id, atom2.id, molecules[m1]) )     
+		  return 0.5;
+	 else
+		  return 0.0;
+}
+
+int hopGE3Host(int atom1, int atom2, Molecule molecule){
     for(int x=0; x< molecule.numOfHops; x++){
 		      Hop myHop = molecule.hops[x];
 				if(myHop.atom1==atom1 && myHop.atom2==atom2)

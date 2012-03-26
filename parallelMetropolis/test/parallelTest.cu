@@ -799,7 +799,6 @@ void testCalcChargeWrapper(){
 
 int main(){
     testKeepMoleculeInBox();
-/*
     testRotateMolecule();
     testCalcChargeWrapper();
     testCalcBlendingWrapper();
@@ -810,7 +809,7 @@ int main(){
     setupMakePeriodic();
     testGeneratePoints();
     testCalcEnergy();
-    testCalcEnergyWithMolecules();*/
+    testCalcEnergyWithMolecules();
     return 0;
 }
 

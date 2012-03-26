@@ -77,7 +77,7 @@ void generatePoints(Atom *atoms, Environment *enviro);
   @param enviro - the environmental variables
   @return - the total energy of the system.
 */
-double calcEnergyWrapper(Atom *atoms, Environment *enviro);
+double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules=NULL);
 
 /**
   Wrapper function for the calcEnergy kernel.
@@ -117,14 +117,20 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
 __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 
 /**
+  Returns the molecule id from the atomid
+  @param atom - the atom from which to find the molecule
+  @param molecules - the list of molecules to be searched
+  @param return - returns the id of the molecule
+*/
+__device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro);
+
+/**
   Returns the "fudge factor" to be used in force field calculation.
   @param atom1 - the first atom in calculation
   @param atom2 - the second atom in the calculation
   @return - 1.0 if the atoms are in seperate molecules
             .5 if the bond traversal distance is greater or equal to 4
             0.0 if the bond traversal is less than 4
-
-  Assigned to TBD
 */
 __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
 
@@ -138,20 +144,39 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 __device__ int hopGE3(int atom1, int atom2, Molecule molecule);
 
 /**
+  Returns the molecule id from the atomid (on host)
+  @param atom - the atom from which to find the molecule
+  @param molecules - the list of molecules to be searched
+  @param return - returns the id of the molecule
+*/
+int getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro);
+
+/**
+  Returns the "fudge factor" to be used in force field calculation. (on host)
+  @param atom1 - the first atom in calculation
+  @param atom2 - the second atom in the calculation
+  @return - 1.0 if the atoms are in seperate molecules
+            .5 if the bond traversal distance is greater or equal to 4
+            0.0 if the bond traversal is less than 4
+*/
+double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
+
+/**
+  Return if the two atom ids are have a hop value >=3
+  returns 1 if true and 0 if false (on host)
+  @param atom1 - the id of the starting atom
+  @param atom2 - the id of the ending atom
+  @param molecule - the molecule that contains atom1 and atom 2
+*/
+int hopGE3Host(int atom1, int atom2, Molecule molecule);
+
+/**
   Returns sqrt(d1 * d2)
   @param d1 - the first double in the calculation
   @param d2 - the second double in the calculation
   @return - sqrt(d1 * d2)
 */
 __device__ double calcBlending(double d1, double d2);
-
-/**
-  Returns the molecule id from the atomid
-  @param atom - the atom from which to find the molecule
-  @param molecules - the list of molecules to be searched
-  @param return - returns the id of the molecule
-*/
-__device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro);
 
 /**
   Rotates a molecule about a given atom a random amount
