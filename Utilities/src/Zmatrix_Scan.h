@@ -29,7 +29,8 @@ class Zmatrix_Scan{
       vector<unsigned long> dummies;
 
       bool startNewMolecule;
-		int previousFormat;
+      int previousFormat;
+
    public:
       Zmatrix_Scan(string filename, Opls_Scan* oplsScannerRef); // constructor
       ~Zmatrix_Scan();
