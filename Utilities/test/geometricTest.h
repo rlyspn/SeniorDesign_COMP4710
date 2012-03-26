@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <time.h>
 
+#define PRECISION .0001
+
 /*
     tests the getNormal function
 */
