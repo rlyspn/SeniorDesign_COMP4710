@@ -29,7 +29,56 @@ void testGetNormal(){
 }
 
 void testGetAngleBetweenPlanes(){
-    //TODO by alex
+    srand(time(NULL));
+
+    int numberOfTests = 100;
+
+    for (int i = 0; i < numberOfTests; i++){
+        Plane a, b;
+
+        a.atom1.x = ((double) rand() / RAND_MAX) * 10;
+        a.atom1.y = ((double) rand() / RAND_MAX) * 10;
+        a.atom1.z = ((double) rand() / RAND_MAX) * 10;
+
+        a.atom2.x = ((double) rand() / RAND_MAX) * 10;
+        a.atom2.y = ((double) rand() / RAND_MAX) * 10;
+        a.atom2.z = ((double) rand() / RAND_MAX) * 10;
+
+        a.atom3.x = ((double) rand() / RAND_MAX) * 10;
+        a.atom3.y = ((double) rand() / RAND_MAX) * 10;
+        a.atom3.z = ((double) rand() / RAND_MAX) * 10;
+
+        b.atom1.x = ((double) rand() / RAND_MAX) * 10;
+        b.atom1.y = ((double) rand() / RAND_MAX) * 10;
+        b.atom1.z = ((double) rand() / RAND_MAX) * 10;
+
+        b.atom2.x = ((double) rand() / RAND_MAX) * 10;
+        b.atom2.y = ((double) rand() / RAND_MAX) * 10;
+        b.atom2.z = ((double) rand() / RAND_MAX) * 10;
+
+        b.atom3.x = ((double) rand() / RAND_MAX) * 10;
+        b.atom3.y = ((double) rand() / RAND_MAX) * 10;
+        b.atom3.z = ((double) rand() / RAND_MAX) * 10;
+   
+        Point aNormal = getNormal(a);
+        Point bNormal = getNormal(b);
+    
+        double numerator = aNormal.x * bNormal.x + aNormal.y * bNormal.y + aNormal.z * bNormal.z;
+        double aMag = sqrt(aNormal.x * aNormal.x + aNormal.y * aNormal.y + aNormal.z * aNormal.z);
+        double bMag = sqrt(bNormal.x * bNormal.x + bNormal.y * bNormal.y + bNormal.z * bNormal.z);
+        double denominator = aMag * bMag;
+
+        double thetaR = acos(numerator / denominator);
+        double expectedTheta = radiansToDegrees(thetaR);
+
+        double testTheta = getAngle(a, b);
+
+        if (!((testTheta - expectedTheta) / expectedTheta < PRECISION)){
+            printf("testGetAngleBetweenPlanes #%d failed. testTheta = %f | expectedTheta = %f.\n", i, testTheta, expectedTheta);
+        }
+        assert((testTheta - expectedTheta) / expectedTheta < PRECISION);
+    }
+    printf("testGetAngleBetweenPlanes completed successfully.\n");
 }
 
 void testGetBond(){
@@ -317,10 +366,6 @@ void testRotateAboutX(){
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
 
-    /*assert(testAtom.y == cos(theta*dtr) * oldY + sin(theta*dtr) * oldZ);
-    assert(testAtom.z == cos(theta*dtr) * oldZ - sin(theta*dtr) * oldY);*/
-
-
     cout << "testRotateAboutX completed successfully" << endl;    
 }
 
@@ -361,10 +406,6 @@ void testRotateAboutY(){
     assert((testAtom.x - expectedX) / expectedX < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
     
-    /*assert(testAtom.x == cos(theta*dtr) * oldX - sin(theta*dtr) * oldZ);
-    assert(testAtom.z == cos(theta*dtr) * oldZ + sin(theta*dtr) * oldX);*/
-
-
     cout << "testRotateAboutY completed successfully" << endl;    
 }
 
@@ -405,10 +446,6 @@ void testRotateAboutZ(){
     assert((testAtom.x - expectedX) / expectedX < PRECISION);
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     
-    /*assert(testAtom.x == cos(theta*dtr) * oldX + sin(theta*dtr) * oldY);
-    assert(testAtom.y == cos(theta*dtr) * oldY - sin(theta*dtr) * oldX);*/
-
-
     cout << "testRotateAboutZ completed successfully" << endl;    
 }
 

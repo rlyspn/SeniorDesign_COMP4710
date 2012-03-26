@@ -263,14 +263,15 @@ Molecule createMeshZMolecules(Opls_Scan scanner){
     //      6  7  8
 	 */
 	 //All hops that have a hop distance > 4
-	 Hop hop1= createHop(3,6,4);
-	 Hop hop2= createHop(3,7,4);
-	 Hop hop3= createHop(3,8,4);
-	 Hop hop4= createHop(3,5,3);
-	 Hop hop5= createHop(3,4,3);
-	 Hop hop6= createHop(2,6,3);
-	 Hop hop7= createHop(2,7,3);
-	 Hop hop8= createHop(2,8,3);
+	 
+	 Hop hop1= createHop(2,6,3);
+	 Hop hop2= createHop(2,7,3);
+	 Hop hop3= createHop(2,8,3);
+	 Hop hop4= createHop(3,4,3);
+	 Hop hop5= createHop(3,5,3);
+	 Hop hop6= createHop(3,6,4);
+	 Hop hop7= createHop(3,7,4);
+	 Hop hop8= createHop(3,8,4);
 	 Hop hop9= createHop(4,6,3);
 	 Hop hop10= createHop(4,7,3);
 	 Hop hop11= createHop(4,8,3);
@@ -371,8 +372,7 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
             //cout << "-- Atom1#: " << i <<endl;
             //cout << "-- Atom1 atom1: " << molec1.hops[i].atom1 << " Atom2 atom1: " << molec2.hops[i].atom1 <<endl;
             //cout << "-- Atom1 atom2: " << molec1.hops[i].atom2 << " Atom2 atom2: " << molec2.hops[i].atom2 <<endl;
-            //cout << "-- Atom1 distance: " << molec1.hops[i].value << " Atom2 distance: " << molec2.hops[i].value <<endl;
-            //cout << "-- Atom1 variable: " << molec1.hops[i].variable << " Atom2 variable: " << molec2.hops[i].variable <<endl;
+            //cout << "-- Atom1 hop: " << molec1.hops[i].hop << " Atom2 hop: " << molec2.hops[i].hop <<endl;
 
 	     assert(molec1.hops[i].atom1 == molec2.hops[i].atom1);
 	     assert(molec1.hops[i].atom2 == molec2.hops[i].atom2);
@@ -496,6 +496,7 @@ int main(){
 	testZmatrixScanner_multpleSingle(scanner);
     testZmatrixScanner_multpleAmount(scanner);
     testGetNormal();
+    testGetAngleBetweenPlanes();
     testGetBond();
     testGetAllBonds();
     testGetIntersection();
