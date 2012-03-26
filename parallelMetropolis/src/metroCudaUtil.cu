@@ -32,7 +32,7 @@ __device__ double makePeriodic(double x, double box){
 //keep coordinates with box
 double wrapBox(double x, double box){
 
-    while(x >=  box){
+    while(x >  box){
         x -= box;
     }
     while(x < 0){
@@ -51,6 +51,8 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
     double minX = DBL_MAX;
     double minY = DBL_MAX;
     double minZ = DBL_MAX;
+
+    double nudge = pow(10.0, -15.0);
 
     //determine extreme boundaries for molecule
     for (int i = 0; i < molecule->numOfAtoms; i++){
@@ -90,34 +92,34 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
             if (!isFullyOutX){
                 *currentX += (enviro->x - minX);
             }
-            *currentX = wrapBox(*currentX, enviro->x);
+            *currentX = wrapBox(*currentX + nudge, enviro->x);
         }
         else if (minX < 0){
             if (!isFullyOutX)
                 *currentX -= maxX;
-            *currentX = wrapBox(*currentX, enviro->x);
+            *currentX = wrapBox(*currentX - nudge, enviro->x);
         }
 
         if (maxY > enviro->y){
             if (!isFullyOutY)
                 *currentY += (enviro->y - minY);
-            *currentY = wrapBox(*currentY, enviro->y);
+            *currentY = wrapBox(*currentY + nudge, enviro->y);
         }
         else if (minY < 0){
             if (!isFullyOutY)
                 *currentY -= maxY;
-            *currentY = wrapBox(*currentY, enviro->y);
+            *currentY = wrapBox(*currentY - nudge, enviro->y);
         }
 
         if (maxZ > enviro->z){
             if (!isFullyOutZ)
                 *currentZ += (enviro->z - minZ);
-            *currentZ = wrapBox(*currentZ, enviro->z);
+            *currentZ = wrapBox(*currentZ + nudge, enviro->z);
         }
         else if (minZ < 0){
             if (!isFullyOutZ)
                 *currentZ -= maxZ;
-            *currentZ = wrapBox(*currentZ, enviro->z);
+            *currentZ = wrapBox(*currentZ - nudge, enviro->z);
         }
         
     }
