@@ -3,6 +3,7 @@
 
 #define DEBUG
 
+#include <float.h>
 #include <cstdlib>
 #include <cuda.h>
 #include <curand_kernel.h>

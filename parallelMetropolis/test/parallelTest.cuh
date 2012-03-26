@@ -1,6 +1,7 @@
 #ifndef PARALLELTEST_H
 #define PARALLELTEST_H
 
+#include <float.h>
 #include <assert.h>
 #include <cuda.h>
 #include "baseTests.h"
@@ -29,6 +30,11 @@ void setupMakePeriodic();
 Tests the wrapBox Function. The global Kernel is used to setup the tests.
 */
 void setupWrapBox();
+
+/**
+Tests the keepMoleculeInBox() function.
+*/
+void testKeepMoleculeInBox();
 
 /**
 Tests the calc_lj Function. The global Kernel is used to setup the tests.

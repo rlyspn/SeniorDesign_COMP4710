@@ -1,5 +1,64 @@
 #include "parallelTest.cuh"
 
+void testKeepMoleculeInBox(){
+    double X = 10.0;
+    double Y = 10.0;
+    double Z = 10.0;
+    double temp = 100.0;
+    double maxTrans = .5;
+    int numOfAtoms = 3;
+
+    Environment enviro = createEnvironment(X, Y, Z, maxTrans, temp, numOfAtoms);
+
+    //test molecule compeletely outside of box.
+    Atom a1 = createAtom(-1, 11, 10.3, 5);
+    Atom a2 = createAtom(-1, 12.4, 1.2, 5);
+    Atom a3 = createAtom(-1, 8.1, 2, 1.5);
+    Atom *atoms = (Atom *)malloc(sizeof(Atom) * numOfAtoms);
+    atoms[0] = a1;
+    atoms[1] = a2;
+    atoms[2] = a3;
+
+    Molecule molec;
+    molec.atoms = atoms;
+    molec.numOfAtoms = numOfAtoms;
+    
+    double expectedA1[] = {2.9, 9.1, 5};
+    double expectedA2[] = {4.3, 0, 5};
+    double expectedA3[] = {0, .8, 1.5};
+
+    double **answers = (double **)malloc(sizeof(double) * 9);
+    answers[0] = expectedA1;
+    answers[1] = expectedA2;
+    answers[2] = expectedA3;
+
+    keepMoleculeInBox(&molec, &enviro);
+    
+    double precision = .0001;
+    for(int i = 0; i < numOfAtoms; i++){
+        double expectedX = answers[i][0];
+        double actualX = molec.atoms[i].x;
+        
+        double expectedY = answers[i][1];
+        double actualY = molec.atoms[i].y;
+        
+        double expectedZ = answers[i][2];
+        double actualZ = molec.atoms[i].z;
+        
+        printf("expectedX: %f  actualX: %f\n", expectedX, actualX);
+        printf("expectedY: %f  actualY: %f\n", expectedY, actualY);
+        printf("expectedZ: %f  actualZ: %f\n", expectedZ, actualZ);
+
+        assert(fabs(actualX - expectedX)< precision);
+        assert(fabs(expectedY - actualY) < precision);
+        assert(fabs(expectedX - actualX) < precision);
+
+    }
+
+    cout << "keepMoleculeInBox() passed tests" << endl;
+    printAtoms(molec.atoms, 3);
+}
+
 /**
     Wrapper function that will call the global function used to 
     test the functions that calculate indexes in the half array
@@ -739,6 +798,8 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
+    testKeepMoleculeInBox();
+/*
     testRotateMolecule();
     testCalcChargeWrapper();
     testCalcBlendingWrapper();
@@ -749,7 +810,7 @@ int main(){
     setupMakePeriodic();
     testGeneratePoints();
     testCalcEnergy();
-    testCalcEnergyWithMolecules();
+    testCalcEnergyWithMolecules();*/
     return 0;
 }
 

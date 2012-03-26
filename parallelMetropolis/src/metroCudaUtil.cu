@@ -1,5 +1,6 @@
 #include "metroCudaUtil.cuh"
 
+
 //calculates X (larger indexed atom) for energy calculation based on index in atom array
 __device__ int getXFromIndex(int idx){
     int c = -2 * idx;
@@ -31,7 +32,7 @@ __device__ double makePeriodic(double x, double box){
 //keep coordinates with box
 double wrapBox(double x, double box){
 
-    while(x > box){
+    while(x >=  box){
         x -= box;
     }
     while(x < 0){
@@ -43,13 +44,13 @@ double wrapBox(double x, double box){
 
 void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
 
-    double maxX = 0.0;
-    double maxY = 0.0;
-    double maxZ = 0.0;
+    double maxX = DBL_MIN;
+    double maxY = DBL_MIN;
+    double maxZ = DBL_MIN;
 
-    double minX = 0.0;
-    double minY = 0.0;
-    double minZ = 0.0;
+    double minX = DBL_MAX;
+    double minY = DBL_MAX;
+    double minZ = DBL_MAX;
 
     //determine extreme boundaries for molecule
     for (int i = 0; i < molecule->numOfAtoms; i++){
@@ -74,9 +75,10 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
     
     }
 
-    bool isFullyOutX = (minX > enviro->x || maxX < 0);
-    bool isFullyOutY = (minY > enviro->y || maxY < 0);
-    bool isFullyOutZ = (minZ > enviro->z || maxZ < 0);
+    bool isFullyOutX = (minX > enviro->x || maxX < 0) ? true : false;
+    bool isFullyOutY = (minY > enviro->y || maxY < 0) ? true : false;
+    bool isFullyOutZ = (minZ > enviro->z || maxZ < 0) ? true : false;
+
 
     //for each axis, determine if the molecule escapes the environment 
     //and wrap it around into the environment
@@ -85,8 +87,9 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
         double* currentY = &(molecule->atoms[i].y);
         double* currentZ = &(molecule->atoms[i].z);
         if (maxX > enviro->x){
-            if (!isFullyOutX)
+            if (!isFullyOutX){
                 *currentX += (enviro->x - minX);
+            }
             *currentX = wrapBox(*currentX, enviro->x);
         }
         else if (minX < 0){
@@ -116,8 +119,7 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
                 *currentZ -= maxZ;
             *currentZ = wrapBox(*currentZ, enviro->z);
         }
-    
-    
+        
     }
 
 }
