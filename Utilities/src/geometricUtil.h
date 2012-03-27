@@ -262,4 +262,7 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta);
          - else returns false.
 */
 bool compareDoubleDifference(double a, double b, double precision);
+
+Molecule moveMolecule(Molecule molec, Atom pivot, double xTrans, double yTrans,
+        double zTrans, double xRot, double yRot, double zRot);
 #endif //GEOMETRICUTIL_H

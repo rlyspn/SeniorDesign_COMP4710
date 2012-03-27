@@ -30,29 +30,6 @@ double randomFloat(const double start, const double end)
     return (end-start) * (double(rand()) / RAND_MAX) + start;
 }
 
-Molecule moveMolecule(Molecule molec, Atom pivot, double xTrans, double yTrans,
-        double zTrans, double xRot, double yRot, double zRot){
-    
-    for(int i = 0; i < molec.numOfAtoms; i++){
-        //translate molecule to the origin to rotate
-        molec.atoms[i] = translateAtom(molec.atoms[i], -pivot.x, -pivot.y, -pivot.z);
-        //rotateAboutX
-        molec.atoms[i] = rotateAboutX(molec.atoms[i], xRot);
-        //rotateAboutY
-        molec.atoms[i] = rotateAboutY(molec.atoms[i], yRot);
-        //rotateAboutZ
-        molec.atoms[i] = rotateAboutZ(molec.atoms[i], zRot);
-        //translate to original position
-        molec.atoms[i] = translateAtom(molec.atoms[i], pivot.x, pivot.y, pivot.z);
-
-        //translate atom to final position
-        molec.atoms[i] = translateAtom(molec.atoms[i], xTrans, yTrans, zTrans);
-    }
-    
-    return molec;
-}
-
-
 void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, string stateFile, string pdbFile){
     int accepted = 0; // number of accepted moves
     int rejected = 0; // number of rejected moves
