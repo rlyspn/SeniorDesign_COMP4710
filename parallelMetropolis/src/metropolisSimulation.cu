@@ -56,19 +56,27 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             int atomTotal = 0;
             int aIndex = 0;
             int mIndex = 0;
-            while(atomTotal < numberOfAtoms){
+            while(atomTotal < numberOfAtoms && mIndex < enviro->numOfMolecules){
+                cout << atomTotal << " atoms out of " << numberOfAtoms - 1<< endl;
+                cout << aIndex << " atoms in this molec out of " << molecules[mIndex].numOfAtoms - 1<< endl;
+                cout << mIndex << " molecules out of " << enviro->numOfMolecules - 1 << endl;
                 molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
                 atomTotal++;
                 aIndex++;
+                if(mIndex == enviro->numOfMolecules){
+                    break;
+                    cout << "breaking " << endl;
+                }
                 if(aIndex == molecules[mIndex].numOfAtoms){
                     aIndex = 0;
                     mIndex++;
                 }
             }
-    
-    printState(enviro, molecules, enviro->numOfMolecules, "initialState");
+    cout << "printing" << endl;
+    //printState(enviro, molecules, enviro->numOfMolecules, "initialState");
     cout << "points generated" << endl;
     for(int move = 0; move < numberOfSteps; move++){
+        cout << "Move " << move << endl;
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
         
         /**
@@ -81,6 +89,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         //Pick an atom in the molecule about which to rotate
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
         Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
+        
+        cout << "Molecule and vertex picked" << endl;
 
         //From here ========== to 
         const double deltaX = randomFloat(-maxTranslation, maxTranslation);
@@ -93,6 +103,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         
         toMove = moveMolecule(toMove, vertex, deltaX, deltaY, deltaZ,
                 degreesX, degreesY, degreesZ);
+        
+        cout << "Molecule Moved." << endl;
 
         molecules[moleculeIndex] = toMove;
         /**
@@ -120,6 +132,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 accept = false;
             }
         }
+        
+        cout << "testing for acceptance" << endl;
 
         if(accept){
             accepted++;
@@ -151,7 +165,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 }
             }
 
-            printState(enviro, molecules, enviro->numOfMolecules, stateFile);
+           // printState(enviro, molecules, enviro->numOfMolecules, stateFile);
             cout << "Move: " << move << endl;
             cout << "new energy: " << newEnergy << endl;
         }

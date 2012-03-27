@@ -72,6 +72,14 @@ __global__ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, 
 void generatePoints(Atom *atoms, Environment *enviro);
 
 /**
+  Generate random positions for atoms in all molecules  in the box
+  nVidia CURAND reference: http://developer.download.nvidia.com/compute/cuda/5_0/toolkit/docs/CURAND_Library.pdf
+  @param molecules - array of molecules to generate positions
+  @param enviro - enviroment structure defining the box
+*/
+void generatePoints(Molecule *molecules, Environment *enviro);
+
+/**
   This is a wrapper function for the calcEnergy kernel.
   @param *atoms - the array of atoms
   @param enviro - the environmental variables
