@@ -73,7 +73,7 @@ void generatePoints(Atom *atoms, Environment *enviro);
 
 /**
   Generate random positions for atoms in all molecules  in the box
-  nVidia CURAND reference: http://developer.download.nvidia.com/compute/cuda/5_0/toolkit/docs/CURAND_Library.pdf
+  Does this on the CPU side unlike the atoms version.
   @param molecules - array of molecules to generate positions
   @param enviro - enviroment structure defining the box
 */

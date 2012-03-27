@@ -258,7 +258,7 @@ void testGeneratePoints(){
     Atom *atoms = (Atom *) malloc(numberOfAtoms * sizeof(Atom));
 
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, i, 1.1*i, 1.2*i);
+        atoms[i] = createAtom(i, 0, 0, 0);
     }
     Environment enviro = createEnvironment(10.0, 20.0, 35.0, 1.0, 298.15, numberOfAtoms);
 
@@ -270,13 +270,51 @@ void testGeneratePoints(){
         double dim_y = atoms[i].y;
         double dim_z = atoms[i].z;
 
-        assert(dim_x >= i && dim_x <= (enviro.x + i) &&
-               dim_y >= (1.1 * i) && dim_y <= (enviro.y + 1.1 * i) &&
-               dim_z >= (1.2 * i) && dim_z <= (enviro.z + 1.2 * i));
+        assert(dim_x >= 0 && dim_x <= (enviro.x) &&
+               dim_y >= 0 && dim_y <= (enviro.y) &&
+               dim_z >= 0 && dim_z <= (enviro.z));
     }
-    printf("testGeneratePoints successful.\n");
+
+    printf("testGeneratePoints (atoms) successful.\n");
+
+    for (int i = 0; i < numberOfAtoms; i++){
+        atoms[i] = createAtom(i, i % 2, i % 3, i % 4);
+    }
+
+    int numberOfMolecules = 250;
+
+    Molecule *molecules = (Molecule *)malloc(sizeof(Molecule)*numberOfMolecules);
+    for (int i = 0; i < numberOfMolecules; i++){
+        Bond *blankBonds;
+        Angle *blankAngles;
+        Dihedral *blankDihedrals;
+        int atomCount = numberOfAtoms / numberOfMolecules;
+        Atom *molAtoms = (Atom *) malloc(sizeof(Atom)*atomCount);
+        for (int j = 0; j < atomCount; j++){
+            molAtoms[j] = atoms[i*atomCount + j];
+        }
+        molecules[i] = createMolecule(-1, molAtoms, blankAngles, blankBonds, blankDihedrals, atomCount, 0, 0, 0);
+    }
+    
+    generatePoints(molecules, &enviro);
+
+    for (int i = 0; i < numberOfMolecules; i++){
+        for (int j = 0; j < molecules[i].numOfAtoms; j++){
+            double dim_x = molecules[i].atoms[j].x;
+            double dim_y = molecules[i].atoms[j].y;
+            double dim_z = molecules[i].atoms[j].z;
+            
+             assert(dim_x >= 0 && dim_x <= (enviro.x) &&
+               dim_y >= 0 && dim_y <= (enviro.y) &&
+               dim_z >= 0 && dim_z <= (enviro.z));
+    
+        }
+    }
+
+    printf("testGeneratePoints (molecules) successful.\n");
 
     free(atoms);
+    free(molecules);
 }
 
 void testCalcEnergy(){
@@ -348,13 +386,19 @@ void testCalcEnergyWithMolecules(){
         atoms[i] = createAtom(i, 0.0, 0.0, 0.0, kryptonSigma, kryptonEpsilon);
     }
     enviro->numOfMolecules = numberOfAtoms;
-    generatePoints(atoms, enviro);
+
     Molecule *molecules;
     molecules = (Molecule *)malloc(sizeof(Molecule) * numberOfAtoms);
     for(int i = 0; i < numberOfAtoms; i++){
         molecules[i].numOfAtoms = 1;
         molecules[i].atoms = (Atom *)malloc(sizeof(Atom));
         molecules[i].atoms[0] = atoms[i];
+    }
+
+    generatePoints(molecules, enviro);
+
+    for (int i = 0; i < enviro->numOfMolecules; i++){
+        atoms[i] = molecules[i].atoms[0];;
     }
 
     //calculate energy linearly

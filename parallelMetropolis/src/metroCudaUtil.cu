@@ -200,23 +200,6 @@ void generatePoints(Atom *atoms, Environment *enviro){
     curandGenerateUniformDouble(generator, devXDoubles, enviro->numOfAtoms);
     curandGenerateUniformDouble(generator, devYDoubles, enviro->numOfAtoms);
     curandGenerateUniformDouble(generator, devZDoubles, enviro->numOfAtoms);
-   /* 
-    srand((unsigned int) time(NULL));
-    for (int i = 0; i < N; i = i + 3){
-        double newDouble = ((double) rand()) / ((double) (RAND_MAX));
-        hostDoubles[i] = newDouble;
-        newDouble = ((double) rand()) / ((double) (RAND_MAX));
-        hostDoubles[i+1] = newDouble;
-        newDouble = ((double) rand()) / ((double) (RAND_MAX));
-        hostDoubles[i+2] = newDouble;
-    }
-    
-    for (int i = 0; i < N; i++){
-        hostDoubles[i] = 1.0;
-
-    }
-    cudaMemcpy(devDoubles, hostDoubles, N * sizeof(double), cudaMemcpyHostToDevice);
-    */
 
     //calculate number of blocks required
     int numOfBlocks = enviro->numOfAtoms / THREADS_PER_BLOCK + (enviro->numOfAtoms % THREADS_PER_BLOCK == 0 ? 0 : 1);
@@ -234,8 +217,24 @@ void generatePoints(Atom *atoms, Environment *enviro){
     cudaFree(devZDoubles);
     cudaFree(devAtoms);
     cudaFree(devEnviro);
+}
 
-    //free(hostDoubles);
+//generate coordinate data for the atoms with all molecules
+void generatePoints(Molecule *molecules, Environment *enviro){
+    srand(time(NULL));
+
+    for (int i = 0; i < enviro->numOfMolecules; i++){
+        double baseX = ( (double) rand() / RAND_MAX) * enviro->x;
+        double baseY = ( (double) rand() / RAND_MAX) * enviro->y;
+        double baseZ = ( (double) rand() / RAND_MAX) * enviro->z;
+        for (int j = 0; j < molecules[i].numOfAtoms; j++){
+            molecules[i].atoms[j].x += baseX;
+            molecules[i].atoms[j].y += baseY;
+            molecules[i].atoms[j].z += baseZ;
+        }
+
+        keepMoleculeInBox(&(molecules[i]), enviro);
+    }
 }
 
 //Calculates the energy of system using molecules
