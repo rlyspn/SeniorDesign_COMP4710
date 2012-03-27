@@ -398,7 +398,7 @@ void testCalcEnergyWithMolecules(){
     generatePoints(molecules, enviro);
 
     for (int i = 0; i < enviro->numOfMolecules; i++){
-        atoms[i] = molecules[i].atoms[0];;
+        atoms[i] = molecules[i].atoms[0];
     }
 
     //calculate energy linearly
