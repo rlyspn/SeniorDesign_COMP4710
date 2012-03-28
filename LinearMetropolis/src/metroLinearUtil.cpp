@@ -162,8 +162,8 @@ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, double *dev
 	     for(int a=0; a<molec[i].numOfAtoms;a++){
 		      Atom myAtom  =  molec[i].atoms[a];
 		      myAtom.x =  dev_doublesX[i] * enviro->x + myAtom.x;
-				myAtom.y =  dev_doublesX[i] * enviro->y + myAtom.y;
-				myAtom.z =  dev_doublesX[i] * enviro->z + myAtom.z;
+				myAtom.y =  dev_doublesY[i] * enviro->y + myAtom.y;
+				myAtom.z =  dev_doublesZ[i] * enviro->z + myAtom.z;
 		  }
 		   keepMoleculeInBox(&molec[i],enviro);
     }
@@ -238,12 +238,12 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         double yx = atoms[atomYid].x;
         double yy = atoms[atomYid].y;
         double yz = atoms[atomYid].z;
-
+        /*
         if (isnan(energySum[i]) != 0 || isinf(energySum[i]) != 0){
             energySum[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
         }
-		  
-		  if (molecules != NULL){
+		  */
+	    if (molecules != NULL){
             energySum[i] = energySum[i] * getFValue(atoms[atomXid], atoms[atomYid], molecules, enviro); 
         }
 
@@ -252,7 +252,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     }
     return totalEnergy;
 }
-
+/*
 double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
     const double e = 1.602176565 * pow(10.f,-19.f);
 
@@ -280,13 +280,13 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
 
     const double charge_energy = (atom2.charge * atom1.charge * pow(e,2) / r);
 
-    const double fValue = 1.0; //TODO: make this right
+    const double fValue = 1.0;
     
 
     return fValue * (lj_energy + charge_energy);
 
 }
-
+*/
 void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
     double lj_energy,charge_energy, fValue;
 
@@ -304,7 +304,7 @@ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 
         lj_energy = calc_lj(xAtom,yAtom,*enviro);
         charge_energy = calcCharge(xAtom, yAtom, enviro);
-        fValue = 1.0; //TODO: make this the proper function call when the signature is finalized
+        fValue = 1.0;
         
         energySum[idx] = fValue * (lj_energy + charge_energy);
 
@@ -472,80 +472,3 @@ double soluteSolventTotalEnergy(){
     return -1.f;
 }
 
-
-#ifdef DEBUG
-
-//these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
-
-void testCalcCharge(Atom *atoms1, Atom *atoms2, double *answers, Environment *enviro){
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if(idx < enviro->numOfAtoms){
-        answers[idx] = calcCharge(atoms1[idx], atoms2[idx], enviro);
-    }
-}
-
-void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
-        Environment enviros, int numberOfTests, int *answers){
-
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if(idx < numberOfTests){
-        answers[idx] = getMoleculeFromAtomID(atoms[idx], molecules,
-                enviros);
-    }
-    
-}
-
-void testGetFValue(Atom *atom1List, Atom *atom2List, 
-        Molecule *molecules, Environment *enviro, double *fValues, int numberOfTests){ 
-    
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (idx < numberOfTests){
-        fValues[idx] = getFValue(atom1List[idx], atom2List[idx], molecules, enviro);
-    }
-}
-
-void testCalcBlending(double *d1, double *d2, double *answers, int numberOfTests){
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if(idx < numberOfTests){
-        answers[idx] = calcBlending(d1[idx], d2[idx]);
-    }
-}
-
-void testMakePeriodicKernel(double *x, double *box, int n){ 
-    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
-
-    if (idx < n){
-        x[idx] = makePeriodic(x[idx], *box);
-    }   
-}
-
-void testGetYKernel(int *xValues, int *yValues, int n){ 
-    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
-    
-    if (idx < n){
-        yValues[idx] = getYFromIndex(xValues[idx], idx);
-    }
-}
-
-void testGetXKernel(int *xValues, int n){
-    int idx =  threadIdx.x + blockIdx.x * blockDim.x;
-    
-    if (idx < n){
-        xValues[idx] = getXFromIndex(idx); 
-    }
-}
-
-void testCalcLJ(Atom *atoms, Environment *enviro, double *energy){
-    Atom atom1 = atoms[0];
-    Atom atom2 = atoms[1];
-
-    double testEnergy = calc_lj(atom1, atom2, *enviro);
-    
-    *energy = testEnergy;
-}
-
-#endif //DEBUG

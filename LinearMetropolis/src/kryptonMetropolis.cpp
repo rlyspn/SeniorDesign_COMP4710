@@ -31,6 +31,8 @@ int main(int argc, char **argv){
     double kT = kBoltz * temperature;
 
     int atomSizes[] = {10, 50, 100, 500, 1000, 5000, 10000};
+
+    Environment enviro = createEnvironment(boxSize, boxSize, boxSize, maxTranslation, temperature, 
     
     clock_t startTime, endTime;
     for(int index = 0; index < 7; index++){
@@ -59,7 +61,7 @@ int main(int argc, char **argv){
         int move;
         for(move = 0; move < numMoves; move++){
             //printAtoms(atoms, atomNumber);
-            const double oldEnergy = calculateEnergy(atoms, atomNumber, boxSize); 
+            const double oldEnergy = calcEnergy(atoms, atomNumber, boxSize); 
 
             //save old atom
             int atomIndex = int(randomFloat(0, atomNumber));

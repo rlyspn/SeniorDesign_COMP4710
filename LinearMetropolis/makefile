@@ -6,19 +6,22 @@ SRC=src/
 UTIL=../Utilities/src/
 TST=test/
 
-all: runtest metro
+all:  metro metroUtil
 
-runtest: test
-	./$(TSTEXE)	
+#runtest: test
+#	./$(TSTEXE)	
 
-test: util baseTest $(TST)linearTest.cpp
-	$(CC) $(TST)linearTest.cpp metroUtil.o baseTests.o -o $(TSTEXE)
+#test: util baseTest $(TST)linearTest.cpp
+#	$(CC) $(TST)linearTest.cpp metroUtil.o baseTests.o -o $(TSTEXE)
 
 demo: util
 	$(CC) $(SRC)inClassLinearDemo.cpp metroUtil.o -o $(DEMOEXE)
 
-metro: util
-	$(CC) $(SRC)kryptonMetropolis.cpp metroUtil.o -o $(EXE)
+#metro: util
+#	$(CC) $(SRC)kryptonMetropolis.cpp metroUtil.o -o $(EXE)
+
+metroUtil: $(SRC)metroLinearUtil.cpp $(SRC)metroLinearUtil.h util baseTest
+	$(CC) $(SRC)metroLinearUtil.cpp -c
 
 util: $(UTIL)metroUtil.h $(UTIL)metroUtil.cpp
 	$(CC) -c $(UTIL)metroUtil.cpp

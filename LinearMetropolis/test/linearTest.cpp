@@ -1,9 +1,10 @@
 #include "../../Utilities/src/metroUtil.h"
 #include "baseTests.h"
+#include "../src/metroLinearUtil.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-
+/*
 void testMakePeriodic(){
     double box = 12.0;
     for(int x = box; x <= box; x++){
@@ -57,13 +58,13 @@ void testCalculateEnergy(){
     atoms[1] = createAtom(1, x2, y2, z2, sigma, epsilon);
     
     double baseEnergy = calculate_energy(coords, 2, box_size, sigma, epsilon);
-    double testEnergy = calculateEnergy(atoms, 2, boxSize);
+    double testEnergy = calcEnergy(atoms, 2, boxSize);
     
     assert(baseEnergy == testEnergy);
     
     printf("testCalculateEnergy succeeded\n");  
 }
-
+*/
 int main(){
     testMakePeriodic();
     testWrapBox();

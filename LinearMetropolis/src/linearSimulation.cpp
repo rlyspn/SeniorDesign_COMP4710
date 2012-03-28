@@ -21,7 +21,7 @@
       return (end-start) * (double(rand()) / RAND_MAX) + start;
    }
    
-    void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, string stateFile, string pdbFile){
+    void runLinear(Molecule *molecules, Environment *enviro, int numberOfSteps, string stateFile, string pdbFile){
       int accepted = 0; // number of accepted moves
       int rejected = 0; // number of rejected moves
       int numberOfAtoms = enviro->numOfAtoms;
@@ -293,7 +293,7 @@
       cout << "Beginning simulation with: " << endl;
       printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
             enviro.numOfMolecules, simulationSteps);
-    runParallel(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
+    runLinear(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
            configScan.getPdbOutputPath());
     
    }
