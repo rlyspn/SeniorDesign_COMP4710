@@ -69,7 +69,7 @@
       printState(enviro, molecules, enviro->numOfMolecules, "initialState");
       
       for(int move = 0; move < numberOfSteps; move++){
-         double oldEnergy = calcEnergyWrapper(atoms, enviro);
+         double oldEnergy = calcEnergyWrapper(molecules, enviro);
 
          //Pick a molecule to move
          int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
@@ -96,7 +96,7 @@
 
          molecules[moleculeIndex] = toMove;
          
-         double newEnergy = calcEnergyWrapper(atoms, enviro);
+         double newEnergy = calcEnergyWrapper(molecules, enviro);
      
          bool accept = false;
       

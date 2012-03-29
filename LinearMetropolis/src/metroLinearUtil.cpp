@@ -197,6 +197,7 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
     int atomIndex = 0;
     for(int i = 0; i < enviro->numOfMolecules; i++){
         Molecule currentMolecule = molecules[i];
+        printMolecule(&currentMolecule);
         for(int j = 0; j < currentMolecule.numOfAtoms; j++){
             atoms[atomIndex] = currentMolecule.atoms[j];
             atomIndex++;
@@ -328,13 +329,13 @@ double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *env
 }
 
 int hopGE3(int atom1, int atom2, Molecule *molecule){
+    //printMolecule(molecule);
     for(int x=0; x< molecule->numOfHops; x++){
-		      Hop *myHop = &(molecule->hops[x]);
-				if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
-                    return 1;
-                }
+        Hop *myHop = &(molecule->hops[x]);
+		/*if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
+            return 1;
+        }*/
 	}
-    printf("RETURNING0\n");
 	 return 0;
 }
 
