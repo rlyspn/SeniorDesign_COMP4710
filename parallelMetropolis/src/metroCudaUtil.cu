@@ -491,7 +491,7 @@ __device__ int hopGE3(int atom1, int atom2, Molecule molecule){
 }
 
 //returns the molecule that contains a given atom
-int getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro){
+Molecule* getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro){
     int atomId = a1.id;
     int currentIndex = enviro.numOfMolecules - 1;
     int molecId = molecules[currentIndex].id;
@@ -499,24 +499,24 @@ int getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro){
         currentIndex -= 1;
         molecId = molecules[currentIndex].id;
     }
-    return molecId;
+    return &molecules[currentIndex];
 
 }
 
 double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
-    int m1 = getMoleculeFromAtomIDHost(atom1, molecules, *enviro);
-    int m2 = getMoleculeFromAtomIDHost(atom2, molecules, *enviro);
+    Molecule *m1 = getMoleculeFromAtomIDHost(atom1, molecules, *enviro);
+    Molecule *m2 = getMoleculeFromAtomIDHost(atom2, molecules, *enviro);
     Molecule molec = molecules[0];
     for(int i = 0; i < enviro->numOfMolecules; i++){
-        if(molecules[i].id == m1){
+        if(molecules[i].id == m1->id){
             molec = molecules[i];
             break;
         }
     }
 
-    if(m1 != m2)
+    if(m1->id != m2->id)
         return 1.0;
-	 else if( hopGE3Host(atom1.id, atom2.id, molecules[m1]) )     
+	 else if(hopGE3Host(atom1.id, atom2.id, *m1) == 1)     
 		  return 0.5;
 	 else
 		  return 0.0;
@@ -525,7 +525,8 @@ double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *e
 int hopGE3Host(int atom1, int atom2, Molecule molecule){
     for(int x=0; x< molecule.numOfHops; x++){
 		      Hop myHop = molecule.hops[x];
-				if(myHop.atom1==atom1 && myHop.atom2==atom2)
+				if((myHop.atom1==atom1 && myHop.atom2==atom2) ||
+                        (myHop.atom1 == atom2 && myHop.atom2 == atom1) )
 				    return 1;
 	 }
 	 return 0;
