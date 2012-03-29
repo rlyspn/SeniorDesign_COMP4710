@@ -197,7 +197,6 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
     int atomIndex = 0;
     for(int i = 0; i < enviro->numOfMolecules; i++){
         Molecule currentMolecule = molecules[i];
-        printMolecule(&currentMolecule);
         for(int j = 0; j < currentMolecule.numOfAtoms; j++){
             atoms[atomIndex] = currentMolecule.atoms[j];
             atomIndex++;
@@ -304,7 +303,7 @@ double calcBlending(double d1, double d2){
 }
 
 //returns the molecule that contains a given atom
-int getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro){
+Molecule* getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro){
     int atomId = a1->id;
     int currentIndex = enviro->numOfMolecules - 1;
     int molecId = molecules[currentIndex].id;
@@ -312,29 +311,28 @@ int getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro){
         currentIndex -= 1;
         molecId = molecules[currentIndex].id;
     }
-    return molecId;
+    return &(molecules[currentIndex]);
 
 }
 
 double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *enviro){
-    int m1 = getMoleculeFromAtomID(atom1, molecules, enviro);
-    int m2 = getMoleculeFromAtomID(atom2, molecules, enviro);
+    Molecule *m1 = getMoleculeFromAtomID(atom1, molecules, enviro);
+    Molecule *m2 = getMoleculeFromAtomID(atom2, molecules, enviro);
     
-    if(m1 != m2)
+    if(m1->id != m2->id)
         return 1.0;
-    else if( hopGE3(atom1->id, atom2->id, &(molecules[m1])) == 1)
+    else if( hopGE3(atom1->id, atom2->id, m1) == 1)
 		  return 0.5;
 	 else
 		  return 0.0;
 }
 
 int hopGE3(int atom1, int atom2, Molecule *molecule){
-    //printMolecule(molecule);
     for(int x=0; x< molecule->numOfHops; x++){
         Hop *myHop = &(molecule->hops[x]);
-		/*if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
+		if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
             return 1;
-        }*/
+        }
 	}
 	 return 0;
 }

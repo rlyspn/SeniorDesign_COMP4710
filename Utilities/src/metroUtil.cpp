@@ -279,7 +279,7 @@ void printMolecule(Molecule *molec){
     }
     //print dihedrals
     printf("Dihedrals(%d): \n", molec->numOfDihedrals);
-    for(int i = 0; i < molec->numOfAngles; i++){
+    for(int i = 0; i < molec->numOfDihedrals; i++){
         Dihedral current = molec->dihedrals[i];
         printf("%d -- () -- %d = %f\n", current.atom1, current.atom2, current.value);
     }

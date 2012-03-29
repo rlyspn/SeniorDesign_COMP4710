@@ -143,9 +143,9 @@ double calcBlending(double d1, double d2);
   Returns the molecule id from the atomid
   @param atom - the atom from which to find the molecule
   @param molecules - the list of molecules to be searched
-  @param return - returns the id of the molecule
+  @param return - returns a pointer to the molecule
 */
-int getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro);
+Molecule* getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro);
 
 /**
   Rotates a molecule about a given atom a random amount
