@@ -318,10 +318,13 @@ void testGeneratePoints(){
 }
 
 void testCalcEnergy(){
-    // the sigma value of krypton used in the LJ simulation
-    double kryptonSigma = 3.624;
-    // the epsilon value of krypton used in the LJ simulation
-    double kryptonEpsilon = 0.317;
+    // the sigma value of nitrogen
+    double nSigma = 3.250;
+    // the epsilon value of nitrogen
+    double nEpsilon = 0.17;
+
+    // charge of nitrogen
+    double nCharge = -0.850;
 
     struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
@@ -333,7 +336,8 @@ void testCalcEnergy(){
 
     Atom *atoms = new Atom[numberOfAtoms];
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, 0.0, 0.0, 0.0, kryptonSigma, kryptonEpsilon);
+        atoms[i] = createAtom(i, 0.0, 0.0, 0.0, nSigma, nEpsilon);
+        atoms[i].charge = nCharge;
     }
 
     generatePoints(atoms, enviro);
@@ -368,37 +372,57 @@ void testCalcEnergy(){
 }
 
 void testCalcEnergyWithMolecules(){
+    // the sigma value of nitrogen
+    double nSigma = 3.250;
+    // the epsilon value of nitrogen
+    double nEpsilon = 0.17;
+    // charge of nitrogen
+    double nCharge = 800000.324234;
+
     // the sigma value of krypton used in the LJ simulation
     double kryptonSigma = 3.624;
     // the epsilon value of krypton used in the LJ simulation
     double kryptonEpsilon = 0.317;
+    // charge of krypton
+    double kryptonCharge = -3324334.34223;
 
     struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
     //Generate enviorment and atoms
-    int numberOfAtoms = 100;
+    int numberOfAtoms = 500;
     Environment stableEnviro = createEnvironment(5.0, 10.0, 15.0, 1.0, 298.15, numberOfAtoms);
 
     Environment *enviro = &stableEnviro;
 
     Atom *atoms = new Atom[numberOfAtoms];
     for (int i = 0; i < numberOfAtoms; i++){
-        atoms[i] = createAtom(i, 0.0, 0.0, 0.0, kryptonSigma, kryptonEpsilon);
+        if ((i % 5) < 3){
+            atoms[i] = createAtom(i, 0.0, 0.0, 0.0, kryptonSigma, kryptonEpsilon);
+            atoms[i].charge = kryptonCharge;
+        }
+        else{
+            atoms[i] = createAtom(i, 0.0, 0.0, 0.0, nSigma, nEpsilon);
+            atoms[i].charge = nCharge;
+        }
     }
-    enviro->numOfMolecules = numberOfAtoms;
+    enviro->numOfMolecules = 100;
 
     Molecule *molecules;
     molecules = (Molecule *)malloc(sizeof(Molecule) * numberOfAtoms);
-    for(int i = 0; i < numberOfAtoms; i++){
-        molecules[i].numOfAtoms = 1;
-        molecules[i].atoms = (Atom *)malloc(sizeof(Atom));
-        molecules[i].atoms[0] = atoms[i];
+    for(int i = 0; i < enviro->numOfMolecules; i++){
+        molecules[i].numOfAtoms = 5;
+        molecules[i].atoms = (Atom *)malloc(sizeof(Atom) * 5);
+        for (int j = 0; j < molecules[i].numOfAtoms; j++){
+            molecules[i].atoms[j] = atoms[i * 5 + j];
+        }
     }
 
     generatePoints(molecules, enviro);
 
     for (int i = 0; i < enviro->numOfMolecules; i++){
-        atoms[i] = molecules[i].atoms[0];
+        for (int j = 0; j < molecules[i].numOfAtoms; j++){
+            atoms[i * 5 + j] = molecules[i].atoms[j];
+        }
     }
 
     //calculate energy linearly

@@ -152,7 +152,7 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
     
     if (r2 == 0){
-        return 0;
+        return 0.0;
     }
     else{
         return energy;
@@ -330,21 +330,25 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
     deltaY = make_periodic(deltaY, enviro->y);
     deltaZ = make_periodic(deltaZ, enviro->z);
 
-    const double r2 = (deltaX * deltaX) +
+    double r2 = (deltaX * deltaX) +
                       (deltaY * deltaY) + 
                       (deltaZ * deltaZ);
 
-    const double r = sqrt(r2);
+    double r = sqrt(r2);
 
-    const double sig2OverR2 = pow(sigma, 2) / r2;
-    const double sig6OverR6 = pow(sig2OverR2, 3);
-    const double sig12OverR12 = pow(sig6OverR6, 2);
-    const double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
+    double sig2OverR2 = pow(sigma, 2) / r2;
+    double sig6OverR6 = pow(sig2OverR2, 3);
+    double sig12OverR12 = pow(sig6OverR6, 2);
+    double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
 
-    const double charge_energy = (atom2.charge * atom1.charge * pow(e,2) / r);
+    double charge_energy = (atom2.charge * atom1.charge * pow(e,2) / r);
 
-    const double fValue = 1.0; //TODO: make this right
+    double fValue = 1.0; //TODO: make this right
     
+    if (r2 == 0.0){
+        lj_energy = 0.0;
+        charge_energy = 0.0;
+    }
 
     return fValue * (lj_energy + charge_energy);
 
@@ -419,13 +423,19 @@ __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
     deltaY = makePeriodic(deltaY, enviro->y);
     deltaZ = makePeriodic(deltaZ, enviro->z);
 
-    const double r2 = (deltaX * deltaX) +
+    double r2 = (deltaX * deltaX) +
                       (deltaY * deltaY) + 
                       (deltaZ * deltaZ);
     
-    const double r = sqrt(r2);
+    double r = sqrt(r2);
 
-    return (atom1.charge * atom2.charge * pow(e,2) / r);
+
+    if (r == 0.0){
+        return 0.0;
+    }
+    else{
+        return (atom1.charge * atom2.charge * pow(e,2) / r);
+    }
 }
 
 __device__ double calcBlending(double d1, double d2){

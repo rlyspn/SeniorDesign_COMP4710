@@ -88,15 +88,10 @@
          toMove = moveMolecule(toMove, vertex, deltaX, deltaY, deltaZ,
                 degreesX, degreesY, degreesZ);
       
+         keepMoleculeInBox(&toMove, enviro);
+
          molecules[moleculeIndex] = toMove;
-        /**
-        double newX = wrapBox(oldAtom.x + deltaX, enviro->x);
-        double newY = wrapBox(oldAtom.y + deltaY, enviro->y);
-        double newZ = wrapBox(oldAtom.z + deltaZ, enviro->z);
-        atoms[atomIndex] = createAtom((unsigned long) atomIndex,newX, newY, newZ, oldAtom.sigma, oldAtom.epsilon);
-        */
-        //here ===== could be its own function
-      
+         
          double newEnergy = calcEnergyWrapper(molecules, enviro);
       
          bool accept = false;
@@ -146,7 +141,8 @@
             }
          
             printState(enviro, molecules, enviro->numOfMolecules, stateFile);
-            cout << "Move: " << move << endl;
+            cout << endl << "Move: " << move << endl;
+            cout << "old energy: " << oldEnergy << endl;
             cout << "new energy: " << newEnergy << endl;
          }
       //        cout << "Accepted: " << accepted << endl;
