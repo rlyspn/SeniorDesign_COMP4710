@@ -145,8 +145,8 @@ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     const double sig12OverR12 = pow(sig6OverR6, 2);
     const double energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
     
-    if (r2 == 0){
-        return 0;
+    if (r2 == 0.0){
+        return 0.0;
     }
     else{
         return energy;
@@ -206,7 +206,7 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
         }
     }
 
-    return calcEnergyWrapper(atoms, enviro);
+    return calcEnergyWrapper(atoms, enviro, molecules);
 }
 
 double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
@@ -291,7 +291,7 @@ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
     double lj_energy,charge_energy, fValue;
 
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
-
+    printf("N: %d\n", N);
     for(int idx=0; idx<N; idx++){
     //calculate the x and y positions in the Atom array
         int xAtom_pos, yAtom_pos;
@@ -301,15 +301,21 @@ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         Atom xAtom, yAtom;
         xAtom = atoms[xAtom_pos];
         yAtom = atoms[yAtom_pos];
-
-        lj_energy = calc_lj(xAtom,yAtom,*enviro);
-        charge_energy = calcCharge(xAtom, yAtom, enviro);
-        fValue = 1.0;
-        
-        energySum[idx] = fValue * (lj_energy + charge_energy);
-
+        if (xAtom.sigma < 0 || xAtom.epsilon < 0 || yAtom.sigma < 0 || yAtom.epsilon < 0){
+            energySum[idx] = 0.0;
+        }
+        else{
+            lj_energy = calc_lj(xAtom,yAtom,*enviro);
+            charge_energy = calcCharge(xAtom, yAtom, enviro);
+            fValue = 1.0;
+            
+            energySum[idx] = fValue * (lj_energy + charge_energy);
+            
+            printf("idx: %d\n", idx);
+        }
     
 	 }
+     printf("energySum filled.\n");
 }
 
 double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
@@ -331,7 +337,12 @@ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
     
     const double r = sqrt(r2);
 
-    return (atom1.charge * atom2.charge * pow(e,2) / r);
+    if (r == 0.0){
+        return 0.0;
+    }
+    else{
+        return (atom1.charge * atom2.charge * pow(e,2) / r);
+    }
 }
 
 double calcBlending(double d1, double d2){

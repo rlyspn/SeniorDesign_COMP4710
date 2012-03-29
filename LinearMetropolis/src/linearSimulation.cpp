@@ -68,7 +68,10 @@
       printState(enviro, molecules, enviro->numOfMolecules, "initialState");
       
       for(int move = 0; move < numberOfSteps; move++){
-         double oldEnergy = calcEnergyWrapper(atoms, enviro);
+          printf("Move: %d\n", move);
+          printf("Calculating old Energy\n");
+         double oldEnergy = calcEnergyWrapper(molecules, enviro);
+          printf("Calculating old Energy completed\n");
         //Pick a molecule to move
          int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
          Molecule toMove = molecules[moleculeIndex];
@@ -76,7 +79,6 @@
          int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
          Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
       
-        //From here ========== to 
          const double deltaX = randomFloat(-maxTranslation, maxTranslation);
          const double deltaY = randomFloat(-maxTranslation, maxTranslation);
          const double deltaZ = randomFloat(-maxTranslation, maxTranslation);
@@ -92,7 +94,9 @@
 
          molecules[moleculeIndex] = toMove;
          
+          printf("Calculating new Energy\n");
          double newEnergy = calcEnergyWrapper(molecules, enviro);
+          printf("Calculating new Energy completed\n");
       
          bool accept = false;
       

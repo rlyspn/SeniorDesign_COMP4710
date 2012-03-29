@@ -253,7 +253,7 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
         }
     }
 
-    return calcEnergyWrapper(atoms, enviro);
+    return calcEnergyWrapper(atoms, enviro, molecules);
 }
 
 double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
