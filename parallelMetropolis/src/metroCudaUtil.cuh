@@ -157,7 +157,7 @@ __device__ int hopGE3(int atom1, int atom2, Molecule molecule);
   @param molecules - the list of molecules to be searched
   @param return - returns the id of the molecule
 */
-int getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro);
+Molecule* getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro);
 
 /**
   Returns the "fudge factor" to be used in force field calculation. (on host)
