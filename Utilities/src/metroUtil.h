@@ -203,4 +203,6 @@ void writePDB(Atom *atoms, Environment enviro, string filename);
 
 void writeToLog(string text, int stamp=0 );
 
+void printMolecule(Molecule *molec);
+
 #endif //METROUTIL_H

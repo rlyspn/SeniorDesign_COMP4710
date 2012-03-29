@@ -249,3 +249,38 @@ void writeToLog(string text,int stamp){
 }
 
 
+void printMolecule(Molecule *molec){
+    cout << "Molecule: " << molec->id << endl;
+    //print atoms
+    cout << "Atoms(" << molec->numOfAtoms << "):" << endl;
+    for(int i = 0; i < molec->numOfAtoms; i++){
+        Atom currentAtom = molec->atoms[i];
+        printAtoms(&currentAtom, 1);
+    }
+    //print bonds
+    printf("Bonds(%d): \n", molec->numOfBonds);
+    for(int i = 0; i < molec->numOfBonds; i++){
+        Bond current = molec->bonds[i];
+        printf("%d -- %d length = %f\n", current.atom1, current.atom2, current.distance);
+    }
+
+    //print hops
+    printf("Hops(%d): \n", molec->numOfHops);
+    for(int i = 0; i < molec->numOfHops; i++){
+        Hop current = molec->hops[i];
+        printf("%d ... %d hops = %d\n", current.atom1, current.atom2, current.hop);
+    }
+  
+    //print angles
+    printf("Angles(%d): \n", molec->numOfAngles);
+    for(int i = 0; i < molec->numOfAngles; i++){
+        Angle current = molec->angles[i];
+        printf("%d -- | -- %d = %f\n", current.atom1, current.atom2, current.value);
+    }
+    //print dihedrals
+    printf("Dihedrals(%d): \n", molec->numOfDihedrals);
+    for(int i = 0; i < molec->numOfAngles; i++){
+        Dihedral current = molec->dihedrals[i];
+        printf("%d -- () -- %d = %f\n", current.atom1, current.atom2, current.value);
+    }
+}

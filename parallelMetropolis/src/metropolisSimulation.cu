@@ -57,26 +57,23 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             int aIndex = 0;
             int mIndex = 0;
             while(atomTotal < numberOfAtoms && mIndex < enviro->numOfMolecules){
-                cout << atomTotal << " atoms out of " << numberOfAtoms - 1<< endl;
+                /*cout << atomTotal << " atoms out of " << numberOfAtoms - 1<< endl;
                 cout << aIndex << " atoms in this molec out of " << molecules[mIndex].numOfAtoms - 1<< endl;
-                cout << mIndex << " molecules out of " << enviro->numOfMolecules - 1 << endl;
+                cout << mIndex << " molecules out of " << enviro->numOfMolecules - 1 << endl;*/
                 molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
                 atomTotal++;
                 aIndex++;
                 if(mIndex == enviro->numOfMolecules){
                     break;
-                    cout << "breaking " << endl;
                 }
                 if(aIndex == molecules[mIndex].numOfAtoms){
                     aIndex = 0;
                     mIndex++;
                 }
             }
-    cout << "printing" << endl;
-    //printState(enviro, molecules, enviro->numOfMolecules, "initialState");
-    cout << "points generated" << endl;
+    printState(enviro, molecules, enviro->numOfMolecules, "initialState");
     for(int move = 0; move < numberOfSteps; move++){
-        cout << "Move " << move << endl;
+        //cout << "Move " << move << endl;
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
         
         /**
@@ -86,11 +83,12 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         //Pick a molecule to move
         int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
         Molecule toMove = molecules[moleculeIndex];
+        printMolecule(&toMove);
         //Pick an atom in the molecule about which to rotate
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
         Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
         
-        cout << "Molecule and vertex picked" << endl;
+        //cout << "Molecule and vertex picked" << endl;
 
         //From here ========== to 
         const double deltaX = randomFloat(-maxTranslation, maxTranslation);
@@ -104,7 +102,9 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         toMove = moveMolecule(toMove, vertex, deltaX, deltaY, deltaZ,
                 degreesX, degreesY, degreesZ);
         
-        cout << "Molecule Moved." << endl;
+        keepMoleculeInBox(&toMove, enviro);
+        printMolecule(&toMove);
+        //cout << "Molecule Moved." << endl;
 
         molecules[moleculeIndex] = toMove;
         /**
@@ -133,7 +133,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             }
         }
         
-        cout << "testing for acceptance" << endl;
+        //cout << "testing for acceptance" << endl;
 
         if(accept){
             accepted++;
@@ -250,18 +250,40 @@ int main(int argc, char ** argv){
             for(int j = 0; j < molecVec.size(); j++){
                 //Copy data from vector to molecule
                 Molecule molec1 = molecVec[j];
+
                 molecules[moleculeIndex].atoms = (Atom *)malloc(sizeof(Atom) * molec1.numOfAtoms);
-                molecules[moleculeIndex].numOfAtoms = molec1.numOfAtoms;
+                molecules[moleculeIndex].bonds = (Bond *)malloc(sizeof(Bond) * molec1.numOfBonds);
+                molecules[moleculeIndex].angles = (Angle *)malloc(sizeof(Angle) * molec1.numOfAngles);
+                molecules[moleculeIndex].dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * molec1.numOfDihedrals);
+                molecules[moleculeIndex].hops = (Hop *)malloc(sizeof(Hop) * molec1.numOfHops);
+
                 molecules[moleculeIndex].id = molec1.id;
+                molecules[moleculeIndex].numOfAtoms = molec1.numOfAtoms;
                 molecules[moleculeIndex].numOfBonds = molec1.numOfBonds;
                 molecules[moleculeIndex].numOfDihedrals = molec1.numOfDihedrals;
                 molecules[moleculeIndex].numOfAngles = molec1.numOfAngles;
+                molecules[moleculeIndex].numOfHops = molec1.numOfHops;
 
                 //get the atoms from the vector molecule
                 for(int k = 0; k < molec1.numOfAtoms; k++){
                     molecules[moleculeIndex].atoms[k] = molec1.atoms[k];
                 }               
-                
+               
+                //assign bonds
+                for(int k = 0; k < molec1.numOfBonds; k++){
+                    molecules[moleculeIndex].bonds[k] = molec1.bonds[k];
+                }
+
+                //assign angles
+                for(int k = 0; k < molec1.numOfAngles; k++){
+                    molecules[moleculeIndex].angles[k] = molec1.angles[k];
+                }
+
+                //assign dihedrals
+                for(int k = 0; k < molec1.numOfDihedrals; k++){
+                    molecules[moleculeIndex].dihedrals[k] = molec1.dihedrals[k];
+                }
+
                 //cout << "AtomIndex ID: " << molecules[moleculeIndex].atoms[0].id << endl;
                 atomCount += molecules[moleculeIndex].numOfAtoms;
                 //cout << "MolecIndex " << moleculeIndex << endl;
