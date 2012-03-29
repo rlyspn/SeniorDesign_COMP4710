@@ -83,7 +83,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         //Pick a molecule to move
         int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
         Molecule toMove = molecules[moleculeIndex];
-        printMolecule(&toMove);
+        //printMolecule(&toMove);
         //Pick an atom in the molecule about which to rotate
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
         Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
@@ -103,7 +103,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 degreesX, degreesY, degreesZ);
         
         keepMoleculeInBox(&toMove, enviro);
-        printMolecule(&toMove);
+        //printMolecule(&toMove);
         //cout << "Molecule Moved." << endl;
 
         molecules[moleculeIndex] = toMove;
@@ -118,7 +118,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         double newEnergy = calcEnergyWrapper(molecules, enviro);
 
         bool accept = false;
-
+        /*cout << "newEnergy: " << newEnergy << endl;
+        cout << "oldEnergy: " << oldEnergy << endl;*/
         if(newEnergy < oldEnergy){
             accept = true;
         }
@@ -167,7 +168,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 
            // printState(enviro, molecules, enviro->numOfMolecules, stateFile);
             cout << "Move: " << move << endl;
-            cout << "new energy: " << newEnergy << endl;
+            cout << "Current Energy: " << newEnergy << endl;
         }
 //        cout << "Accepted: " << accepted << endl;
     }

@@ -299,12 +299,15 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         if (isnan(energySum_host[i]) != 0 || isinf(energySum_host[i]) != 0){
             energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
         }
+        
+        //cout << "EnergySum << " << energySum_host[i] << endl;
 
         if (molecules != NULL){
             energySum_host[i] = energySum_host[i] * getFValueHost(atoms[atomXid], atoms[atomYid], molecules, enviro); 
         }
 
         totalEnergy += energySum_host[i];
+        //cout << "totalEnergy: " << totalEnergy << endl;
 
     }
 
@@ -377,12 +380,16 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         xAtom = atoms[xAtom_pos];
         yAtom = atoms[yAtom_pos];
 
-        lj_energy = calc_lj(xAtom,yAtom,*enviro);
-        charge_energy = calcCharge(xAtom, yAtom, enviro);
-        fValue = 1.0; //TODO: Fix after fValue calculation is moved to device
-        
-        energySum[idx] = fValue * (lj_energy + charge_energy);
-
+        if(xAtom.sigma < 0 || xAtom.epsilon < 0 || yAtom.sigma < 0 || yAtom.epsilon < 0){
+            energySum[idx] = 0.0;
+        }
+        else{
+            lj_energy = calc_lj(xAtom,yAtom,*enviro);
+            charge_energy = calcCharge(xAtom, yAtom, enviro);
+            fValue = 1.0; //TODO: Fix after fValue calculation is moved to device
+            
+            energySum[idx] = fValue * (lj_energy + charge_energy);
+        }
     }
     else {
         energySum[idx] = 0.0;
