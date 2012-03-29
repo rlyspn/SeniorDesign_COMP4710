@@ -199,9 +199,6 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
         Molecule currentMolecule = molecules[i];
         for(int j = 0; j < currentMolecule.numOfAtoms; j++){
             atoms[atomIndex] = currentMolecule.atoms[j];
-            //printf("%d, %f, %f, %f, %f, %f\n", atoms[atomIndex].id, atoms[atomIndex].x,
-            //        atoms[atomIndex].y, atoms[atomIndex].z, atoms[atomIndex].sigma,
-             //       atoms[atomIndex].epsilon);
             atomIndex++;
         }
     }
@@ -218,10 +215,10 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;	 
     size_t energySumSize = N * sizeof(double); 
 	 
-	 double* energySum = (double*) malloc(energySumSize);
+	double* energySum = (double*) malloc(energySumSize);
 
     calcEnergy(atoms, enviro, energySum);
-
+    
     for(int i = 0; i < N; i++){
 
         int c = -2 * i;
@@ -238,60 +235,20 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         double yx = atoms[atomYid].x;
         double yy = atoms[atomYid].y;
         double yz = atoms[atomYid].z;
-        /*
-        if (isnan(energySum[i]) != 0 || isinf(energySum[i]) != 0){
-            energySum[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
-        }
-		  */
-	    if (molecules != NULL){
+        if (molecules != NULL){
             energySum[i] = energySum[i] * getFValue(atoms[atomXid], atoms[atomYid], molecules, enviro); 
         }
-
         totalEnergy += energySum[i];
 
     }
+    
     return totalEnergy;
 }
-/*
-double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
-    const double e = 1.602176565 * pow(10.f,-19.f);
 
-    double sigma = sqrt(atom1.sigma * atom2.sigma);
-    double epsilon = sqrt(atom1.epsilon * atom2.epsilon);
-    
-    double deltaX = atom1.x - atom2.x;
-    double deltaY = atom1.y - atom2.y;
-    double deltaZ = atom1.z - atom2.z;
-  
-    deltaX = make_periodic(deltaX, enviro->x);
-    deltaY = make_periodic(deltaY, enviro->y);
-    deltaZ = make_periodic(deltaZ, enviro->z);
-
-    const double r2 = (deltaX * deltaX) +
-                      (deltaY * deltaY) + 
-                      (deltaZ * deltaZ);
-
-    const double r = sqrt(r2);
-
-    const double sig2OverR2 = pow(sigma, 2) / r2;
-    const double sig6OverR6 = pow(sig2OverR2, 3);
-    const double sig12OverR12 = pow(sig6OverR6, 2);
-    const double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
-
-    const double charge_energy = (atom2.charge * atom1.charge * pow(e,2) / r);
-
-    const double fValue = 1.0;
-    
-
-    return fValue * (lj_energy + charge_energy);
-
-}
-*/
 void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
     double lj_energy,charge_energy, fValue;
 
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
-    printf("N: %d\n", N);
     for(int idx=0; idx<N; idx++){
     //calculate the x and y positions in the Atom array
         int xAtom_pos, yAtom_pos;
@@ -310,12 +267,8 @@ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
             fValue = 1.0;
             
             energySum[idx] = fValue * (lj_energy + charge_energy);
-            
-            printf("idx: %d\n", idx);
         }
-    
 	 }
-     printf("energySum filled.\n");
 }
 
 double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
@@ -365,13 +318,6 @@ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro){
 double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
     int m1 = getMoleculeFromAtomID(atom1, molecules, *enviro);
     int m2 = getMoleculeFromAtomID(atom2, molecules, *enviro);
-    Molecule molec = molecules[0];
-    for(int i = 0; i < enviro->numOfMolecules; i++){
-        if(molecules[i].id == m1){
-            molec = molecules[i];
-            break;
-        }
-    }
 
     if(m1 != m2)
         return 1.0;

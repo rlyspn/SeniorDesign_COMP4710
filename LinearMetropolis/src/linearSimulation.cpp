@@ -28,6 +28,7 @@
       double maxTranslation = enviro->maxTranslation;
       double temperature = enviro->temperature;
       double kT = kBoltz * temperature;
+      double finalEnergy = 0.0;
       
    	generatePoints(molecules, enviro);
    	cout << "points generated" << endl;
@@ -68,14 +69,15 @@
       printState(enviro, molecules, enviro->numOfMolecules, "initialState");
       
       for(int move = 0; move < numberOfSteps; move++){
-          printf("Move: %d\n", move);
-          printf("Calculating old Energy\n");
          double oldEnergy = calcEnergyWrapper(molecules, enviro);
-          printf("Calculating old Energy completed\n");
-        //Pick a molecule to move
+
+         //Pick a molecule to move
          int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
          Molecule toMove = molecules[moleculeIndex];
-        //Pick an atom in the molecule about which to rotate
+         Molecule oldToMove;
+         copyMolecule(&oldToMove, &toMove);
+
+         //Pick an atom in the molecule about which to rotate
          int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
          Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
       
@@ -94,10 +96,8 @@
 
          molecules[moleculeIndex] = toMove;
          
-          printf("Calculating new Energy\n");
          double newEnergy = calcEnergyWrapper(molecules, enviro);
-          printf("Calculating new Energy completed\n");
-      
+     
          bool accept = false;
       
          if(newEnergy < oldEnergy){
@@ -116,20 +116,22 @@
       
          if(accept){
             accepted++;
+            if (move == numberOfSteps - 1){
+                finalEnergy = newEnergy;
+            }
          }
          else{
             rejected++;
             //restore previous configuration
             //atoms[atomIndex] = oldAtom;
-            toMove = molecules[moleculeIndex];
-            toMove = moveMolecule(toMove, vertex, -deltaX, -deltaY, -deltaZ,
-                    -degreesX, -degreesY, -degreesZ);
-            molecules[moleculeIndex] = toMove;
+            molecules[moleculeIndex] = oldToMove;
+            if (move == numberOfSteps - 1){
+                finalEnergy = oldEnergy;
+            }
          }
       
-        /**
-          Print the state every 100 moves.
-        */
+        
+        //Print the state every 100 moves.
          if(move % 100 == 0){
             atomTotal = 0;
             aIndex = 0;
@@ -145,9 +147,6 @@
             }
          
             printState(enviro, molecules, enviro->numOfMolecules, stateFile);
-            cout << endl << "Move: " << move << endl;
-            cout << "old energy: " << oldEnergy << endl;
-            cout << "new energy: " << newEnergy << endl;
          }
       //        cout << "Accepted: " << accepted << endl;
       }
@@ -163,8 +162,7 @@
             mIndex++;
          }
       }
-   
-   
+      cout << "Final Energy = " << finalEnergy << endl;
    }
 
 	
