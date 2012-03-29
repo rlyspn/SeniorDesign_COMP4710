@@ -120,7 +120,7 @@ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 
   Assigned to TBD
 */
-double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
+double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *enviro);
 
 /**
   Return if the two atom ids are have a hop value >=3
@@ -129,7 +129,7 @@ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *envir
   @param atom2 - the id of the ending atom
   @param molecule - the molecule that contains atom1 and atom 2
 */
-int hopGE3(int atom1, int atom2, Molecule molecule);
+int hopGE3(int atom1, int atom2, Molecule *molecule);
 
 /**
   Returns sqrt(d1 * d2)
@@ -145,7 +145,7 @@ double calcBlending(double d1, double d2);
   @param molecules - the list of molecules to be searched
   @param return - returns the id of the molecule
 */
-int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro);
+int getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro);
 
 /**
   Rotates a molecule about a given atom a random amount

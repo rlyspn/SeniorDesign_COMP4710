@@ -236,7 +236,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         double yy = atoms[atomYid].y;
         double yz = atoms[atomYid].z;
         if (molecules != NULL){
-            energySum[i] = energySum[i] * getFValue(atoms[atomXid], atoms[atomYid], molecules, enviro); 
+            energySum[i] = energySum[i] * getFValue(&(atoms[atomXid]), &(atoms[atomYid]), molecules, enviro); 
         }
         totalEnergy += energySum[i];
 
@@ -303,9 +303,9 @@ double calcBlending(double d1, double d2){
 }
 
 //returns the molecule that contains a given atom
-int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro){
-    int atomId = a1.id;
-    int currentIndex = enviro.numOfMolecules - 1;
+int getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro){
+    int atomId = a1->id;
+    int currentIndex = enviro->numOfMolecules - 1;
     int molecId = molecules[currentIndex].id;
     while(atomId < molecId && currentIndex > 0){
         currentIndex -= 1;
@@ -315,24 +315,26 @@ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro){
 
 }
 
-double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
-    int m1 = getMoleculeFromAtomID(atom1, molecules, *enviro);
-    int m2 = getMoleculeFromAtomID(atom2, molecules, *enviro);
-
+double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *enviro){
+    int m1 = getMoleculeFromAtomID(atom1, molecules, enviro);
+    int m2 = getMoleculeFromAtomID(atom2, molecules, enviro);
+    
     if(m1 != m2)
         return 1.0;
-	 else if( hopGE3(atom1.id, atom2.id,molecules[m1]) )     
+    else if( hopGE3(atom1->id, atom2->id, &(molecules[m1])) == 1)
 		  return 0.5;
 	 else
 		  return 0.0;
 }
 
-int hopGE3(int atom1, int atom2, Molecule molecule){
-    for(int x=0; x< molecule.numOfHops; x++){
-		      Hop myHop = molecule.hops[x];
-				if(myHop.atom1==atom1 && myHop.atom2==atom2)
-				    return 1;
-	 }
+int hopGE3(int atom1, int atom2, Molecule *molecule){
+    for(int x=0; x< molecule->numOfHops; x++){
+		      Hop *myHop = &(molecule->hops[x]);
+				if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
+                    return 1;
+                }
+	}
+    printf("RETURNING0\n");
 	 return 0;
 }
 
