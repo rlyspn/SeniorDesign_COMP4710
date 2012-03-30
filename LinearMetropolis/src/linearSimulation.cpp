@@ -32,7 +32,7 @@
       
    	generatePoints(molecules, enviro);
    	cout << "points generated" << endl;
-   
+   /*
       Atom *atoms;
       atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
     //create array of atoms from arrays in the molecules
@@ -46,26 +46,11 @@
          }
       }
    
-      cout << "array assigned " << endl;
+      cout << "array assigned " << endl;*/
 		int atomTotal = 0;
       int aIndex = 0;
       int mIndex = 0;
       
-      /** Not Needed only?? 
-   	//copies back atoms into molecules
-      int atomTotal = 0;
-      int aIndex = 0;
-      int mIndex = 0;
-      while(atomTotal < numberOfAtoms){
-         molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
-         atomTotal++;
-         aIndex++;
-         if(aIndex == molecules[mIndex].numOfAtoms){
-            aIndex = 0;
-            mIndex++;
-         }
-      }*/
-    
       printState(enviro, molecules, enviro->numOfMolecules, "initialState");
       
       for(int move = 0; move < numberOfSteps; move++){
@@ -133,7 +118,7 @@
         
         //Print the state every 100 moves.
          if(move % 100 == 0){
-            atomTotal = 0;
+            /*atomTotal = 0;
             aIndex = 0;
             mIndex = 0;
             while(atomTotal < numberOfAtoms){
@@ -145,11 +130,11 @@
                   mIndex++;
                }
             }
-         
+         */
             printState(enviro, molecules, enviro->numOfMolecules, stateFile);
          }
       //        cout << "Accepted: " << accepted << endl;
-      }
+      }/*
       atomTotal = 0;
       aIndex = 0;
       mIndex = 0;
@@ -161,7 +146,7 @@
             aIndex = 0;
             mIndex++;
          }
-      }
+      }*/
       cout << "Final Energy = " << finalEnergy << endl;
    }
 
@@ -169,7 +154,8 @@
 
 
     int main(int argc, char ** argv){
-    
+   clock_t startTime, endTime;
+   startTime = clock();
     
     /***===================
       TEMPORARILY WITHOUT COMMANDLINE ARGUMENTS
@@ -183,7 +169,7 @@
     //path to the configuration file
     string configPath = argv[2];
     ====================*/
-   
+       
       string flag = "-z";
       string configPath = "bin/demoConfiguration.txt";
     //Configuration file scanner
@@ -292,6 +278,16 @@
       printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
             enviro.numOfMolecules, simulationSteps);
     runLinear(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
-           configScan.getPdbOutputPath());
-    
-   }
+           configScan.getPdbOutputPath());   
+       for (int i = 0; i < enviro.numOfMolecules; i++){
+           free(molecules[i].atoms);
+           free(molecules[i].bonds);
+           free(molecules[i].angles);
+           free(molecules[i].dihedrals);
+           free(molecules[i].hops);
+       } 
+       free(molecules);
+    endTime = clock();
+    double diffTime = difftime(endTime, startTime) / CLOCKS_PER_SEC;
+    printf("Time = %f seconds", diffTime);
+}

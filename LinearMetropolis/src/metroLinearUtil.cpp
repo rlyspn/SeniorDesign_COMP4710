@@ -188,6 +188,9 @@ void generatePoints(Molecule *molec, Environment *enviro){
 
     //assign the doubles to the coordinates
     assignAtomPositions(devXDoubles, devYDoubles, devZDoubles, molec, enviro);
+    free(devXDoubles);
+    free(devYDoubles);
+    free(devZDoubles);
 }
 
 //Calculates the energy of system using molecules
@@ -202,8 +205,9 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
             atomIndex++;
         }
     }
-
-    return calcEnergyWrapper(atoms, enviro, molecules);
+    double totalEnergy = calcEnergyWrapper(atoms, enviro, molecules);
+    free(atoms);
+    return totalEnergy;
 }
 
 double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
@@ -241,7 +245,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         totalEnergy += energySum[i];
 
     }
-    
+   free(energySum); 
     return totalEnergy;
 }
 
