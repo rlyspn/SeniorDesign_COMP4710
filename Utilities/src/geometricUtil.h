@@ -5,7 +5,7 @@
 #include <math.h>
 
 #define DOUBPREC .000001
-#define PI 3.14159265358979323
+#define PI 3.14159265
 
 /**
   Structure representing a geometic point
