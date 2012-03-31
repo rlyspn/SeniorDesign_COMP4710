@@ -11,9 +11,9 @@ void testKeepMoleculeInBox(){
     Environment enviro = createEnvironment(X, Y, Z, maxTrans, temp, numOfAtoms);
 
     //test molecule compeletely outside of box.
-    Atom a1 = createAtom(-1, 11, 10.3, 5);
-    Atom a2 = createAtom(-1, 12.4, 1.2, 5);
-    Atom a3 = createAtom(-1, 8.1, 2, 1.5);
+    Atom a1 = createAtom(1, 11, 10.3, 5);
+    Atom a2 = createAtom(2, 12.4, 1.2, 5);
+    Atom a3 = createAtom(3, 8.1, 2, 1.5);
     Atom *atoms = (Atom *)malloc(sizeof(Atom) * numOfAtoms);
     atoms[0] = a1;
     atoms[1] = a2;
@@ -285,9 +285,9 @@ void testGeneratePoints(){
 
     Molecule *molecules = (Molecule *)malloc(sizeof(Molecule)*numberOfMolecules);
     for (int i = 0; i < numberOfMolecules; i++){
-        Bond *blankBonds;
-        Angle *blankAngles;
-        Dihedral *blankDihedrals;
+        Bond *blankBonds = NULL;
+        Angle *blankAngles = NULL;
+        Dihedral *blankDihedrals = NULL;
         int atomCount = numberOfAtoms / numberOfMolecules;
         Atom *molAtoms = (Atom *) malloc(sizeof(Atom)*atomCount);
         for (int j = 0; j < atomCount; j++){
@@ -584,9 +584,9 @@ void testGetFValueWrapper(){
     Molecule *molecules, *dev_molecules;
     Atom *mol1_atoms, *mol2_atoms, *atom1List, *atom2List, *dev_atom1List, *dev_atom2List;
     double *fvalues, *dev_fvalues;
-    Bond *mol1_bonds, *blankBonds;
-    Angle *blankAngles;
-    Dihedral *blankDihedrals;
+    Bond *mol1_bonds, *blankBonds = NULL;
+    Angle *blankAngles = NULL;
+    Dihedral *blankDihedrals = NULL;
 
     int numberOfTests = 4;
 
@@ -724,7 +724,6 @@ void testRotateMolecule(){
     printf("Testing rotateMolecule\n");
 
     for(int i = 0 ; i < testNumber; i++){
-        int roAtom = 1;
         //pick atom to rotate about.  Cycle through all of them
         Atom toRotate = atoms[1];
         

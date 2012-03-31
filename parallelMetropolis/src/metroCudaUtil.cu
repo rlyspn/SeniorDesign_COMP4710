@@ -269,7 +269,8 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     int blocks = N / THREADS_PER_BLOCK + (N % THREADS_PER_BLOCK == 0 ? 0 : 1); 
 
     //The number of bytes of shared memory per block of
-    size_t sharedSize = sizeof(double) * THREADS_PER_BLOCK;
+    //size_t sharedSize = sizeof(double) * THREADS_PER_BLOCK;
+    
     size_t atomSize = enviro->numOfAtoms * sizeof(Atom);
     size_t energySumSize = N * sizeof(double);
     
@@ -361,9 +362,9 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
 
 //need to figure out how many threads per block will be executed
 // must be a power of 2
-    __shared__ double cache[THREADS_PER_BLOCK];
+//    __shared__ double cache[THREADS_PER_BLOCK];
 
-    int cacheIndex = threadIdx.x;
+    //int cacheIndex = threadIdx.x;
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     double lj_energy,charge_energy, fValue;
@@ -475,9 +476,15 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 
     if(m1 != m2)
         return 1.0;
-	 else if( hopGE3(atom1.id, atom2.id, molecules[m1]) )     
+	/**
+      This line gives a warning about not knowing what memory space it points to
+      because CUDA has multiple memory spaces.  This should not be a problem because
+      it defaults to global memory space which is correct in this case.  May want
+      to look into it in the future.
+    */
+    else if( hopGE3(atom1.id, atom2.id, molecules[m1]) )     
 		  return 0.5;
-	 else
+	else
 		  return 0.0;
 }
 

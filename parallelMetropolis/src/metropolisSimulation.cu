@@ -10,7 +10,6 @@
 #include "../../Utilities/src/Zmatrix_Scan.h"
 #include "../../Utilities/src/State_Scan.h"
 #include "../../Utilities/src/geometricUtil.h"
-
 #include "metroCudaUtil.cuh"
 /**
 Will run simulations of any single atom system.  Can run from either z matrix
@@ -83,6 +82,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         //Pick a molecule to move
         int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
         Molecule toMove = molecules[moleculeIndex];
+        Molecule oldToMove;
+        copyMolecule(&oldToMove, &toMove);
         //printMolecule(&toMove);
         //Pick an atom in the molecule about which to rotate
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
@@ -143,9 +144,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             rejected++;
             //restore previous configuration
             //atoms[atomIndex] = oldAtom;
-            toMove = molecules[moleculeIndex];
-            toMove = moveMolecule(toMove, vertex, -deltaX, -deltaY, -deltaZ,
-                    -degreesX, -degreesY, -degreesZ);
+            copyMolecule(&toMove, &oldToMove);
             molecules[moleculeIndex] = toMove;
         }
 
@@ -196,6 +195,8 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 */
 int main(int argc, char ** argv){
     
+    clock_t startTime, endTime;
+    startTime = clock();
     
     /***===================
       TEMPORARILY WITHOUT COMMANDLINE ARGUMENTS
@@ -244,6 +245,7 @@ int main(int argc, char ** argv){
         molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
         int moleculeIndex = 0;
         int atomCount = 0;
+        cout << "Simulating " << enviro.numOfMolecules << endl;
         while(moleculeIndex < enviro.numOfMolecules){
             vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
             //cout << "Vector size = " << molecVec.size() << endl;
@@ -318,7 +320,13 @@ int main(int argc, char ** argv){
     cout << "Beginning simulation with: " << endl;
     printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
             enviro.numOfMolecules, simulationSteps);
+
+    
     runParallel(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
             configScan.getPdbOutputPath());
     
+        endTime = clock();
+
+        double diffTime = difftime(endTime, startTime) / CLOCKS_PER_SEC;
+        printf("Time = %f seconds.\n\n", diffTime);
 }
