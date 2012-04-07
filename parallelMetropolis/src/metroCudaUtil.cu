@@ -632,6 +632,58 @@ double soluteSolventTotalEnergy(){
     return -1.f;
 }
 
+//Implementation of the copy to device function
+void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
+    size_t moleculeSize = sizeof(Molecule);
+    //atoms
+    Atom *atoms_d;
+    size_t atomSize = sizeof(Atom) * molec_h->numOfAtoms;
+    //bonds
+    Bond *bonds_d;
+    size_t bondSize = sizeof(Bond) * molec_h->numOfBonds;
+    //angles
+    Angle *angles_d;
+    size_t angleSize = sizeof(Angle) * molec_h->numOfAngles;
+    //dihedrals
+    Dihedral *dihedrals_d;
+    size_t dihedralSize = sizeof(Dihedral) * molec_h->numOfDihedrals;
+    //hops
+    Hop *hops_d;
+    size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
+   
+    //allocate memory for internal arrays
+    cudaMalloc((void**)&atoms_d, atomSize);
+    cudaMalloc((void**)&bonds_d, bondSize);
+    cudaMalloc((void**)&angles_d, angleSize);
+    cudaMalloc((void**)&hops_d, hopSize);
+    cudaMalloc((void**)&dihedrals_d, dihedralSize);
+    cudaMalloc((void**)&molec_d, moleculeSize);
+
+    //temporary molecule that will be used to hold information to be copied
+    Molecule tempMolecule;
+    tempMolecule.id = molec_h->id;
+    tempMolecule.numOfAtoms = molec_h->numOfAtoms;
+    tempMolecule.numOfBonds = molec_h->numOfBonds;
+    tempMolecule.numOfAngles = molec_h->numOfAngles;
+    tempMolecule.numOfDihedrals = molec_h->numOfDihedrals;
+    tempMolecule.numOfHops = molec_h->numOfDihedrals;
+
+    tempMolecule.atoms = atoms_d;
+    tempMolecule.bonds = bonds_d;
+    tempMolecule.angles = angles_d;
+    tempMolecule.dihedrals = dihedrals_d;
+    tempMolecule.hops = hops_d;
+
+    //Copy data to device
+    cudaMemcpy(atoms_d, tempMolecule.atoms, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(bonds_d, tempMolecule.bonds, bondSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(angles_d, tempMolecule.angles, angleSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(dihedrals_d, tempMolecule.dihedrals, dihedralSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(hops_d, tempMolecule.hops, dihedralSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(molec_d, &tempMolecule, moleculeSize, cudaMemcpyHostToDevice);
+
+
+}
 
 #ifdef DEBUG
 
