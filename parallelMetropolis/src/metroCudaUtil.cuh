@@ -225,6 +225,10 @@ double solventSolventTotalEnergy();
 double soluteSolventTotalEnergy();
 
 /**
+    --It might be better if we make a create atom on device that
+    does all of the memory allocation and then make this file
+    only transfer data.
+
   Deep copies an array of molecules from the host to the device.
   Assumes that the memory on the device has not been allocated.
   @param molec_d - pointer on the device to contain an array of molecules.

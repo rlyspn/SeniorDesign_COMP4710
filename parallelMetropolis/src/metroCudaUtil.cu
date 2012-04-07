@@ -633,6 +633,11 @@ double soluteSolventTotalEnergy(){
 }
 
 //Implementation of the copy to device function
+    /**
+      It might be better if we do this where it just copies.
+      This might be better as a create molecule on device function
+    */
+
 void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
     size_t moleculeSize = sizeof(Molecule);
     //atoms
@@ -650,7 +655,7 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
     //hops
     Hop *hops_d;
     size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
-   
+  
     //allocate memory for internal arrays
     cudaMalloc((void**)&atoms_d, atomSize);
     cudaMalloc((void**)&bonds_d, bondSize);
@@ -683,6 +688,36 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
     cudaMemcpy(molec_d, &tempMolecule, moleculeSize, cudaMemcpyHostToDevice);
 
 
+}
+
+void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d){
+    size_t moleculeSize = sizeof(Molecule);
+    //atoms
+    size_t atomSize = sizeof(Atom) * molec_h->numOfAtoms;
+    //bonds
+    size_t bondSize = sizeof(Bond) * molec_h->numOfBonds;
+    //angles
+    size_t angleSize = sizeof(Angle) * molec_h->numOfAngles;
+    //dihedrals
+    size_t dihedralSize = sizeof(Dihedral) * molec_h->numOfDihedrals;
+    //hops
+    size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
+    
+    cudaMemcpy(molec_h->atoms, molec_d->atoms, atomSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->bonds, molec_d->bonds, bondSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->angles, molec_d->angles, angleSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->dihedrals, molec_d->dihedrals, dihedralSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->hops, molec_d->hops, hopSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
+}
+
+void freeMleculeOnDevice(Molecule *molec){
+    cudaFree(molec->atoms);
+    cudaFree(molec->bonds);
+    cudaFree(molec->angles);
+    cudaFree(molec->dihedrals);
+    cudaFree(molec->hops);
+    cudaFree(molec);
 }
 
 #ifdef DEBUG
