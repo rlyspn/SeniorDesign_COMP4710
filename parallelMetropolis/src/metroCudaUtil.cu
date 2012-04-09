@@ -695,7 +695,13 @@ void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d){
     cudaMemcpy(molec_h->angles, tempMolecule.angles, angleSize, cudaMemcpyDeviceToHost);
     cudaMemcpy(molec_h->dihedrals, tempMolecule.dihedrals, dihedralSize, cudaMemcpyDeviceToHost);
     cudaMemcpy(molec_h->hops, tempMolecule.hops, hopSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(molec_h, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
+    
+    molec_h->id = tempMolecule.id;
+    molec_h->numOfAtoms = tempMolecule.numOfAtoms;
+    molec_h->numOfBonds = tempMolecule.numOfBonds;
+    molec_h->numOfAngles = tempMolecule.numOfAngles;
+    molec_h->numOfDihedrals = tempMolecule.numOfDihedrals;
+    molec_h->numOfHops = tempMolecule.numOfHops;
 }
 
 void freeMoleculeOnDevice(Molecule *molec){
