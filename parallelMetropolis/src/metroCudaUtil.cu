@@ -641,31 +641,20 @@ double soluteSolventTotalEnergy(){
 void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
     size_t moleculeSize = sizeof(Molecule);
     //atoms
-    Atom *atoms_d;
     size_t atomSize = sizeof(Atom) * molec_h->numOfAtoms;
     //bonds
-    Bond *bonds_d;
     size_t bondSize = sizeof(Bond) * molec_h->numOfBonds;
     //angles
-    Angle *angles_d;
     size_t angleSize = sizeof(Angle) * molec_h->numOfAngles;
     //dihedrals
-    Dihedral *dihedrals_d;
     size_t dihedralSize = sizeof(Dihedral) * molec_h->numOfDihedrals;
     //hops
-    Hop *hops_d;
     size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
   
-    //allocate memory for internal arrays
-    cudaMalloc((void**)&atoms_d, atomSize);
-    cudaMalloc((void**)&bonds_d, bondSize);
-    cudaMalloc((void**)&angles_d, angleSize);
-    cudaMalloc((void**)&hops_d, hopSize);
-    cudaMalloc((void**)&dihedrals_d, dihedralSize);
-    cudaMalloc((void**)&molec_d, moleculeSize);
-
     //temporary molecule that will be used to hold information to be copied
     Molecule tempMolecule;
+    cudaMemcpy(&tempMolecule, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
+
     tempMolecule.id = molec_h->id;
     tempMolecule.numOfAtoms = molec_h->numOfAtoms;
     tempMolecule.numOfBonds = molec_h->numOfBonds;
@@ -673,18 +662,12 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
     tempMolecule.numOfDihedrals = molec_h->numOfDihedrals;
     tempMolecule.numOfHops = molec_h->numOfDihedrals;
 
-    tempMolecule.atoms = atoms_d;
-    tempMolecule.bonds = bonds_d;
-    tempMolecule.angles = angles_d;
-    tempMolecule.dihedrals = dihedrals_d;
-    tempMolecule.hops = hops_d;
-
     //Copy data to device
-    cudaMemcpy(atoms_d, tempMolecule.atoms, atomSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(bonds_d, tempMolecule.bonds, bondSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(angles_d, tempMolecule.angles, angleSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(dihedrals_d, tempMolecule.dihedrals, dihedralSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(hops_d, tempMolecule.hops, dihedralSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(tempMolecule.atoms, molec_h->atoms, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(tempMolecule.bonds, molec_h->bonds, bondSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(tempMolecule.angles, molec_h->angles, angleSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(tempMolecule.dihedrals, molec_h->dihedrals, dihedralSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(tempMolecule.hops, molec_h->hops, hopSize, cudaMemcpyHostToDevice);
     cudaMemcpy(molec_d, &tempMolecule, moleculeSize, cudaMemcpyHostToDevice);
 
 
@@ -702,22 +685,70 @@ void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d){
     size_t dihedralSize = sizeof(Dihedral) * molec_h->numOfDihedrals;
     //hops
     size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
-    
-    cudaMemcpy(molec_h->atoms, molec_d->atoms, atomSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(molec_h->bonds, molec_d->bonds, bondSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(molec_h->angles, molec_d->angles, angleSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(molec_h->dihedrals, molec_d->dihedrals, dihedralSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(molec_h->hops, molec_d->hops, hopSize, cudaMemcpyDeviceToHost);
+  
+    //Used to get addresses for arrays in molec_d b/c it cannot be accessed directly
+    Molecule tempMolecule;
+    cudaMemcpy(&tempMolecule, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
+
+    cudaMemcpy(molec_h->atoms, tempMolecule.atoms, atomSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->bonds, tempMolecule.bonds, bondSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->angles, tempMolecule.angles, angleSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->dihedrals, tempMolecule.dihedrals, dihedralSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(molec_h->hops, tempMolecule.hops, hopSize, cudaMemcpyDeviceToHost);
     cudaMemcpy(molec_h, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
 }
 
-void freeMleculeOnDevice(Molecule *molec){
+void freeMoleculeOnDevice(Molecule *molec){
     cudaFree(molec->atoms);
     cudaFree(molec->bonds);
     cudaFree(molec->angles);
     cudaFree(molec->dihedrals);
     cudaFree(molec->hops);
     cudaFree(molec);
+}
+
+//Allocates needed memory for the molecule on the device
+void allocateOnDevice(Molecule *molec_d, Molecule *molec_h){
+    printf("Allocating on device\n");
+    //molecule
+    //Used to get addresses for arrays in molec_d b/c it cannot be accessed directly
+    Molecule *tempMolecule;
+    size_t moleculeSize = sizeof(Molecule);
+    tempMolecule = (Molecule *)malloc(moleculeSize);
+    //atoms
+    Atom *tempAtoms;
+    size_t atomSize = sizeof(Atom) * molec_h->numOfAtoms;
+    //bonds
+    Bond *tempBonds;
+    size_t bondSize = sizeof(Bond) * molec_h->numOfBonds;
+    //angles
+    Angle *tempAngles;
+    size_t angleSize = sizeof(Angle) * molec_h->numOfAngles;
+    //dihedrals
+    Dihedral *tempDihedrals;
+    size_t dihedralSize = sizeof(Dihedral) * molec_h->numOfDihedrals;
+    //hops
+    Hop *tempHops;
+    size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
+  
+    //allocate memory for internal arrays
+    cudaMalloc((void**)&molec_d, moleculeSize);
+    
+    cudaMalloc((void**)&tempAtoms, atomSize);
+    cudaMalloc((void**)&tempBonds, bondSize);
+    cudaMalloc((void**)&tempAngles, angleSize);
+    cudaMalloc((void**)&tempHops, hopSize);
+    cudaMalloc((void**)&tempDihedrals, dihedralSize);
+
+    tempMolecule->atoms = tempAtoms;
+    tempMolecule->bonds = tempBonds;
+    tempMolecule->angles = tempAngles;
+    tempMolecule->hops = tempHops;
+    tempMolecule->dihedrals = tempDihedrals;
+
+    cudaMemcpy(molec_d, tempMolecule, moleculeSize, cudaMemcpyHostToDevice);
+
+    free(tempMolecule);
 }
 
 #ifdef DEBUG

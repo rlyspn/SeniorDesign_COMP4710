@@ -865,6 +865,10 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
+    testCopyMolecules();
+    testAllocateMemory();
+    testFreeMemory();
+   /* 
     testKeepMoleculeInBox();
     testRotateMolecule();
     testCalcChargeWrapper();
@@ -877,6 +881,7 @@ int main(){
     testGeneratePoints();
     testCalcEnergy();
     testCalcEnergyWithMolecules();
+    */
     return 0;
 }
 

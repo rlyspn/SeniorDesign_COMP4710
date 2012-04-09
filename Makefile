@@ -34,8 +34,11 @@ linearSim: linearUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $
 kryptonSim: cudaUtil metroUtil baseTest $(PARA)$(SRC)kryptonSimulation.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(BIN)baseTests.o $(PARA)$(SRC)kryptonSimulation.cu -o $(BIN)$(KRYPTONEXE)	
 
-tests: cudaUtil geoUtil metroUtil baseTest $(PARA)$(TST)parallelTest.cu $(PARA)$(TST)parallelTest.cuh
-	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)baseTests.o $(BIN)metroCudaUtil.o  $(BIN)metroUtil.o $(PARA)$(TST)parallelTest.cu -o $(BIN)$(TSTEXE)
+tests: cudaUtil geoUtil metroUtil copyTest baseTest $(PARA)$(TST)parallelTest.cu $(PARA)$(TST)parallelTest.cuh
+	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)copyTests.o $(BIN)baseTests.o $(BIN)metroCudaUtil.o  $(BIN)metroUtil.o $(PARA)$(TST)parallelTest.cu -o $(BIN)$(TSTEXE)
+
+copyTest: $(PARA)$(TST)copyTests.cuh $(PARA)$(TST)copyTests.cu
+	$(NV) $(FLAGS) -c $(PARA)$(TST)copyTests.cu -o $(BIN)copyTests.o
 
 baseTest: $(PARA)$(TST)baseTests.h $(PARA)$(TST)baseTests.cpp
 	$(NV) $(FLAGS) -c $(PARA)$(TST)baseTests.cpp -o $(BIN)baseTests.o

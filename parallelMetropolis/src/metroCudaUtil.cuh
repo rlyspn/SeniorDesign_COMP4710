@@ -230,7 +230,7 @@ double soluteSolventTotalEnergy();
     only transfer data.
 
   Deep copies an array of molecules from the host to the device.
-  Assumes that the memory on the device has not been allocated.
+  Assumes that the memory on the device has been allocated.
   @param molec_d - pointer on the device to contain an array of molecules.
   @param molec_h - pointer to the host array of molecules to be copied to the device.
 */
@@ -248,6 +248,16 @@ void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *moelc_d);
   @param - molec - the memory to be freed by the function.
 */
 void freeMoleculeOnDevice(Molecule *molec);
+
+/**
+  Allocates neccesary memory for an array of molecules.
+  Also allocates all neccesary memory for the arrays held in the molecule.
+  Assumes the that the molecule has already been allocated. 
+  @param molec_d - pointer to where memory will be allocated on the device.
+  @param molec_h - pointer to source data that will be used as the sizes for
+  mallocation
+*/
+void allocateOnDevice(Molecule *molec_d, Molecule *molec_h);
 
 #ifdef DEBUG
 

@@ -8,6 +8,7 @@
 #include <vector>
 #include "../src/metroCudaUtil.cuh"
 #include "../../Utilities/src/geometricUtil.h"
+#include "copyTests.cuh"
 #include <sys/time.h>
 
 /**
