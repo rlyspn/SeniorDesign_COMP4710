@@ -865,11 +865,11 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
-    testCopyMolecules();
     testAllocateMemory();
-    testFreeMemory();
    /* 
+    testCopyMolecules();
     testKeepMoleculeInBox();
+    testFreeMemory();
     testRotateMolecule();
     testCalcChargeWrapper();
     testCalcBlendingWrapper();

@@ -256,8 +256,9 @@ void freeMoleculeOnDevice(Molecule *molec);
   @param molec_d - pointer to where memory will be allocated on the device.
   @param molec_h - pointer to source data that will be used as the sizes for
   mallocation
+  @param numOfMolecules - the number of molecules to be allocated.
 */
-void allocateOnDevice(Molecule *molec_d, Molecule *molec_h);
+void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
 
 #ifdef DEBUG
 
