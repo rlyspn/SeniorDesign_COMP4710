@@ -260,6 +260,21 @@ void freeMoleculeOnDevice(Molecule *molec);
 */
 void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
 
+/**
+  Assigns the various array fields of the molecules.
+  Cycles through each of the array and assigned the ith array of atoms, bonds, etc
+  to the ith molecule.
+
+  @param molecules - array of molecules to have fields assigned.
+  @param atoms - 2d array of atoms to be assigned to the molecules.
+  @param bonds - 2d array of bonds to be assigned to the molecules.
+  @param angles - 2d array of bonds to be assigned to the molecules.
+  @param dihedrals - 2d array of dihedrals to be assigned to the molecules.
+  @param hops - 2d array of hops to be assigned to the molecules
+  @param - the length of Each array.
+*/
+__global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds,
+        Angle *angles, Dihedral *dihedrals, Hop *hops, int numberOfMolecules);
 #ifdef DEBUG
 
 /**

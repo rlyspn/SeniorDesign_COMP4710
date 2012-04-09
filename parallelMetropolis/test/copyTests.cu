@@ -140,7 +140,7 @@ void testAllocateMemory(){
         free(hops);
     }
     
-    //allocateOnDevice(molec_d, molec, numOfMolecules);
+    allocateOnDevice(molec_d, molec, numOfMolecules);
     printf("Allocated on Device\n");
 }
 

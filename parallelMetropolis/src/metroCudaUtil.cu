@@ -788,11 +788,11 @@ void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
         tempMolecs[i].dihedrals = tempDihedrals;
 
 
-        free(tempAtoms);
-        free(tempBonds);
-        free(tempAngles);
-        free(tempHops);
-        free(tempDihedrals);
+        cudaFree(tempAtoms);
+        cudaFree(tempBonds);
+        cudaFree(tempAngles);
+        cudaFree(tempHops);
+        cudaFree(tempDihedrals);
     }
     
     cudaMemcpy(molec_d, tempMolecs, moleculeSize, cudaMemcpyHostToDevice);
