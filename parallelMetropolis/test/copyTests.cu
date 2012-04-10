@@ -58,7 +58,6 @@ void testCopyMolecules(){
 
     printf("Copying to the device\n");
     //moleculeDeepCopyToDevice(molec_d, molecs, numOfMolec);
-    //cudaMalloc((void**)&molec_d, molecSize);
     cudaMemcpy(molec_d, molecs, molecSize, cudaMemcpyHostToDevice);
     /******
       Tests and assert statements.
@@ -77,12 +76,12 @@ void testCopyMolecules(){
     printf("molec.numOfHops = %d, copiedMolecs[0].numOfHops = %d\n", molecs[0].numOfHops, copiedMolecs[0].numOfHops);
     
     
-    /*assert(molec.id == molec2.id);
+    assert(molec.id == molec2.id);
     assert(molec.numOfAtoms == molec2.numOfAtoms);
     assert(molec.numOfBonds == molec2.numOfBonds);
     assert(molec.numOfAngles == molec2.numOfAngles);
     assert(molec.numOfDihedrals == molec2.numOfDihedrals);
-    assert(molec.numOfHops == molec2.numOfHops);*/
+    assert(molec.numOfHops == molec2.numOfHops);
 }
 
 void testAllocateMemory(){
