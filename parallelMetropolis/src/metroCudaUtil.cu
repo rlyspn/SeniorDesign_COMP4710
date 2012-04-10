@@ -784,56 +784,40 @@ void freeMoleculeOnDevice(Molecule *molec){
 }
 
 //Allocates needed memory for the molecule on the device
-void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
+Molecule *allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
     //molecule
     //Used to get addresses for arrays in molec_d b/c it cannot be accessed directly
-    Molecule *tempMolecs;
     size_t moleculeSize = sizeof(Molecule) * numOfMolecules;
-    tempMolecs = (Molecule *)malloc(moleculeSize);
+    printf("%d\n", molec_d);
     cudaMalloc((void**)&molec_d, moleculeSize);
+    printf("%d\n", molec_d);
+    cudaMemcpy(molec_d, molec_h, moleculeSize, cudaMemcpyHostToDevice);
     
-    for(int i = 0; i < numOfMolecules; i++){
-        //atoms
-        Atom *tempAtoms;
-        size_t atomSize = sizeof(Atom) * molec_h[i].numOfAtoms;
-        //bonds
-        Bond *tempBonds;
-        size_t bondSize = sizeof(Bond) * molec_h[i].numOfBonds;
-        //angles
-        Angle *tempAngles;
-        size_t angleSize = sizeof(Angle) * molec_h[i].numOfAngles;
-        //dihedrals
-        Dihedral *tempDihedrals;
-        size_t dihedralSize = sizeof(Dihedral) * molec_h[i].numOfDihedrals;
-        //hops
-        Hop *tempHops;
-        size_t hopSize = sizeof(Hop) * molec_h[i].numOfHops;
-      
-        //allocate memory for internal arrays
+    int blocks = numOfMolecules/ THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1); 
+    allocateArrays<<<blocks, THREADS_PER_BLOCK>>>(molec_d, numOfMolecules); 
+    return molec_d;
+}
+
+__global__ void allocateArrays(Molecule *molecules, int numOfMolecules){
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if(idx < numOfMolecules){
+        size_t atomSize = sizeof(Atom) * molecules[idx].numOfAtoms;
+        molecules[idx].atoms = (Atom *)malloc(atomSize);
         
-        cudaMalloc((void**)&tempAtoms, atomSize);
-        cudaMalloc((void**)&tempBonds, bondSize);
-        cudaMalloc((void**)&tempAngles, angleSize);
-        cudaMalloc((void**)&tempHops, hopSize);
-        cudaMalloc((void**)&tempDihedrals, dihedralSize);
-
-        tempMolecs[i].atoms = tempAtoms;
-        tempMolecs[i].bonds = tempBonds;
-        tempMolecs[i].angles = tempAngles;
-        tempMolecs[i].hops = tempHops;
-        tempMolecs[i].dihedrals = tempDihedrals;
-
-
-        cudaFree(tempAtoms);
-        cudaFree(tempBonds);
-        cudaFree(tempAngles);
-        cudaFree(tempHops);
-        cudaFree(tempDihedrals);
+        size_t bondSize = sizeof(Bond) * molecules[idx].numOfBonds;
+        molecules[idx].bonds = (Bond *)malloc(bondSize);
+        
+        size_t angleSize = sizeof(Angle) * molecules[idx].numOfAngles;
+        molecules[idx].angles = (Angle *)malloc(angleSize);
+        
+        size_t dihedralSize = sizeof(Dihedral) * molecules[idx].numOfDihedrals;
+        molecules[idx].dihedrals = (Dihedral *)malloc(dihedralSize);
+        
+        size_t hopSize = sizeof(Hop) * molecules[idx].numOfHops;
+        molecules[idx].hops = (Hop *)malloc(hopSize);
     }
-    
-    cudaMemcpy(molec_d, tempMolecs, moleculeSize, cudaMemcpyHostToDevice);
-    
-    free(tempMolecs);
+
 }
 
 //Can easily be optimized.  Wanted it right first.

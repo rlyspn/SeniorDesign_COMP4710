@@ -866,8 +866,8 @@ void testCalcChargeWrapper(){
 
 int main(){
     testAllocateMemory();
+    //testCopyMolecules();
    /* 
-    testCopyMolecules();
     testKeepMoleculeInBox();
     testFreeMemory();
     testRotateMolecule();

@@ -260,7 +260,14 @@ void freeMoleculeOnDevice(Molecule *molec);
   mallocation
   @param numOfMolecules - the number of molecules to be allocated.
 */
-void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
+Molecule *allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
+
+/**
+  Allocates memory for the subarrays of each molecule in the array.
+  @param molecules - array of molecules.
+  @param numOfMolecules - the number of molecules in the array.
+*/
+__global__ void allocateArrays(Molecule *molecules, int numOfMolecules);
 
 /**
   Assigns the various array fields of the molecules.
