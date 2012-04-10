@@ -1,12 +1,20 @@
 #include "copyTests.cuh"
 
 void testCopyMolecules(){
+    printf("testCopyMolecules()\n");
+    //Molecules on host
     Molecule *molecs;
+    //molecules on device
     Molecule *molec_d;
+    //Used to test after deepCopyToDevice
     Molecule *copiedMolecs;
+    //molecules that have been deep copied back to the host
+    Molecule *deepMolecs;
+    
     int numOfMolec = 10;
     size_t molecSize = sizeof(Molecule) * numOfMolec;
     copiedMolecs = (Molecule *)malloc(molecSize);
+    deepMolecs = (Molecule *)malloc(molecSize);
     molecs = (Molecule *)malloc(molecSize);
 
     for(int i = 0; i < numOfMolec; i++){
@@ -56,14 +64,13 @@ void testCopyMolecules(){
     //start cuda-ing
     Molecule molec2;
     printf("Allocating on the device.\n");
-    allocateOnDevice(molec_d, molecs, numOfMolec);
+    molec_d = allocateOnDevice(molec_d, molecs, numOfMolec);
 
     printf("Copying to the device\n");
-    //moleculeDeepCopyToDevice(molec_d, molecs, numOfMolec);
+    moleculeDeepCopyToDevice(molec_d, molecs, numOfMolec);
     /******
       Tests and assert statements.
     ******/
-    cudaMemcpy(molec_d, molecs, molecSize, cudaMemcpyHostToDevice);
     
     cudaMemcpy(copiedMolecs, molec_d, molecSize, cudaMemcpyDeviceToHost);
     molec2 = copiedMolecs[0];
@@ -77,12 +84,12 @@ void testCopyMolecules(){
     printf("molec.numOfHops = %d, copiedMolecs[0].numOfHops = %d\n", molecs[0].numOfHops, copiedMolecs[0].numOfHops);
     
     
-    assert(molecs[0].id == molec2.id);
-    assert(molecs[0].numOfAtoms == molec2.numOfAtoms);
-    assert(molecs[0].numOfBonds == molec2.numOfBonds);
-    assert(molecs[0].numOfAngles == molec2.numOfAngles);
-    assert(molecs[0].numOfDihedrals == molec2.numOfDihedrals);
-    assert(molecs[0].numOfHops == molec2.numOfHops);
+    assert(molecs[0].id == copiedMolecs[0].id);
+    assert(molecs[0].numOfAtoms == copiedMolecs[0].numOfAtoms);
+    assert(molecs[0].numOfBonds == copiedMolecs[0].numOfBonds);
+    assert(molecs[0].numOfAngles == copiedMolecs[0].numOfAngles);
+    assert(molecs[0].numOfDihedrals == copiedMolecs[0].numOfDihedrals);
+    assert(molecs[0].numOfHops == copiedMolecs[0].numOfHops);
 }
 
 void testAllocateMemory(){
@@ -95,7 +102,6 @@ void testAllocateMemory(){
     size_t molecSize = sizeof(Molecule) * numOfMolecules;
     molec = (Molecule *)malloc(molecSize);
     copiedMolecs = (Molecule *)malloc(molecSize);
-//    cudaMalloc((void **) &molec_d, molecSize);
     
     for(int i = 0; i < numOfMolecules; i++){
         printf("Creating atom %d\n.", i);
@@ -145,10 +151,8 @@ void testAllocateMemory(){
     printf("molecSize = %d\n", molecSize);    
     printf("molec_d = %d before.\n", molec_d); 
     molec_d = allocateOnDevice(molec_d, molec, numOfMolecules);
-    //cudaMalloc((void **)&molec_d, molecSize);
     
     printf("molec_d = %d before.\n", molec_d); 
-    cudaMemcpy(molec_d, molec, molecSize, cudaMemcpyHostToDevice);
     
     cudaMemcpy(copiedMolecs, molec_d, molecSize, cudaMemcpyDeviceToHost);
     printf("molec.id = %d, copiedMolecs[0].id = %d\n", molec[0].id, copiedMolecs[0].id);
