@@ -843,11 +843,11 @@ __global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angl
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if(idx < numOfMolecules){
-        int atomIndex = idx / maxAtoms;
-        int bondIndex = idx / maxBonds;
-        int angleIndex = idx / maxAngles;
-        int dihedralIndex = idx / maxDihedrals;
-        int hopIndex = idx / maxHops;
+        int atomIndex = idx * maxAtoms;
+        int bondIndex = idx * maxBonds;
+        int angleIndex = idx * maxAngles;
+        int dihedralIndex = idx * maxDihedrals;
+        int hopIndex = idx * maxHops;
 
         for(int i = 0; i < molecules[idx].numOfAtoms; i++){
             molecules[idx].atoms[i] = atoms[i + atomIndex];
