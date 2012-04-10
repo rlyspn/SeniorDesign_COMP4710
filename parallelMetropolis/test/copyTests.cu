@@ -57,22 +57,24 @@ void testCopyMolecules(){
     allocateOnDevice(molec_d, molecs, numOfMolec);
 
     printf("Copying to the device\n");
-    moleculeDeepCopyToDevice(molec_d, molecs, numOfMolec);
-
+    //moleculeDeepCopyToDevice(molec_d, molecs, numOfMolec);
+    //cudaMalloc((void**)&molec_d, molecSize);
+    cudaMemcpy(molec_d, molecs, molecSize, cudaMemcpyHostToDevice);
     /******
       Tests and assert statements.
     ******/
-
-    printf("molec2.id = %d,  before copy\n", molec2.id);
-    cudaMemcpy(&molec2, molec_d, sizeof(Molecule), cudaMemcpyDeviceToHost); 
+    Molecule *copiedMolecs;
+    copiedMolecs = (Molecule *)malloc(molecSize);
+    cudaMemcpy(copiedMolecs, molec_d, molecSize, cudaMemcpyDeviceToHost); 
+    molec2 = copiedMolecs[0];
     //moleculeDeepCopyToHost(&molec2, molec_d);
 
-    printf("molec.id = %d, molec2.id = %d\n", molecs[0].id, molec2.id);
-    printf("molec.numOfAtoms = %d, molec2.numOfAtoms = %d\n", molecs[0].numOfAtoms, molec2.numOfAtoms);
-    printf("molec.numOfBonds = %d, molec2.numOfBonds = %d\n", molecs[0].numOfBonds, molec2.numOfBonds);
-    printf("molec.numOfAngles = %d, molec2.numOfAngles = %d\n", molecs[0].numOfAngles, molec2.numOfAngles);
-    printf("molec.numOfDihedrals = %d, molec2.numOfDihedrals = %d\n", molecs[0].numOfDihedrals, molec2.numOfDihedrals);
-    printf("molec.numOfHops = %d, molec2.numOfHops = %d\n", molecs[0].numOfHops, molec2.numOfHops);
+    printf("molec.id = %d, copiedMolecs[0].id = %d\n", molecs[0].id, copiedMolecs[0].id);
+    printf("molec.numOfAtoms = %d, copiedMolecs[0].numOfAtoms = %d\n", molecs[0].numOfAtoms, copiedMolecs[0].numOfAtoms);
+    printf("molec.numOfBonds = %d, copiedMolecs[0].numOfBonds = %d\n", molecs[0].numOfBonds, copiedMolecs[0].numOfBonds);
+    printf("molec.numOfAngles = %d, copiedMolecs[0].numOfAngles = %d\n", molecs[0].numOfAngles, copiedMolecs[0].numOfAngles);
+    printf("molec.numOfDihedrals = %d, copiedMolecs[0].numOfDihedrals = %d\n", molecs[0].numOfDihedrals, copiedMolecs[0].numOfDihedrals);
+    printf("molec.numOfHops = %d, copiedMolecs[0].numOfHops = %d\n", molecs[0].numOfHops, copiedMolecs[0].numOfHops);
     
     
     /*assert(molec.id == molec2.id);
@@ -88,61 +90,74 @@ void testAllocateMemory(){
 
     Molecule *molec;
     Molecule *molec_d;
+    Molecule *copiedMolecs;
+
     size_t molecSize = sizeof(Molecule) * numOfMolecules;
     molec = (Molecule *)malloc(molecSize);
-
+    copiedMolecs = (Molecule *)malloc(molecSize);
+    cudaMalloc((void **) &molec_d, molecSize);
+    
     for(int i = 0; i < numOfMolecules; i++){
-        printf("Creating %dth array.\n", i);
-        Atom *atoms;
+        printf("Creating atom %d\n.", i);
+
+        Molecule m = molec[i];
+        
         int atomCount = 3;
         size_t atomSize = sizeof(Atom) * atomCount;
-        atoms = (Atom *)malloc(atomSize);
-        atoms[0] = createAtom(1, 1, 1, 1);
-        atoms[1] = createAtom(2, 1, 1, 1);
-        atoms[2] = createAtom(3, 1, 2, 3);
+        m.atoms = (Atom *)malloc(atomSize);
+        m.atoms[0] = createAtom(1, 1, 1, 1);
+        m.atoms[1] = createAtom(2, 1, 1, 1);
+        m.atoms[2] = createAtom(3, 1, 2, 3);
 
-        Bond *bonds;
         int bondCount = 2;
         size_t bondSize = sizeof(Bond) * bondCount;
-        bonds = (Bond *)malloc(bondSize);
-        bonds[0] = createBond(1, 2, 1.2, false);
-        bonds[1] = createBond(2, 3, 3.1, true);
+        m.bonds = (Bond *)malloc(bondSize);
+        m.bonds[0] = createBond(1, 2, 1.2, false);
+        m.bonds[1] = createBond(2, 3, 3.1, true);
 
-        Angle *angles;
         int angleCount = 2;
         size_t angleSize = sizeof(Angle) * angleCount;
-        angles = (Angle *)malloc(angleSize);
-        angles[0] = createAngle(1, 2, 86, false);
-        angles[1] = createAngle(1, 3, 180, true);
+        m.angles = (Angle *)malloc(angleSize);
+        m.angles[0] = createAngle(1, 2, 86, false);
+        m.angles[1] = createAngle(1, 3, 180, true);
 
-
-        Dihedral *dihedrals;
         int dihedralCount = 2;
         size_t dihedralSize = sizeof(Dihedral) * dihedralCount;
-        dihedrals = (Dihedral *)malloc(dihedralSize);
-        dihedrals[0] = createDihedral(1, 2, 65, true);
-        dihedrals[1] = createDihedral(1, 3, 43, false);
+        m.dihedrals = (Dihedral *)malloc(dihedralSize);
+        m.dihedrals[0] = createDihedral(1, 2, 65, true);
+        m.dihedrals[1] = createDihedral(1, 3, 43, false);
 
-        Hop *hops;
         int hopCount = 2;
         size_t hopSize = sizeof(Hop) * hopCount;
-        hops = (Hop *)malloc(hopSize);
-        hops[0] = createHop(1,2,1);
-        hops[1] = createHop(2,3,1);
-        
-        molec[i] = createMolecule(i + 1,
-                atoms, angles, bonds, dihedrals, hops,
-                atomCount, angleCount, bondCount, dihedralCount, hopCount);
-
-        free(atoms);
-        free(angles);
-        free(bonds);
-        free(dihedrals);
-        free(hops);
-    }
+        m.hops = (Hop *)malloc(hopSize);
+        m.hops[0] = createHop(1,2,1);
+        m.hops[1] = createHop(2,3,1);
+       
+        m.id = i + 1;
+        m.numOfAtoms = atomCount;
+        m.numOfBonds = bondCount;
+        m.numOfAngles = angleCount;
+        m.numOfDihedrals = dihedralCount;
+        m.numOfHops = hopCount;
     
-    allocateOnDevice(molec_d, molec, numOfMolecules);
-    printf("Allocated on Device\n");
+        molec[i] = m;
+    }
+    printf("molecSize = %d\n", molecSize);    
+    
+    //TODO
+    //allocateOnDevice(molec_d, molec, numOfMolecules);
+    //Seg fault here
+    cudaMemcpy(molec_d, molec, molecSize, cudaMemcpyHostToDevice);
+    
+    cudaMemcpy(copiedMolecs, molec_d, molecSize, cudaMemcpyDeviceToHost);
+    printf("molec.id = %d, copiedMolecs[0].id = %d\n", molec[0].id, copiedMolecs[0].id);
+    printf("molec.numOfAtoms = %d, copiedMolecs[0].numOfAtoms = %d\n", molec[0].numOfAtoms, copiedMolecs[0].numOfAtoms);
+    printf("molec.numOfBonds = %d, copiedMolecs[0].numOfBonds = %d\n", molec[0].numOfBonds, copiedMolecs[0].numOfBonds);
+    printf("molec.numOfAngles = %d, copiedMolecs[0].numOfAngles = %d\n", molec[0].numOfAngles, copiedMolecs[0].numOfAngles);
+    printf("molec.numOfDihedrals = %d, copiedMolecs[0].numOfDihedrals = %d\n", molec[0].numOfDihedrals, copiedMolecs[0].numOfDihedrals);
+    printf("molec.numOfHops = %d, copiedMolecs[0].numOfHops = %d\n", molec[0].numOfHops, copiedMolecs[0].numOfHops);
+    
+    printf("allocateOnArray finished.\n");
 }
 
 void testFreeMemory(){

@@ -642,7 +642,7 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMol
     size_t molecSize = sizeof(Molecule) * numOfMolecules;
     cudaMemcpy(molec_d, molec_h, molecSize, cudaMemcpyHostToDevice);
 
-    //create 2d arrays that are as large as the largest row.  They are not jagged.
+    /*//create 2d arrays that are as large as the largest row.  They are not jagged.
     Atom *atoms;
     int maxAtoms = 0;
     
@@ -735,7 +735,7 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMol
     free(bonds);
     free(dihedrals);
     free(hops);
-
+*/
 }
 
 void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d){
@@ -864,7 +864,6 @@ __global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angl
         for(int i = 0; i < molecules[idx].numOfHops; i++){
             molecules[idx].hops[i] = hops[i + hopIndex];
         }
-
     }
 }
 #ifdef DEBUG
