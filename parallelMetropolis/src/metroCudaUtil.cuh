@@ -233,15 +233,17 @@ double soluteSolventTotalEnergy();
   Assumes that the memory on the device has been allocated.
   @param molec_d - pointer on the device to contain an array of molecules.
   @param molec_h - pointer to the host array of molecules to be copied to the device.
+  @param numOfMolecules - the number of molecules in the array
 */
-void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h);
+void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
 
 /**Deep copies an array of molecules from the device to the host.
   Assumes that the memory on the host has already been correctly allocated.
   @param molec_h - pointer to the host array of molecules to be copied from the device
   @param molec_d - pointer to the host array of molecules to be copied from the device to the host.
+  @param numOfMolecules - the number of molecules in the array
 */
-void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *moelc_d);
+void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *moelc_d, int numOfMolecules);
 
 /**
   Frees all of the memory associated with the molecule on the device.
@@ -273,8 +275,9 @@ void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
   @param hops - 2d array of hops to be assigned to the molecules
   @param - the length of Each array.
 */
-__global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds,
-        Angle *angles, Dihedral *dihedrals, Hop *hops, int numberOfMolecules);
+__global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angle *angles,
+        Dihedral *dihedrals, Hop *hops, int numOfMolecules, int maxAtoms, int maxBonds, int maxAngles,
+        int maxDihedrals, int maxHops);
 #ifdef DEBUG
 
 /**

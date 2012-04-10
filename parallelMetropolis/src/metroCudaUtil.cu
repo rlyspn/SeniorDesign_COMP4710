@@ -638,68 +638,104 @@ double soluteSolventTotalEnergy(){
       This might be better as a create molecule on device function
     */
 
-void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h){
-    size_t moleculeSize = sizeof(Molecule);
-    printf("moleculeSize = %d\n", moleculeSize);
-    //atoms
-    size_t atomSize = sizeof(Atom) * molec_h->numOfAtoms;
-    //bonds
-    size_t bondSize = sizeof(Bond) * molec_h->numOfBonds;
-    //angles
-    size_t angleSize = sizeof(Angle) * molec_h->numOfAngles;
-    //dihedrals
-    size_t dihedralSize = sizeof(Dihedral) * molec_h->numOfDihedrals;
-    //hops
-    size_t hopSize = sizeof(Hop) * molec_h->numOfHops;
-  
-    //temporary molecule that will be used to hold information to be copied
-    Molecule *tempMolecule;
-    tempMolecule = (Molecule *)malloc(moleculeSize);
-    cudaMemcpy(tempMolecule, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
+void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
+    size_t molecSize = sizeof(Molecule) * numOfMolecules;
+    cudaMemcpy(molec_d, molec_h, molecSize, cudaMemcpyHostToDevice);
 
-    tempMolecule->id = molec_h->id;
-    tempMolecule->numOfAtoms = molec_h->numOfAtoms;
-    tempMolecule->numOfBonds = molec_h->numOfBonds;
-    tempMolecule->numOfAngles = molec_h->numOfAngles;
-    tempMolecule->numOfDihedrals = molec_h->numOfDihedrals;
-    tempMolecule->numOfHops = molec_h->numOfDihedrals;
+    //create 2d arrays that are as large as the largest row.  They are not jagged.
+    Atom *atoms;
+    int maxAtoms = 0;
+    
+    Bond *bonds;
+    int maxBonds = 0;
 
-    printf("tempMolec.id = %d\n", tempMolecule->id);
-    printf("tempMolec.numOfAtoms = %d\n", tempMolecule->numOfAtoms);
-    printf("tempMolec.numOfBonds = %d\n", tempMolecule->numOfBonds);
-    printf("tempMolec.numOfAngles = %d\n", tempMolecule->numOfAngles);
-    printf("tempMolec.numOfDihedrals = %d\n", tempMolecule->numOfDihedrals);
-    printf("tempMolec.numOfHops = %d\n", tempMolecule->numOfHops);
+    Angle *angles;
+    int maxAngles = 0;
 
-    
-        
-    //Copy data to device
-    cudaMemcpy(molec_d, tempMolecule, moleculeSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(tempMolecule->atoms, molec_h->atoms, atomSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(tempMolecule->bonds, molec_h->bonds, bondSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(tempMolecule->angles, molec_h->angles, angleSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(tempMolecule->dihedrals, molec_h->dihedrals, dihedralSize, cudaMemcpyHostToDevice);
-    cudaMemcpy(tempMolecule->hops, molec_h->hops, hopSize, cudaMemcpyHostToDevice);
-    
-   
-    tempMolecule->id = 5678;
-    tempMolecule->numOfAtoms = 0;
-    tempMolecule->numOfBonds = 0;
-    tempMolecule->numOfAngles = 0;
-    tempMolecule->numOfDihedrals = 0;
-    tempMolecule->numOfHops = 0;
-    
-    
-    cudaMemcpy(tempMolecule, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
-    printf("AFTER COPY\n");
-    printf("tempMolec.id = %d\n", tempMolecule->id);
-    printf("tempMolec.numOfAtoms = %d\n", tempMolecule->numOfAtoms);
-    printf("tempMolec.numOfBonds = %d\n", tempMolecule->numOfBonds);
-    printf("tempMolec.numOfAngles = %d\n", tempMolecule->numOfAngles);
-    printf("tempMolec.numOfDihedrals = %d\n", tempMolecule->numOfDihedrals);
-    printf("tempMolec.numOfHops = %d\n", tempMolecule->numOfHops);
+    Dihedral *dihedrals;
+    int maxDihedrals = 0;
 
-    free(tempMolecule);
+    Hop *hops;
+    int maxHops = 0;
+
+    //find the largest row of the array
+    for(int i = 0; i < numOfMolecules; i++){
+        Molecule m = molec_h[i];
+        if(m.numOfAtoms > maxAtoms)
+            maxAtoms = m.numOfAtoms;
+        if(m.numOfBonds > maxBonds)
+            maxBonds = m.numOfBonds;
+        if(m.numOfAngles > maxAngles)
+            maxAngles = m.numOfAngles;
+        if(m.numOfDihedrals > maxDihedrals)
+            maxDihedrals = m.numOfDihedrals;
+        if(m.numOfHops > maxHops)
+            maxHops = m.numOfHops;
+    }
+    
+    atoms = (Atom *)malloc(sizeof(Atom) * numOfMolecules * maxAtoms);
+    bonds = (Bond *)malloc(sizeof(Bond) * numOfMolecules * maxBonds);
+    angles = (Angle *)malloc(sizeof(Angle) * numOfMolecules * maxAngles);
+    dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * numOfMolecules * maxDihedrals);
+    hops = (Hop *)malloc(sizeof(Hop) * numOfMolecules * maxHops);
+
+    //Places the elements in the 2d arrays
+    int atomIndex = 0;
+    int bondIndex = 0;
+    int angleIndex = 0;
+    int dihedralIndex = 0;
+    int hopIndex = 0;
+
+    //this can easily be optimized.  More focused on getting it right
+    for(int i = 0; i < numOfMolecules; i++){
+        Molecule m = molec_h[i];
+
+        //assign atoms in molecule i
+        for(int j = 0; j < maxAtoms; j++){
+            if(j < m.numOfAtoms)
+                atoms[atomIndex] = m.atoms[j];
+            atomIndex++;
+        }
+
+        //assign bonds in molecule i
+        for(int j = 0; j < maxBonds; j++){
+            if(j < m.numOfBonds)
+                bonds[bondIndex] = m.bonds[j];
+            bondIndex++;
+        }
+
+        //assign angles in molecule i
+        for(int j = 0; j < maxAngles; j++){
+            if(j < m.numOfAngles)
+                angles[angleIndex] = m.angles[j];
+            angleIndex++;
+        }
+
+        //assign dihedrals in molecule i
+        for(int j = 0; j < maxDihedrals; j++){
+            if(j < m.numOfDihedrals)
+                dihedrals[dihedralIndex] = m.dihedrals[j];
+            dihedralIndex++;
+        }
+
+        //assign hops in molecule i
+        for(int j = 0; j < maxHops; j++){
+            if(j < m.numOfHops)
+                hops[hopIndex] = m.hops[j];
+            hopIndex++;
+        }
+
+    }
+    int blocks = numOfMolecules/ THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1); 
+   assignArrays<<<blocks, THREADS_PER_BLOCK>>>(molec_d, atoms, bonds, angles, dihedrals, hops,
+            numOfMolecules, maxAtoms, maxBonds, maxAngles, maxDihedrals, maxHops);
+
+    free(angles);
+    free(atoms);
+    free(bonds);
+    free(dihedrals);
+    free(hops);
+
 }
 
 void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d){
@@ -800,6 +836,37 @@ void allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
     free(tempMolecs);
 }
 
+//Can easily be optimized.  Wanted it right first.
+__global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angle *angles,
+        Dihedral *dihedrals, Hop *hops, int numOfMolecules, int maxAtoms, int maxBonds, int maxAngles,
+        int maxDihedrals, int maxHops){
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    if(idx < numOfMolecules){
+        int atomIndex = idx / maxAtoms;
+        int bondIndex = idx / maxBonds;
+        int angleIndex = idx / maxAngles;
+        int dihedralIndex = idx / maxDihedrals;
+        int hopIndex = idx / maxHops;
+
+        for(int i = 0; i < molecules[idx].numOfAtoms; i++){
+            molecules[idx].atoms[i] = atoms[i + atomIndex];
+        }
+        for(int i = 0; i < molecules[idx].numOfBonds; i++){
+            molecules[idx].bonds[i] = bonds[i + bondIndex];
+        }
+        for(int i = 0; i < molecules[idx].numOfAngles; i++){
+            molecules[idx].angles[i] = angles[i + angleIndex];
+        }
+        for(int i = 0; i < molecules[idx].numOfDihedrals; i++){
+            molecules[idx].dihedrals[i] = dihedrals[i + dihedralIndex];
+        }
+        for(int i = 0; i < molecules[idx].numOfHops; i++){
+            molecules[idx].hops[i] = hops[i + hopIndex];
+        }
+
+    }
+}
 #ifdef DEBUG
 
 //these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
