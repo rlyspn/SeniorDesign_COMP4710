@@ -113,6 +113,23 @@ void testCopyMolecules(){
         assert(dm.numOfHops == m.numOfHops);
     }
 
+    printf("Testing atoms.\n");
+
+    int atomIndex = 0;
+    for(int i = 0; i < numOfMolecules; i++){
+        Molecule m = molecs[i];
+        for(int j = 0; j < m.numOfAtoms; j++){
+            Atom a1 = copiedAtoms[atomIndex];
+            Atom a2 = molecs[i].atoms[j];
+        printf("id = %d, %d\n", a1.id, a2.id);
+        printf("x = %f, %f\n", a1.x, a2.x);
+        printf("y = %f, %f\n", a1.y, a2.y);
+        printf("z = %f, %f\n", a1.z, a2.z);
+        atomIndex++;
+        }
+    }
+
+
 }
 
 void testAllocateMemory(){

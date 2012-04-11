@@ -276,7 +276,7 @@ double soluteSolventTotalEnergy();
   @param hops_d - array of hops as long as the total number of hops.
 */
 void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
-        int numOfMolecules, Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+       int numOfMolecules, Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d);
 
 /**Deep copies an array of molecules from the device to the host.
