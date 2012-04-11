@@ -41,7 +41,6 @@ double calculate_energy(double **coords,  int n_atoms,  double *box_size,
 //Same as above but uses the new enviorment struct
 double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
     int atomNumber = enviro->numOfAtoms;
-    const double e = 1.602176565 * pow(10.f,-19.f);
 
     double totalEnergy = 0;
     
@@ -71,7 +70,7 @@ double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
             double sig12OverR12 = pow(sig6OverR6, 2);
             double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
 
-            double charge_energy = (atoms[i].charge * atoms[j].charge * pow(e,2) / r);
+            double charge_energy = calc_charge(atoms[i], atoms[j], *enviro);
             double fValue = 1.0;
             if (molecules != NULL)
             {
@@ -141,9 +140,9 @@ double calc_r_value(Atom a1, Atom a2, Environment enviro){
 }
 
 double calc_charge(Atom a1, Atom a2, Environment enviro){
-    double e = 1.602176565 * pow(10.f,-19.f);  
+    double e = 332.06;  
 
-    return (a1.charge * a2.charge * pow(e, 2)) / calc_r_value(a1, a2, enviro);
+    return (a1.charge * a2.charge * e) / calc_r_value(a1, a2, enviro);
 }
 
 //returns the molecule that contains a given atom
@@ -172,17 +171,22 @@ double getFValueLinear(Atom atom1, Atom atom2, Molecule *molecules, Environment 
 
     if(m1 != m2)
         return 1.0;
-	 else if( hopGE3Linear(atom1.id, atom2.id, molecules[m1]) )     
-		  return 0.5;
-	 else
-		  return 0.0;
+	else{
+        int hops = hopGE3Linear(atom1.id, atom2.id, molecules[m1]);
+        if (hops == 3)
+            return 0.5;
+        else if (hops > 3)
+            return 1.0;
+        else
+            return 0.0;
+     }
 }
 
 int hopGE3Linear(int atom1, int atom2, Molecule molecule){
     for(int x=0; x< molecule.numOfHops; x++){
 		      Hop myHop = molecule.hops[x];
-				if(myHop.atom1==atom1 && myHop.atom2==atom2)
-				    return 1;
+				if((myHop.atom1==atom1 && myHop.atom2==atom2) || (myHop.atom1==atom2 && myHop.atom2==atom1))
+				    return myHop.hop;
 	 }
 	 return 0;
 }

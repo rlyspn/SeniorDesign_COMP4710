@@ -301,12 +301,13 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
             energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
         }
         
-        //cout << "EnergySum << " << energySum_host[i] << endl;
-
+        //cout << "EnergySum[" << i << "]: " << energySum_host[i] << " (before)" << endl;
+        
         if (molecules != NULL){
             energySum_host[i] = energySum_host[i] * getFValueHost(atoms[atomXid], atoms[atomYid], molecules, enviro); 
         }
-
+        
+        //cout << "EnergySum[" << i << "]: " << energySum_host[i] << " (after)" << endl;
         totalEnergy += energySum_host[i];
         //cout << "totalEnergy: " << totalEnergy << endl;
 
@@ -321,7 +322,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
 }
 
 double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
-    const double e = 1.602176565 * pow(10.f,-19.f);
+    const double e = 332.06;
 
     double sigma = sqrt(atom1.sigma * atom2.sigma);
     double epsilon = sqrt(atom1.epsilon * atom2.epsilon);
@@ -345,16 +346,14 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
     double sig12OverR12 = pow(sig6OverR6, 2);
     double lj_energy = 4.0 * epsilon * (sig12OverR12 - sig6OverR6);
 
-    double charge_energy = (atom2.charge * atom1.charge * pow(e,2) / r);
-
-    double fValue = 1.0; //TODO: make this right
+    double charge_energy = (atom2.charge * atom1.charge * e) / r;
     
     if (r2 == 0.0){
         lj_energy = 0.0;
         charge_energy = 0.0;
     }
 
-    return fValue * (lj_energy + charge_energy);
+    return (lj_energy + charge_energy);
 
 }
 
@@ -419,7 +418,7 @@ energySum[blockIdx.x] = cache[0];
 }
 
 __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
-    const double e = 1.602176565 * pow(10.f,-19.f);
+    const double e = 332.06;
  
     //calculate difference in coordinates
     double deltaX = atom1.x - atom2.x;
@@ -442,7 +441,7 @@ __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
         return 0.0;
     }
     else{
-        return (atom1.charge * atom2.charge * pow(e,2) / r);
+        return (atom1.charge * atom2.charge * e) / r;
     }
 }
 
@@ -482,17 +481,22 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
       it defaults to global memory space which is correct in this case.  May want
       to look into it in the future.
     */
-    else if( hopGE3(atom1.id, atom2.id, molecules[m1]) )     
-		  return 0.5;
-	else
-		  return 0.0;
+    else{
+        int hops = hopGE3(atom1.id, atom2.id, molecules[m1]);
+        if (hops == 3)
+            return 0.5;
+        else if (hops > 3)
+            return 1.0;
+        else
+            return 0.0;
+    } 
 }
 
 __device__ int hopGE3(int atom1, int atom2, Molecule molecule){
     for(int x=0; x< molecule.numOfHops; x++){
 		      Hop myHop = molecule.hops[x];
-				if(myHop.atom1==atom1 && myHop.atom2==atom2)
-				    return 1;
+				if((myHop.atom1==atom1 && myHop.atom2==atom2) || (myHop.atom1==atom2 && myHop.atom2==atom1))
+				    return myHop.hop;
 	 }
 	 return 0;
 }
@@ -523,10 +527,15 @@ double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *e
 
     if(m1->id != m2->id)
         return 1.0;
-	 else if(hopGE3Host(atom1.id, atom2.id, *m1) == 1)     
-		  return 0.5;
-	 else
-		  return 0.0;
+	else{
+        int hops = hopGE3Host(atom1.id, atom2.id, *m1);
+        if (hops == 3)
+            return 0.5;
+        else if (hops > 3)
+            return 1.0;
+        else
+            return 0.0;
+     }
 }
 
 int hopGE3Host(int atom1, int atom2, Molecule molecule){
@@ -534,7 +543,7 @@ int hopGE3Host(int atom1, int atom2, Molecule molecule){
 		      Hop myHop = molecule.hops[x];
 				if((myHop.atom1==atom1 && myHop.atom2==atom2) ||
                         (myHop.atom1 == atom2 && myHop.atom2 == atom1) )
-				    return 1;
+				    return myHop.hop;
 	 }
 	 return 0;
 }
