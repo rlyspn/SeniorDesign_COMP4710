@@ -263,6 +263,12 @@ void freeMoleculeOnDevice(Molecule *molec);
 Molecule *allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
 
 /**
+  @param molecules - the array of molecules to be freed.
+  @param numOfMolecules - then number of molecules to be freed
+*/
+__global__ void freeArrays(Molecule *molecules, int numOfMolecules);
+
+/**
   Allocates memory for the subarrays of each molecule in the array.
   @param molecules - array of molecules.
   @param numOfMolecules - the number of molecules in the array.

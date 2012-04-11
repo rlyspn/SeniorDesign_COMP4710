@@ -798,12 +798,10 @@ void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d, int numOfMolec
     }
 }
 
-void freeMoleculeOnDevice(Molecule *molec){
-    cudaFree(molec->atoms);
-    cudaFree(molec->bonds);
-    cudaFree(molec->angles);
-    cudaFree(molec->dihedrals);
-    cudaFree(molec->hops);
+void freeMoleculeOnDevice(Molecule *molec, int numOfMolecules){
+    int blocks = numOfMolecules / THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1);
+    freeArrays<<<blocks, THREADS_PER_BLOCK>>>(molec, numOfMolecules);
+    
     cudaFree(molec);
 }
 
@@ -820,6 +818,17 @@ Molecule *allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecu
     int blocks = numOfMolecules/ THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1); 
     allocateArrays<<<blocks, THREADS_PER_BLOCK>>>(molec_d, numOfMolecules); 
     return molec_d;
+}
+__global__ void freeArrays(Molecule *molecules, int numOfMolecules){
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    
+    if(idx < numOfMolecules){
+        free(molecules[idx].atoms);
+        free(molecules[idx].bonds);
+        free(molecules[idx].angles);
+        free(molecules[idx].dihedrals);
+        free(molecules[idx].hops);
+    }
 }
 
 __global__ void allocateArrays(Molecule *molecules, int numOfMolecules){
