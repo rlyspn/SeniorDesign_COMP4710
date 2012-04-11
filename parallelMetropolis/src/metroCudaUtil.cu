@@ -640,6 +640,9 @@ double soluteSolventTotalEnergy(){
 
 void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
     size_t molecSize = sizeof(Molecule) * numOfMolecules;
+    
+    printf("%d\n", molec_h[0].id);
+    printf("molecSize = %d\n", molecSize); 
     cudaMemcpy(molec_d, molec_h, molecSize, cudaMemcpyHostToDevice);
 
     //create 2d arrays that are as large as the largest row.  They are not jagged.
@@ -673,6 +676,12 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMol
             maxHops = m.numOfHops;
     }
     
+    printf("maxHops %d\n", maxHops);
+    printf("maxDihedrals %d\n", maxDihedrals);
+    printf("maxAngles %d\n", maxAngles);
+    printf("maxBonsd %d\n", maxBonds);
+    printf("maxAtoms %d\n", maxAtoms);
+
     atoms = (Atom *)malloc(sizeof(Atom) * numOfMolecules * maxAtoms);
     bonds = (Bond *)malloc(sizeof(Bond) * numOfMolecules * maxBonds);
     angles = (Angle *)malloc(sizeof(Angle) * numOfMolecules * maxAngles);

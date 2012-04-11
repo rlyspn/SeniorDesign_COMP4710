@@ -11,13 +11,15 @@ void testCopyMolecules(){
     //molecules that have been deep copied back to the host
     Molecule *deepMolecs;
     
-    int numOfMolec = 10;
-    size_t molecSize = sizeof(Molecule) * numOfMolec;
+    int numOfMolecules = 3;
+    size_t molecSize = sizeof(Molecule) * numOfMolecules;
+    molecs = (Molecule *)malloc(molecSize);
     copiedMolecs = (Molecule *)malloc(molecSize);
     deepMolecs = (Molecule *)malloc(molecSize);
-    molecs = (Molecule *)malloc(molecSize);
 
-    for(int i = 0; i < numOfMolec; i++){
+    for(int i = 0; i < numOfMolecules; i++){
+        printf("Creating atom %d\n.", i);
+        
         Molecule m = molecs[i];
         
         int atomCount = 3;
@@ -51,7 +53,7 @@ void testCopyMolecules(){
         m.hops[0] = createHop(1,2,1);
         m.hops[1] = createHop(2,3,1);
         
-        m.id = i;
+        m.id = i + 1;
         m.numOfAtoms = atomCount;
         m.numOfBonds = bondCount;
         m.numOfAngles = angleCount;
@@ -64,14 +66,18 @@ void testCopyMolecules(){
     //start cuda-ing
     Molecule molec2;
     printf("Allocating on the device.\n");
-    molec_d = allocateOnDevice(molec_d, molecs, numOfMolec);
+    molec_d = allocateOnDevice(molec_d, molecs, numOfMolecules);
+    cudaMemcpy(copiedMolecs, molec_d, molecSize, cudaMemcpyDeviceToHost);
 
     printf("Copying to the device\n");
-    moleculeDeepCopyToDevice(molec_d, molecs, numOfMolec);
+    moleculeDeepCopyToDevice(molec_d, molecs, numOfMolecules);
+    
+    
+    
     /******
       Tests and assert statements.
     ******/
-    
+    printf("Copying %d bytes from device.\n", molecSize); 
     cudaMemcpy(copiedMolecs, molec_d, molecSize, cudaMemcpyDeviceToHost);
     molec2 = copiedMolecs[0];
     //moleculeDeepCopyToHost(&molec2, molec_d);
@@ -83,13 +89,16 @@ void testCopyMolecules(){
     printf("molec.numOfDihedrals = %d, copiedMolecs[0].numOfDihedrals = %d\n", molecs[0].numOfDihedrals, copiedMolecs[0].numOfDihedrals);
     printf("molec.numOfHops = %d, copiedMolecs[0].numOfHops = %d\n", molecs[0].numOfHops, copiedMolecs[0].numOfHops);
     
-    
-    assert(molecs[0].id == copiedMolecs[0].id);
-    assert(molecs[0].numOfAtoms == copiedMolecs[0].numOfAtoms);
-    assert(molecs[0].numOfBonds == copiedMolecs[0].numOfBonds);
-    assert(molecs[0].numOfAngles == copiedMolecs[0].numOfAngles);
-    assert(molecs[0].numOfDihedrals == copiedMolecs[0].numOfDihedrals);
-    assert(molecs[0].numOfHops == copiedMolecs[0].numOfHops);
+    for(int i = 0; i < numOfMolecules; i++){
+        printf("Testing %dth molecule.\n", i);
+
+        assert(molecs[0].id == copiedMolecs[0].id);
+        assert(molecs[0].numOfAtoms == copiedMolecs[0].numOfAtoms);
+        assert(molecs[0].numOfBonds == copiedMolecs[0].numOfBonds);
+        assert(molecs[0].numOfAngles == copiedMolecs[0].numOfAngles);
+        assert(molecs[0].numOfDihedrals == copiedMolecs[0].numOfDihedrals);
+        assert(molecs[0].numOfHops == copiedMolecs[0].numOfHops);
+    }
 }
 
 void testAllocateMemory(){
@@ -162,13 +171,17 @@ void testAllocateMemory(){
     printf("molec.numOfDihedrals = %d, copiedMolecs[0].numOfDihedrals = %d\n", molec[0].numOfDihedrals, copiedMolecs[0].numOfDihedrals);
     printf("molec.numOfHops = %d, copiedMolecs[0].numOfHops = %d\n", molec[0].numOfHops, copiedMolecs[0].numOfHops);
     
-    assert(molec[0].id == copiedMolecs[0].id);
-    assert(molec[0].numOfAtoms == copiedMolecs[0].numOfAtoms);
-    assert(molec[0].numOfBonds == copiedMolecs[0].numOfBonds);
-    assert(molec[0].numOfAngles == copiedMolecs[0].numOfAngles);
-    assert(molec[0].numOfDihedrals == copiedMolecs[0].numOfDihedrals);
-    assert(molec[0].numOfHops == copiedMolecs[0].numOfHops);
-    
+    for(int i = 0; i < numOfMolecules; i++){
+        printf("Testing %dth molecule.\n", i);
+        assert(molec[i].id == copiedMolecs[i].id);
+        assert(molec[i].numOfAtoms == copiedMolecs[i].numOfAtoms);
+        assert(molec[i].numOfBonds == copiedMolecs[i].numOfBonds);
+        assert(molec[i].numOfAngles == copiedMolecs[i].numOfAngles);
+        assert(molec[i].numOfDihedrals == copiedMolecs[i].numOfDihedrals);
+        assert(molec[i].numOfHops == copiedMolecs[i].numOfHops);
+    }
+
+
     printf("allocateOnArray finished.\n");
 }
 
