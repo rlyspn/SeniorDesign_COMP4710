@@ -1,5 +1,30 @@
 #include "metroCudaUtil.cuh"
 
+//create a device molecule structure.
+DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
+        int bondStart, int numOfBonds, int angleStart, int numOfAngles,
+        int dihedralStart, int numOfDihedrals, int hopStart, int numOfHops){
+    
+    DeviceMolecule dm;
+    dm.id = id;
+    
+    dm.atomStart = atomStart;
+    dm.numOfAtoms = numOfAtoms;
+    
+    dm.bondStart = bondStart;
+    dm.numOfBonds = numOfBonds;
+
+    dm.angleStart = angleStart;
+    dm.numOfAngles = numOfAngles;
+
+    dm.dihedralStart = dihedralStart;
+    dm.numOfDihedrals = numOfDihedrals;
+
+    dm.hopStart = hopStart;
+    dm.numOfHops = numOfHops;
+
+    return dm;
+}
 
 //calculates X (larger indexed atom) for energy calculation based on index in atom array
 __device__ int getXFromIndex(int idx){
@@ -646,178 +671,149 @@ double soluteSolventTotalEnergy(){
       It might be better if we do this where it just copies.
       This might be better as a create molecule on device function
     */
-
-void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
-    size_t molecSize = sizeof(Molecule) * numOfMolecules;
+void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
+        int numOfMolecules, Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d){
     
-    printf("id %d\n", molec_h[0].id);
-    printf("atoms %d\n", molec_h[0].numOfAtoms);
-    printf("molecSize = %d\n", molecSize); 
-    //cudaMemcpy(molec_d, molec_h, molecSize, cudaMemcpyHostToDevice);
-    //create 2d arrays that are as large as the largest row.  They are not jagged.
-    Atom *atoms;
-    int maxAtoms = 0;
-    
-    Bond *bonds;
-    int maxBonds = 0;
+    int atomCount = 0;
+    int bondCount = 0;
+    int angleCount = 0;
+    int dihedralCount = 0;
+    int hopCount = 0;
 
-    Angle *angles;
-    int maxAngles = 0;
-
-    Dihedral *dihedrals;
-    int maxDihedrals = 0;
-
-    Hop *hops;
-    int maxHops = 0;
-
-    //find the largest row of the array
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molec_h[i];
-        if(m.numOfAtoms > maxAtoms)
-            maxAtoms = m.numOfAtoms;
-        if(m.numOfBonds > maxBonds)
-            maxBonds = m.numOfBonds;
-        if(m.numOfAngles > maxAngles)
-            maxAngles = m.numOfAngles;
-        if(m.numOfDihedrals > maxDihedrals)
-            maxDihedrals = m.numOfDihedrals;
-        if(m.numOfHops > maxHops)
-            maxHops = m.numOfHops;
+        
+        atomCount += m.numOfAtoms;
+        bondCount += m.numOfBonds;
+        angleCount += m.numOfAngles;
+        dihedralCount += m.numOfDihedrals;
+        hopCount += m.numOfHops;
     }
+    //size of each array
+    size_t molecSize = sizeof(DeviceMolecule) * numOfMolecules;
+    size_t atomSize = sizeof(Atom) * atomCount;
+    size_t bondSize = sizeof(Bond) * bondCount;
+    size_t angleSize = sizeof(Angle) * angleCount;
+    size_t dihedralSize = sizeof(Dihedral) * dihedralCount;
+    size_t hopSize = sizeof(Hop) * hopCount;
     
-    printf("maxHops %d\n", maxHops);
-    printf("maxDihedrals %d\n", maxDihedrals);
-    printf("maxAngles %d\n", maxAngles);
-    printf("maxBonsd %d\n", maxBonds);
-    printf("maxAtoms %d\n", maxAtoms);
-    
+    DeviceMolecule *dMolec_h = (DeviceMolecule *)malloc(molecSize);
+    Atom *atoms_h = (Atom *)malloc(atomSize);
+    Bond *bonds_h = (Bond *)malloc(bondSize);
+    Angle *angles_h = (Angle *)malloc(angleSize);
+    Dihedral *dihedrals_h = (Dihedral *)malloc(dihedralSize);
+    Hop *hops_h = (Hop *)malloc(hopSize);
 
-    atoms = (Atom *)malloc(sizeof(Atom) * numOfMolecules * maxAtoms);
-    bonds = (Bond *)malloc(sizeof(Bond) * numOfMolecules * maxBonds);
-    angles = (Angle *)malloc(sizeof(Angle) * numOfMolecules * maxAngles);
-    dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * numOfMolecules * maxDihedrals);
-    hops = (Hop *)malloc(sizeof(Hop) * numOfMolecules * maxHops);
-    
-    //Places the elements in the 2d arrays
     int atomIndex = 0;
     int bondIndex = 0;
     int angleIndex = 0;
     int dihedralIndex = 0;
     int hopIndex = 0;
-
-    //this can easily be optimized.  More focused on getting it right
+    
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molec_h[i];
+        //Create device molecule
+        DeviceMolecule dm = createDeviceMolecule(m.id, atomIndex, m.numOfAtoms,
+                bondIndex, m.numOfBonds, angleIndex, m.numOfAngles,
+                dihedralIndex, m.numOfDihedrals, hopIndex, m.numOfHops);
+        dMolec_h[i] = dm;
 
-        //assign atoms in molecule i
-        for(int j = 0; j < maxAtoms; j++){
-            if(j < m.numOfAtoms)
-                atoms[atomIndex] = m.atoms[j];
+        //assign atoms
+        for(int j = 0; j < m.numOfAtoms; j++){
+            atoms_h[atomIndex] = m.atoms[j];
             atomIndex++;
         }
 
-        //assign bonds in molecule i
-        for(int j = 0; j < maxBonds; j++){
-            if(j < m.numOfBonds)
-                bonds[bondIndex] = m.bonds[j];
+        //assign bonds
+        for(int j = 0; j < m.numOfBonds; j++){
+            bonds_h[bondIndex] = m.bonds[j];
             bondIndex++;
         }
-
-        //assign angles in molecule i
-        for(int j = 0; j < maxAngles; j++){
-            if(j < m.numOfAngles)
-                angles[angleIndex] = m.angles[j];
+        
+        //assign angles
+        for(int j = 0; j < m.numOfAngles; j++){
+            angles_h[angleIndex] = m.angles[j];
             angleIndex++;
         }
-
-        //assign dihedrals in molecule i
-        for(int j = 0; j < maxDihedrals; j++){
-            if(j < m.numOfDihedrals)
-                dihedrals[dihedralIndex] = m.dihedrals[j];
+        
+        //assign dihedrals
+        for(int j = 0; j < m.numOfDihedrals; j++){
+            dihedrals_h[dihedralIndex] = m.dihedrals[j];
             dihedralIndex++;
         }
 
-        //assign hops in molecule i
-        for(int j = 0; j < maxHops; j++){
-            if(j < m.numOfHops)
-                hops[hopIndex] = m.hops[j];
+        //assing hops
+        for(int j = 0; j < m.numOfHops; j++){
+            hops_h[hopIndex] = m.hops[j];
             hopIndex++;
         }
 
     }
-    int blocks = numOfMolecules/ THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1); 
-    assignArrays<<<blocks, THREADS_PER_BLOCK>>>(molec_d, atoms, bonds, angles, dihedrals, hops,
-            numOfMolecules, maxAtoms, maxBonds, maxAngles, maxDihedrals, maxHops);
 
-    free(angles);
-    free(atoms);
-    free(bonds);
-    free(dihedrals);
-    free(hops);
+    //transfer data
+    cudaMemcpy(molec_d, dMolec_h, molecSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(atoms_d, atoms_h, atomSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(bonds_d, bonds_h, bondSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(angles_d, angles_h, angleSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(dihedrals_d, dihedrals_h, dihedralSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(hops_d, hops_h, hopSize, cudaMemcpyHostToDevice);
+
+    free(dMolec_h);
+    free(atoms_h);
+    free(bonds_h);
+    free(angles_h);
+    free(dihedrals_h);
+    free(hops_h);
 }
 
-void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *molec_d, int numOfMolecules){
-    size_t moleculeSize = sizeof(Molecule) * numOfMolecules;
-    //Used to get addresses for arrays in molec_d b/c it cannot be accessed directly
-    Molecule *tempMolecule;
-    tempMolecule = (Molecule*)malloc(moleculeSize);
-    cudaMemcpy(tempMolecule, molec_d, moleculeSize, cudaMemcpyDeviceToHost);
+void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
+        int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d){
 
-    for(int i = 0; i < numOfMolecules; i++){
-
-        //atoms
-        size_t atomSize = sizeof(Atom) * molec_h[i].numOfAtoms;
-        //bonds
-        size_t bondSize = sizeof(Bond) * molec_h[i].numOfBonds;
-        //angles
-        size_t angleSize = sizeof(Angle) * molec_h[i].numOfAngles;
-        //dihedrals
-        size_t dihedralSize = sizeof(Dihedral) * molec_h[i].numOfDihedrals;
-        //hops
-        size_t hopSize = sizeof(Hop) * molec_h[i].numOfHops;
-      
-        printf("tempMolec.numOfAtoms = %d\n", tempMolecule[i].numOfAtoms);
-        printf("tempMolec.numOfBonds = %d\n", tempMolecule[i].numOfBonds);
-        printf("tempMolec.numOfAngles = %d\n", tempMolecule[i].numOfAngles);
-        printf("tempMolec.numOfDihedrals = %d\n", tempMolecule[i].numOfDihedrals);
-        printf("tempMolec.numOfHops = %d\n", tempMolecule[i].numOfHops);
-
-        cudaMemcpy(molec_h[i].atoms, tempMolecule[i].atoms, atomSize, cudaMemcpyDeviceToHost);
-        cudaMemcpy(molec_h[i].bonds, tempMolecule[i].bonds, bondSize, cudaMemcpyDeviceToHost);
-        cudaMemcpy(molec_h[i].angles, tempMolecule[i].angles, angleSize, cudaMemcpyDeviceToHost);
-        cudaMemcpy(molec_h[i].dihedrals, tempMolecule[i].dihedrals, dihedralSize, cudaMemcpyDeviceToHost);
-        cudaMemcpy(molec_h[i].hops, tempMolecule[i].hops, hopSize, cudaMemcpyDeviceToHost);
-        
-        molec_h[i].id = tempMolecule[i].id;
-        molec_h[i].numOfAtoms = tempMolecule[i].numOfAtoms;
-        molec_h[i].numOfBonds = tempMolecule[i].numOfBonds;
-        molec_h[i].numOfAngles = tempMolecule[i].numOfAngles;
-        molec_h[i].numOfDihedrals = tempMolecule[i].numOfDihedrals;
-        molec_h[i].numOfHops = tempMolecule[i].numOfHops;
-
-    }
 }
 
-void freeMoleculeOnDevice(Molecule *molec, int numOfMolecules){
-    int blocks = numOfMolecules / THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1);
-    freeArrays<<<blocks, THREADS_PER_BLOCK>>>(molec, numOfMolecules);
+
+void freeMoleculeOnDevice(DeviceMolecule *molec_d,
+        Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d){
     
-    cudaFree(molec);
 }
 
 //Allocates needed memory for the molecule on the device
-Molecule *allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules){
-    //molecule
-    //Used to get addresses for arrays in molec_d b/c it cannot be accessed directly
-    size_t moleculeSize = sizeof(Molecule) * numOfMolecules;
-    printf("%d\n", molec_d);
-    cudaMalloc((void**)&molec_d, moleculeSize);
-    printf("%d\n", molec_d);
-    cudaMemcpy(molec_d, molec_h, moleculeSize, cudaMemcpyHostToDevice);
-    
-    int blocks = numOfMolecules/ THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1); 
-    allocateArrays<<<blocks, THREADS_PER_BLOCK>>>(molec_d, numOfMolecules); 
-    return molec_d;
+void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
+        int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d){
+    //find the total size of the smaller arrays;
+    int atomCount = 0;
+    int bondCount = 0;
+    int angleCount = 0;
+    int dihedralCount = 0;
+    int hopCount = 0;
+    for(int i = 0; i < numOfMolecules; i++){
+        Molecule m = molec_h[i];
+        
+        atomCount += m.numOfAtoms;
+        bondCount += m.numOfBonds;
+        angleCount += m.numOfAngles;
+        dihedralCount += m.numOfDihedrals;
+        hopCount += m.numOfHops;
+
+    }
+    //find the size of each array
+    size_t molecSize = sizeof(DeviceMolecule) * numOfMolecules;
+    size_t atomSize = sizeof(Atom) * atomCount;
+    size_t bondSize = sizeof(Bond) * bondCount;
+    size_t angleSize = sizeof(Angle) * angleCount;
+    size_t dihedralSize = sizeof(Dihedral) * dihedralCount;
+    size_t hopSize = sizeof(Hop) * hopCount;
+
+    cudaMalloc((void **) &molec_d, molecSize);
+    cudaMalloc((void **) &atoms_d, atomSize);
+    cudaMalloc((void **) &bonds_d, bondSize);
+    cudaMalloc((void **) &angles_d, angleSize);
+    cudaMalloc((void **) &dihedrals_d, dihedralSize);
+    cudaMalloc((void **) &hops_d, hopSize);
 }
 __global__ void freeArrays(Molecule *molecules, int numOfMolecules){
     int idx = threadIdx.x + blockIdx.x * blockDim.x;

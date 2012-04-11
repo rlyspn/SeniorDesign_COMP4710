@@ -14,6 +14,42 @@
 #define THREADS_PER_BLOCK 128
 #define PI 3.14159265
 
+struct DeviceMolecule{
+    int id;
+
+    int atomStart; // the start index in the molecules atoms.  id = atomStart.
+    int numOfAtoms;
+
+    int bondStart;
+    int numOfBonds;
+    
+    int angleStart;
+    int numOfAngles;
+
+    int dihedralStart;
+    int numOfDihedrals;
+
+    int hopStart;
+    int numOfHops;
+};
+
+/**
+  Creates an instance of the device molecule structure.
+  @param id - the molecules id
+  @param atomStart - the first index of this molecules atom in the atom array.
+  @param numOfAtoms - the number of atoms in this molecule.
+  @param bondStart - this molecule's first index in the bond array
+  @param numOfBonds - the number of bonds in this atom.
+  @param angleStart - this molecule's first angle in the array of angles
+  @param numOfAngles - the number of angles in this molecule
+  @param dihedralStart - this molecule's first dihedral in the dihedral array.
+  @param numOfDihedrals - the number of dihedrals in this molecule
+  @param hopStart - this molecule's first hop in the hop array.
+  @param numOfHops - the number of hops in this molecule.
+*/
+DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
+        int bondStart, int numOfBonds, int angleStart, int numOfAngles,
+        int dihedralStart, int numOfDihedrals, int hopStart, int numOfHops); 
 
 /**
   @param idx - the index in the 1 dimensional array of energies
@@ -225,17 +261,23 @@ double solventSolventTotalEnergy();
 double soluteSolventTotalEnergy();
 
 /**
-    --It might be better if we make a create atom on device that
-    does all of the memory allocation and then make this file
-    only transfer data.
 
   Deep copies an array of molecules from the host to the device.
   Assumes that the memory on the device has been allocated.
   @param molec_d - pointer on the device to contain an array of molecules.
   @param molec_h - pointer to the host array of molecules to be copied to the device.
   @param numOfMolecules - the number of molecules in the array
+
+  ====All arrays below are allocated on the device.===
+  @param atoms_d - array of atoms as long as the total number of atoms.
+  @param bonds_d - array of bonds as long as the total number of bonds.
+  @param angles_d - array of angles as long as the total number of angles.
+  @param dihedrals_d - array of dihedrals as long as the total number of dihedrals
+  @param hops_d - array of hops as long as the total number of hops.
 */
-void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
+void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
+        int numOfMolecules, Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d);
 
 /**Deep copies an array of molecules from the device to the host.
   Assumes that the memory on the host has already been correctly allocated.
@@ -243,13 +285,17 @@ void moleculeDeepCopyToDevice(Molecule *molec_d, Molecule *molec_h, int numOfMol
   @param molec_d - pointer to the host array of molecules to be copied from the device to the host.
   @param numOfMolecules - the number of molecules in the array
 */
-void moleculeDeepCopyToHost(Molecule *molec_h, Molecule *moelc_d, int numOfMolecules);
+void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
+        int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d);
 
 /**
   Frees all of the memory associated with the molecule on the device.
   @param - molec - the memory to be freed by the function.
 */
-void freeMoleculeOnDevice(Molecule *molec);
+void freeMoleculeOnDevice(DeviceMolecule *molec_d,
+        Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d);
 
 /**
   Allocates neccesary memory for an array of molecules.
@@ -260,7 +306,9 @@ void freeMoleculeOnDevice(Molecule *molec);
   mallocation
   @param numOfMolecules - the number of molecules to be allocated.
 */
-Molecule *allocateOnDevice(Molecule *molec_d, Molecule *molec_h, int numOfMolecules);
+void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
+        int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
+        Dihedral *dihedrals_d, Hop *hops_d);
 
 /**
   @param molecules - the array of molecules to be freed.
