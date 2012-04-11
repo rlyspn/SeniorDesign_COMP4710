@@ -377,14 +377,14 @@ void testCalcEnergyWithMolecules(){
     // the epsilon value of nitrogen
     double nEpsilon = 0.17;
     // charge of nitrogen
-    double nCharge = 800000.324234;
+    double nCharge = -0.850;
 
     // the sigma value of krypton used in the LJ simulation
     double kryptonSigma = 3.624;
     // the epsilon value of krypton used in the LJ simulation
     double kryptonEpsilon = 0.317;
     // charge of krypton
-    double kryptonCharge = -3324334.34223;
+    double kryptonCharge = 0.0;
 
     struct timeval le_tvBegin, le_tvEnd, pl_tvBegin, pl_tvEnd;
 
@@ -428,7 +428,7 @@ void testCalcEnergyWithMolecules(){
     //calculate energy linearly
     gettimeofday(&le_tvBegin,NULL); //start clock for execution time
 
-    double te_linear = calculate_energy(atoms, enviro);
+    double te_linear = calculate_energy(atoms, enviro, molecules);
 
     gettimeofday(&le_tvEnd,NULL); //stop clock for execution time
     long le_runTime = timevaldiff(&le_tvBegin,&le_tvEnd); //get difference in time in milli seconds
@@ -867,7 +867,7 @@ void testCalcChargeWrapper(){
 int main(){
     testAllocateMemory();
     testCopyMolecules();
-   /* 
+    /*
     testKeepMoleculeInBox();
     testFreeMemory();
     testRotateMolecule();
@@ -880,7 +880,7 @@ int main(){
     setupMakePeriodic();
     testGeneratePoints();
     testCalcEnergy();
-    testCalcEnergyWithMolecules();
+    testCalcEnergyWithMolecules(); //TODO: Rewrite this test, does not put hops into molecules and therefore does not work properly.
     */
     return 0;
 }

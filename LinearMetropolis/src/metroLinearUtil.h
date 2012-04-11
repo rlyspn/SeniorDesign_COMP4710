@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <math.h>
 #include "../../Utilities/src/metroUtil.h"
-#include "../test/baseTests.h"
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
 #define PI 3.14159265358979323

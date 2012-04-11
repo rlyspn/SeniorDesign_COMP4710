@@ -325,17 +325,22 @@ double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *env
     
     if(m1->id != m2->id)
         return 1.0;
-    else if( hopGE3(atom1->id, atom2->id, m1) == 1)
-		  return 0.5;
-	 else
-		  return 0.0;
+    else{
+        int hops = hopGE3(atom1->id, atom2->id, m1);
+        if (hops == 3)
+            return 0.5;
+        else if (hops > 3)
+            return 1.0;
+        else
+            return 0.0;
+    }
 }
 
 int hopGE3(int atom1, int atom2, Molecule *molecule){
     for(int x=0; x< molecule->numOfHops; x++){
         Hop *myHop = &(molecule->hops[x]);
 		if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
-            return 1;
+            return myHop->hop;
         }
 	}
 	 return 0;

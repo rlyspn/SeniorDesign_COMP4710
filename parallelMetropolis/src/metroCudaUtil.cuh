@@ -144,7 +144,7 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
 
 /**
   Return if the two atom ids are have a hop value >=3
-  returns 1 if true and 0 if false
+  returns hop distance if true and 0 if false
   @param atom1 - the id of the starting atom
   @param atom2 - the id of the ending atom
   @param molecule - the molecule that contains atom1 and atom 2
@@ -171,7 +171,7 @@ double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *e
 
 /**
   Return if the two atom ids are have a hop value >=3
-  returns 1 if true and 0 if false (on host)
+  returns hop distance if true and 0 if false (on host)
   @param atom1 - the id of the starting atom
   @param atom2 - the id of the ending atom
   @param molecule - the molecule that contains atom1 and atom 2
