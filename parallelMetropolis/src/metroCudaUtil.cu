@@ -717,7 +717,9 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
         DeviceMolecule dm = createDeviceMolecule(m.id, atomIndex, m.numOfAtoms,
                 bondIndex, m.numOfBonds, angleIndex, m.numOfAngles,
                 dihedralIndex, m.numOfDihedrals, hopIndex, m.numOfHops);
+        printf("ID = %d\n", m.id);
         dMolec_h[i] = dm;
+        printf("DMID = %d\n", dMolec_h[i].id);
 
         //assign atoms
         for(int j = 0; j < m.numOfAtoms; j++){
@@ -758,7 +760,7 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     cudaMemcpy(angles_d, angles_h, angleSize, cudaMemcpyHostToDevice);
     cudaMemcpy(dihedrals_d, dihedrals_h, dihedralSize, cudaMemcpyHostToDevice);
     cudaMemcpy(hops_d, hops_h, hopSize, cudaMemcpyHostToDevice);
-
+   
     free(dMolec_h);
     free(atoms_h);
     free(bonds_h);
@@ -770,7 +772,83 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
 void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d){
+   
+    size_t molecSize = sizeof(DeviceMolecule) * numOfMolecules;
+    DeviceMolecule *dMolec_h = (DeviceMolecule *)malloc(molecSize);
+    cudaMemcpy(dMolec_h, molec_d, molecSize, cudaMemcpyDeviceToHost);
 
+    int atomCount = 0;
+    int bondCount = 0;
+    int angleCount = 0;
+    int dihedralCount = 0;
+    int hopCount = 0;
+
+    for(int i = 0; i < numOfMolecules; i++){
+        DeviceMolecule m = dMolec_h[i];
+
+        molec_h[i].id = m.id;
+        molec_h[i].numOfAtoms = m.numOfAtoms;
+        molec_h[i].numOfBonds = m.numOfBonds;
+        molec_h[i].numOfAngles = m.numOfAngles;
+        molec_h[i].numOfDihedrals = m.numOfDihedrals;
+        molec_h[i].numOfHops = m.numOfHops;
+
+        atomCount += m.numOfAtoms;
+        bondCount += m.numOfBonds;
+        angleCount += m.numOfAngles;
+        dihedralCount += m.numOfDihedrals;
+        hopCount += m.numOfHops;
+    }
+    size_t atomSize = sizeof(Atom) * atomCount;
+    size_t bondSize = sizeof(Bond) * bondCount;
+    size_t angleSize = sizeof(Angle) * angleCount;
+    size_t dihedralSize = sizeof(Dihedral) * dihedralCount;
+    size_t hopSize = sizeof(Hop) * hopCount;
+    
+    Atom *atoms_h = (Atom *)malloc(atomSize);
+    Bond *bonds_h = (Bond *)malloc(bondSize);
+    Angle *angles_h = (Angle *)malloc(angleSize);
+    Dihedral *dihedrals_h = (Dihedral *)malloc(dihedralSize);
+    Hop *hops_h = (Hop *)malloc(hopSize);
+
+    cudaMemcpy(atoms_h, atoms_d, atomSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(bonds_h, bonds_d, bondSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(angles_h, angles_d, angleSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(dihedrals_h, dihedrals_d, dihedralSize, cudaMemcpyDeviceToHost);
+    cudaMemcpy(hops_h, hops_d, hopSize, cudaMemcpyDeviceToHost);
+
+
+    for(int i = 0; i < numOfMolecules; i++){
+        DeviceMolecule dm = dMolec_h[i];
+        Molecule m = molec_h[0];
+        //atoms
+        for(int j = 0; j < m.numOfAtoms; j++){
+            m.atoms[j] = atoms_h[j + dm.atomStart];
+        }
+
+        //bonds
+        for(int j = 0; j < m.numOfBonds; j++){
+            m.bonds[j] = bonds_h[j + dm.bondStart];
+        }
+        //angles
+        for(int j = 0; j < m.numOfAngles; j++){
+            m.angles[j] = angles_h[j + dm.angleStart];
+        }
+        //dihedrals
+        for(int j = 0; j < m.numOfDihedrals; j++){
+            m.dihedrals[j] = dihedrals_h[j + dm.dihedralStart];
+        }
+        //hops
+        for(int j = 0; j < m.numOfHops; j++){
+            m.hops[j] = hops_h[j + dm.hopStart];
+        }
+    }
+    
+    free(atoms_h);
+    free(bonds_h);
+    free(angles_h);
+    free(dihedrals_h);
+    free(hops_h);
 }
 
 
