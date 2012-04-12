@@ -58,7 +58,7 @@ void testCopyMolecules(){
         m.hops[0] = createHop(1,2,1);
         m.hops[1] = createHop(2,3,1);
         
-        m.id = i + 1;
+        m.id = i + 57;
         m.numOfAtoms = atomCount;
         m.numOfBonds = bondCount;
         m.numOfAngles = angleCount;
@@ -91,37 +91,10 @@ void testCopyMolecules(){
     moleculeDeepCopyToHost(copiedMolecs, molec_d, numOfMolecules, atoms_d, bonds_d,
             angles_d, dihedrals_d, hops_d);
 
-    for(int i = 0; i < 1; i++){
-        Molecule m = copiedMolecs[i];
-        
-        printf("id = %d", m.id);
-        printf("numOfAtoms = %d\n", m.numOfAtoms);
-        printf("numOfBonds = %d\n", m.numOfBonds);
-        printf("numOfAngles =%d\n", m.numOfAngles);
-        printf("numOfDihedrals = %d\n", m.numOfDihedrals);
-        printf("numOfHops = %d\n", m.numOfHops);
-    
-    
-    }
-    /**
-    DeviceMolecule *copiedDM = (DeviceMolecule *)malloc(deviceMolecSize);
-    Atom *copiedAtoms = (Atom *)malloc(atomSize);
-    Bond *copiedBonds = (Bond *)malloc(bondSize);
-    Angle *copiedAngles = (Angle *)malloc(angleSize);
-    Dihedral *copiedDihedrals = (Dihedral *)malloc(dihedralSize);
-    Hop *copiedHops = (Hop *)malloc(hopSize);
-    
-    
-    cudaMemcpy(copiedDM, molec_d, deviceMolecSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(copiedAtoms, atoms_d, atomSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(copiedBonds, bonds_d, bondSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(copiedAngles, angles_d, angleSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(copiedDihedrals, dihedrals_d, dihedralSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(copiedHops, hops_d, hopSize, cudaMemcpyDeviceToHost);
-
+    printf("Testing molecules.\n");
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molecs[i];
-        DeviceMolecule dm = copiedDM[i];
+        Molecule dm = copiedMolecs[i];
         
         printf("id = %d, %d\n", dm.id, m.id);
         printf("numOfAtoms = %d, %d\n", dm.numOfAtoms, m.numOfAtoms);
@@ -138,7 +111,7 @@ void testCopyMolecules(){
     }
 
     printf("Testing atoms.\n");
-
+/*
     int atomIndex = 0;
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molecs[i];

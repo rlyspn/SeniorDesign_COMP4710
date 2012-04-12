@@ -714,12 +714,9 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molec_h[i];
         //Create device molecule
-        DeviceMolecule dm = createDeviceMolecule(m.id, atomIndex, m.numOfAtoms,
+        dMolec_h[i] = createDeviceMolecule(m.id, atomIndex, m.numOfAtoms,
                 bondIndex, m.numOfBonds, angleIndex, m.numOfAngles,
                 dihedralIndex, m.numOfDihedrals, hopIndex, m.numOfHops);
-        printf("ID = %d\n", m.id);
-        dMolec_h[i] = dm;
-        printf("DMID = %d\n", dMolec_h[i].id);
 
         //assign atoms
         for(int j = 0; j < m.numOfAtoms; j++){
@@ -750,10 +747,10 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
             hops_h[hopIndex] = m.hops[j];
             hopIndex++;
         }
-
     }
 
     //transfer data
+    printf("Before copy ID = %d\n", dMolec_h[0].id);
     cudaMemcpy(molec_d, dMolec_h, molecSize, cudaMemcpyHostToDevice);
     cudaMemcpy(atoms_d, atoms_h, atomSize, cudaMemcpyHostToDevice);
     cudaMemcpy(bonds_d, bonds_h, bondSize, cudaMemcpyHostToDevice);
@@ -787,6 +784,7 @@ void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
         DeviceMolecule m = dMolec_h[i];
 
         molec_h[i].id = m.id;
+        printf("ID = %d\n", m.id);
         molec_h[i].numOfAtoms = m.numOfAtoms;
         molec_h[i].numOfBonds = m.numOfBonds;
         molec_h[i].numOfAngles = m.numOfAngles;
