@@ -753,7 +753,8 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
 
     //transfer data
     printf("Before copy ID = %d\n", dMolec_h[0].id);
-    printf("atom id = %d\n", atoms_h[0].x);
+    printf("atom id = %d\n", atoms_h[0].id);
+    printf("atom x = %f\n", atoms_h[0].x);
     printf("Bond atom1 = %d\n", bonds_h[0].atom1);
     printf("Angle atom1 = %d\n", angles_h[0].atom1);
     printf("Dihedral atom1 = %d\n", dihedrals_h[0].atom1);

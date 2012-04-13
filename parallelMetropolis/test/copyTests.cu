@@ -66,6 +66,8 @@ void testCopyMolecules(){
         m.numOfHops = hopCount;
 
         molecs[i] = m;
+        printf("Molecule: %d\n", i);
+        printMolecule(&molecs[i]);
     }
 
     printf("Testing deep copy to device.\n");
@@ -94,8 +96,11 @@ void testCopyMolecules(){
     allocateOnDevice(molecs, molec_d, numOfMolecules, atoms_d, bonds_d, 
            angles_d, dihedrals_d, hops_d);
 
+    printf("molecs[0].atoms[0].x = %f\n", molecs[0].atoms[0].x);
+
     moleculeDeepCopyToDevice(molec_d, molecs, numOfMolecules, atoms_d,
             bonds_d, angles_d, dihedrals_d, hops_d);
+
     moleculeDeepCopyToHost(copiedMolecs, molec_d, numOfMolecules, atoms_d, bonds_d,
             angles_d, dihedrals_d, hops_d);
 
@@ -117,8 +122,8 @@ void testCopyMolecules(){
         assert(dm.numOfDihedrals == m.numOfDihedrals);
         assert(dm.numOfHops == m.numOfHops);
         
-        /*printf("Atoms: \n");
-        for(int j = 0; j < dm.numOfAtoms; i++){
+        printf("Atoms: \n");
+        for(int j = 0; j < copiedMolecs[i].numOfAtoms; j++){
             Atom a1 = copiedMolecs[i].atoms[j];
             Atom a2 = molecs[i].atoms[j];
             printf("id = %d, %d\n", a1.id, a2.id);
@@ -126,7 +131,16 @@ void testCopyMolecules(){
             printf("y = %f, %f\n", a1.y, a2.y);
             printf("z = %f, %f\n", a1.z, a2.z);
 
-        }*/
+        }
+        printf("Bonds: \n");
+        for(int j = 0; j < copiedMolecs[i].numOfBonds; j++){
+            Bond a1 = copiedMolecs[i].bonds[j];
+            Bond a2 = molecs[i].bonds[j];
+            printf("atom1 = %f, %f\n", a1.atom1, a2.atom1);
+            printf("atom2 = %f, %f\n", a1.atom2, a2.atom2);
+            printf("distance = %f, %f\n", a1.distance, a2.distance);
+
+        }
 
     }
 
