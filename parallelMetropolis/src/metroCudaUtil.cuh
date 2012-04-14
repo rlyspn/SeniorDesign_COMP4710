@@ -14,6 +14,8 @@
 #define THREADS_PER_BLOCK 128
 #define PI 3.14159265
 
+#define cudaErrorCheck(call) { cudaAssert(call,__FILE__,__LINE__); }
+
 struct DeviceMolecule{
     int id;
 
@@ -32,6 +34,14 @@ struct DeviceMolecule{
     int hopStart;
     int numOfHops;
 };
+
+/**
+    Returns error code for cuda calls
+    @param err - error code
+    @param file - source file name
+    @param line - line in source
+*/
+void cudaAssert(const cudaError err, const char *file, const int line);
 
 /**
   Creates an instance of the device molecule structure.
