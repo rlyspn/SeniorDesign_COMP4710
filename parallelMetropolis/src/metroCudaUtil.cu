@@ -318,7 +318,50 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     cudaErrorCheck(cudaMemcpy(atoms_device, atoms, atomSize, cudaMemcpyHostToDevice));
     cudaErrorCheck(cudaMemcpy(enviro_device, enviro, sizeof(Environment), cudaMemcpyHostToDevice));
 
-    calcEnergy <<<blocks, THREADS_PER_BLOCK>>>(atoms_device, enviro_device, energySum_device);
+    if (molecules != NULL){
+        int bondCount = 0;
+        int angleCount = 0;
+        int dihedralCount = 0;
+        int hopCount = 0;
+        for (int i = 0; i < enviro->numOfMolecules; i++){
+            bondCount += molecules[i].numOfBonds;
+            angleCount += molecules[i].numOfAngles;
+            dihedralCount += molecules[i].numOfDihedrals;
+            hopCount += molecules[i].numOfHops;
+        }
+
+        size_t dMolecSize = sizeof(DeviceMolecule) * enviro->numOfMolecules;
+        size_t bondSize = sizeof(Bond) * bondCount;
+        size_t angleSize = sizeof(Angle) * angleCount;
+        size_t dihedralSize = sizeof(Dihedral) * dihedralCount;
+        size_t hopSize = sizeof(Hop) * hopCount;
+        
+        DeviceMolecule *molec_d;
+        Bond *bonds_d;
+        Angle *angles_d;
+        Dihedral *dihedrals_d;
+        Hop *hops_d;
+        
+        cudaMalloc((void **) &molec_d, dMolecSize);
+        cudaMalloc((void **) &bonds_d, bondSize);
+        cudaMalloc((void **) &angles_d, angleSize);
+        cudaMalloc((void **) &dihedrals_d, dihedralSize);
+        cudaMalloc((void **) &hops_d, hopSize);
+
+
+        moleculeDeepCopyToDevice(molec_d, molecules, enviro->numOfMolecules, atoms_device, bonds_d, angles_d, dihedrals_d, hops_d);
+
+        calcEnergy <<<blocks, THREADS_PER_BLOCK>>>(atoms_device, enviro_device, energySum_device, molec_d, hops_d);
+
+    cudaFree(molec_d);
+    cudaFree(bonds_d);
+    cudaFree(angles_d);
+    cudaFree(dihedrals_d);
+    cudaFree(hops_d);    
+    }
+    else{
+        calcEnergy <<<blocks, THREADS_PER_BLOCK>>>(atoms_device, enviro_device, energySum_device);
+    }
     
     cudaErrorCheck(cudaMemcpy(energySum_host, energySum_device, energySumSize, cudaMemcpyDeviceToHost));
 
@@ -332,15 +375,15 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         int atomYid =  i - (atomXid * atomXid - atomXid) / 2;
 
         if (isnan(energySum_host[i]) != 0 || isinf(energySum_host[i]) != 0){
-            energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro);
+            energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro, molecules);
         }
         
         //cout << "EnergySum[" << i << "]: " << energySum_host[i] << " (before)" << endl;
-        
+       /* 
         if (molecules != NULL){
             energySum_host[i] = energySum_host[i] * getFValueHost(atoms[atomXid], atoms[atomYid], molecules, enviro); 
         }
-        
+        */
         //cout << "EnergySum[" << i << "]: " << energySum_host[i] << " (after)" << endl;
         totalEnergy += energySum_host[i];
         //cout << "totalEnergy: " << totalEnergy << endl;
@@ -355,7 +398,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     return totalEnergy;
 }
 
-double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
+double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *molecules){
     const double e = 332.06;
 
     double sigma = sqrt(atom1.sigma * atom2.sigma);
@@ -387,11 +430,16 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro){
         charge_energy = 0.0;
     }
 
-    return (lj_energy + charge_energy);
+    double fValue = 1.0;
+
+    if (molecules != NULL)
+        fValue = getFValueHost(atom1, atom2, molecules, enviro);
+
+    return fValue * (lj_energy + charge_energy);
 
 }
 
-__global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
+__global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, DeviceMolecule *dev_molecules, Hop *hops){
 
 //need to figure out how many threads per block will be executed
 // must be a power of 2
@@ -420,7 +468,10 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         else{
             lj_energy = calc_lj(xAtom,yAtom,*enviro);
             charge_energy = calcCharge(xAtom, yAtom, enviro);
-            fValue = 1.0; //TODO: Fix after fValue calculation is moved to device
+            double fValue = 1.0;
+            if (dev_molecules != NULL){
+                
+            }
             
             energySum[idx] = fValue * (lj_energy + charge_energy);
         }
@@ -450,7 +501,6 @@ energySum[blockIdx.x] = cache[0];
 */
 
 }
-
 __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
     const double e = 332.06;
  
@@ -484,29 +534,21 @@ __device__ double calcBlending(double d1, double d2){
 }
 
 //returns the molecule that contains a given atom
-__device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro){
+__device__ int getMoleculeFromAtomID(Atom a1, DeviceMolecule *dev_molecules, Environment enviro){
     int atomId = a1.id;
     int currentIndex = enviro.numOfMolecules - 1;
-    int molecId = molecules[currentIndex].id;
+    int molecId = dev_molecules[currentIndex].id;
     while(atomId < molecId && currentIndex > 0){
         currentIndex -= 1;
-        molecId = molecules[currentIndex].id;
+        molecId = dev_molecules[currentIndex].id;
     }
     return molecId;
 
 }
 
-__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro){
-    int m1 = getMoleculeFromAtomID(atom1, molecules, *enviro);
-    int m2 = getMoleculeFromAtomID(atom2, molecules, *enviro);
-    Molecule molec = molecules[0];
-    for(int i = 0; i < enviro->numOfMolecules; i++){
-        if(molecules[i].id == m1){
-            molec = molecules[i];
-            break;
-        }
-    }
-
+__device__ double getFValue(Atom atom1, Atom atom2, DeviceMolecule *dev_molecules, Environment *enviro, Hop *hops){
+    int m1 = getMoleculeFromAtomID(atom1, dev_molecules, *enviro);
+    int m2 = getMoleculeFromAtomID(atom2, dev_molecules, *enviro);
     if(m1 != m2)
         return 1.0;
 	/**
@@ -516,21 +558,27 @@ __device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environ
       to look into it in the future.
     */
     else{
-        int hops = hopGE3(atom1.id, atom2.id, molecules[m1]);
-        if (hops == 3)
+        size_t molecHopSize = sizeof(Hop) * dev_molecules[m1].numOfHops;
+        Hop *molecHops = (Hop *)malloc(molecHopSize);
+        int hopStart = dev_molecules[m1].hopStart;
+        for (int i = 0; i < dev_molecules[m1].numOfHops; i++){
+            molecHops[i] = hops[hopStart + i];
+        }
+        int hopChain = hopGE3(atom1.id, atom2.id, dev_molecules[m1], molecHops);
+        if (hopChain == 3)
             return 0.5;
-        else if (hops > 3)
+        else if (hopChain > 3)
             return 1.0;
         else
             return 0.0;
     } 
 }
 
-__device__ int hopGE3(int atom1, int atom2, Molecule molecule){
-    for(int x=0; x< molecule.numOfHops; x++){
-		      Hop myHop = molecule.hops[x];
-				if((myHop.atom1==atom1 && myHop.atom2==atom2) || (myHop.atom1==atom2 && myHop.atom2==atom1))
-				    return myHop.hop;
+__device__ int hopGE3(int atom1, int atom2, DeviceMolecule dev_molecule, Hop *molecule_hops){
+    for(int x=0; x< dev_molecule.numOfHops; x++){
+	    Hop myHop = molecule_hops[x];
+	    if((myHop.atom1==atom1 && myHop.atom2==atom2) || (myHop.atom1==atom2 && myHop.atom2==atom1))
+	        return myHop.hop;
 	 }
 	 return 0;
 }
@@ -721,7 +769,6 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     int angleIndex = 0;
     int dihedralIndex = 0;
     int hopIndex = 0;
-    printf("Creating large arrays.\n");
     //split fields into their own arrays
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molec_h[i];
@@ -729,55 +776,34 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
         dMolec_h[i] = createDeviceMolecule(m.id, atomIndex, m.numOfAtoms,
                 bondIndex, m.numOfBonds, angleIndex, m.numOfAngles,
                 dihedralIndex, m.numOfDihedrals, hopIndex, m.numOfHops);
-        printf("--Molecule %d--\n", dMolec_h[i].id);
-        printf("numOfAtoms: %d\n", m.numOfAtoms);
-        printf("numOfBonds: %d\n", m.numOfBonds);
-        printf("numOfAngles: %d\n", m.numOfAngles);
-        printf("numOfDihedrals: %d\n", m.numOfDihedrals);
-        printf("numOfHops: %d\n", m.numOfHops);
         
         //assign atoms
-        printf("--Atoms--\n");
         for(int j = 0; j < m.numOfAtoms; j++){
             atoms_h[atomIndex] = m.atoms[j];
-            printf("atoms_h[%d]\n", atomIndex);
-            printf("id: %d | x: %f | y: %f | z: %f\n", atoms_h[atomIndex].id, atoms_h[atomIndex].x, atoms_h[atomIndex].y, atoms_h[atomIndex].z);
             atomIndex++;
         }
 
         //assign bonds
-        printf("--Bonds--\n");
         for(int j = 0; j < m.numOfBonds; j++){
             bonds_h[bondIndex] = m.bonds[j];
-            printf("bonds_h[%d]\n", bondIndex);
-            printf("atom1: %d | atom2: %d | distance: %f\n", bonds_h[bondIndex].atom1, bonds_h[bondIndex].atom2, bonds_h[bondIndex].distance);
             bondIndex++;
         }
         
         //assign angles
-        printf("--Angles--\n");
         for(int j = 0; j < m.numOfAngles; j++){
             angles_h[angleIndex] = m.angles[j];
-            printf("angles_h[%d]\n", angleIndex);
-            printf("atom1: %d | atom2: %d | value: %f\n", angles_h[angleIndex].atom1, angles_h[angleIndex].atom2, angles_h[angleIndex].value);
             angleIndex++;
         }
         
         //assign dihedrals
-        printf("--Dihedrals--\n");
         for(int j = 0; j < m.numOfDihedrals; j++){
             dihedrals_h[dihedralIndex] = m.dihedrals[j];
-            printf("dihedrals_h[%d]\n", dihedralIndex);
-            printf("atom1: %d | atom2: %d | value: %f\n", dihedrals_h[dihedralIndex].atom1, dihedrals_h[dihedralIndex].atom2, dihedrals_h[dihedralIndex].value);
             dihedralIndex++;
         }
 
         //assing hops
-        printf("--Hops--\n");
         for(int j = 0; j < m.numOfHops; j++){
             hops_h[hopIndex] = m.hops[j];
-            printf("hops_h[%d]\n", hopIndex);
-            printf("atom1: %d | atom2: %d | hop: %d\n", hops_h[hopIndex].atom1, hops_h[hopIndex].atom2, hops_h[hopIndex].hop);
             hopIndex++;
         }
     }
@@ -789,71 +815,13 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     cudaErrorCheck(cudaMemcpy(angles_d, angles_h, angleSize, cudaMemcpyHostToDevice));
     cudaErrorCheck(cudaMemcpy(dihedrals_d, dihedrals_h, dihedralSize, cudaMemcpyHostToDevice));
     cudaErrorCheck(cudaMemcpy(hops_d, hops_h, hopSize, cudaMemcpyHostToDevice));
- 
-    DeviceMolecule * tempDM = (DeviceMolecule *)malloc(molecSize);
-    Atom *tempA = (Atom *)malloc(atomSize);
-    Bond *tempB = (Bond *)malloc(bondSize);
-    Angle *tempAng = (Angle *)malloc(angleSize);
-    Dihedral *tempD = (Dihedral *)malloc(dihedralSize);
-    Hop *tempH = (Hop *)malloc(hopSize);
+
+    Molecule* returnMolecules_d;
+    size_t returnMolecSize = sizeof(Molecule) * numOfMolecules;
+    cudaMalloc((void **) &returnMolecules_d, returnMolecSize);
+
+    int blocks = numOfMolecules / THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1);
     
-    cudaMemcpy(tempDM, molec_d, molecSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(tempA, atoms_d, atomSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(tempB, bonds_d, bondSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(tempAng, angles_d, angleSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(tempD, dihedrals_d, dihedralSize, cudaMemcpyDeviceToHost);
-    cudaMemcpy(tempH, hops_d, hopSize, cudaMemcpyDeviceToHost);
-    
-    printf("Molecules Written Back.\n");
-    atomIndex = 0;
-    bondIndex = 0;
-    angleIndex = 0;
-    dihedralIndex = 0;
-    hopIndex = 0;
-    for(int i = 0; i < numOfMolecules; i++){
-        Molecule m = molec_h[i];
-        printf("--Molecule %d--\n", m.id);
-        printf("numOfAtoms: %d\n", m.numOfAtoms);
-        printf("numOfBonds: %d\n", m.numOfBonds);
-        printf("numOfAngles: %d\n", m.numOfAngles);
-        printf("numOfDihedrals: %d\n", m.numOfDihedrals);
-        printf("numOfHops: %d\n", m.numOfHops);
-        printf("--Atoms--\n");
-        for(int j = 0; j < m.numOfAtoms; j++){
-            printf("tempA[%d]\n", atomIndex);
-            printf("id: %d | x: %f | y: %f | z: %f\n", tempA[atomIndex].id, tempA[atomIndex].x, tempA[atomIndex].y, tempA[atomIndex].z);
-            atomIndex++;
-        }
-
-        printf("--Bonds--\n");
-        for(int j = 0; j < m.numOfBonds; j++){
-            printf("tempB[%d]\n", bondIndex);
-            printf("atom1: %d | atom2: %d | distance: %f\n", tempB[bondIndex].atom1, tempB[bondIndex].atom2, tempB[bondIndex].distance);
-            bondIndex++;
-        }
-        
-        printf("--Angles--\n");
-        for(int j = 0; j < m.numOfAngles; j++){
-            printf("tempAng[%d]\n", angleIndex);
-            printf("atom1: %d | atom2: %d | value: %f\n", tempAng[angleIndex].atom1, tempAng[angleIndex].atom2, tempAng[angleIndex].value);
-            angleIndex++;
-        }
-        
-        printf("--Dihedrals--\n");
-        for(int j = 0; j < m.numOfDihedrals; j++){
-            printf("tempD[%d]\n", dihedralIndex);
-            printf("atom1: %d | atom2: %d | value: %f\n", tempD[dihedralIndex].atom1, tempD[dihedralIndex].atom2, tempD[dihedralIndex].value);
-            dihedralIndex++;
-        }
-
-        printf("--Hops--\n");
-        for(int j = 0; j < m.numOfHops; j++){
-            printf("tempH[%d]\n", hopIndex);
-            printf("atom1: %d | atom2: %d | hop: %f\n", tempH[hopIndex].atom1, tempH[hopIndex].atom2, tempH[hopIndex].hop);
-            hopIndex++;
-        }
-    }
-
     free(dMolec_h);
     free(atoms_h);
     free(bonds_h);
@@ -880,14 +848,12 @@ void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
         DeviceMolecule m = dMolec_h[i];
 
         //assign correct fields
-        printf("ID = %d\n", molec_h[i].id);
         molec_h[i].id = m.id;
         molec_h[i].numOfAtoms = m.numOfAtoms;
         molec_h[i].numOfBonds = m.numOfBonds;
         molec_h[i].numOfAngles = m.numOfAngles;
         molec_h[i].numOfDihedrals = m.numOfDihedrals;
         molec_h[i].numOfHops = m.numOfHops;
-        printf("ID = %d\n", molec_h[i].id);
 
         atomCount += m.numOfAtoms;
         bondCount += m.numOfBonds;
@@ -916,20 +882,6 @@ void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
 
     for(int i = 0; i < numOfMolecules; i++){
         DeviceMolecule dm = dMolec_h[i];
-        printf("DeviceMolecule:\n");
-        printf("id = %d\n", dm.id); 
-        printf("numOfAtoms: %d\n", dm.numOfAtoms);
-        printf("numOfBonds: %d\n", dm.numOfBonds);
-        printf("numOfAngles: %d\n", dm.numOfAngles);
-        printf("numOfDihedrals: %d\n", dm.numOfDihedrals);
-        printf("numOfHops: %d\n", dm.numOfHops);
-        
-        printf("atomStart: %d\n", dm.atomStart);
-        printf("bondStart: %d\n", dm.bondStart);
-        printf("angleStart: %d\n", dm.angleStart);
-        printf("dihedralStart: %d\n", dm.dihedralStart);
-        printf("hopStart: %d\n", dm.hopStart);
-       
         
         Molecule m = molec_h[i];
         //atoms
@@ -1083,7 +1035,7 @@ __global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *answers, Envi
     }
 }
 
-__global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
+__global__ void testGetMoleculeFromID(Atom *atoms, DeviceMolecule *molecules,
         Environment enviros, int numberOfTests, int *answers){
 
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -1096,12 +1048,12 @@ __global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
 }
 
 __global__ void testGetFValue(Atom *atom1List, Atom *atom2List, 
-        Molecule *molecules, Environment *enviro, double *fValues, int numberOfTests){ 
+        DeviceMolecule *molecules, Environment *enviro, double *fValues, int numberOfTests, Hop *dev_hops){ 
     
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (idx < numberOfTests){
-        fValues[idx] = getFValue(atom1List[idx], atom2List[idx], molecules, enviro);
+        fValues[idx] = getFValue(atom1List[idx], atom2List[idx], molecules, enviro, dev_hops);
     }
 }
 

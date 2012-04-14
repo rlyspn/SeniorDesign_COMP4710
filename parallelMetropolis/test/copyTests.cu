@@ -66,7 +66,6 @@ void testCopyMolecules(){
         m.numOfHops = hopCount;
 
         molecs[i] = m;
-        printMolecule(&molecs[i]);
     }
 
     printf("Testing deep copy to device.\n");
@@ -87,7 +86,6 @@ void testCopyMolecules(){
     allocateOnDevice(molecs, molec_d, numOfMolecules, atoms_d, bonds_d, 
            angles_d, dihedrals_d, hops_d);
 */
-    printf("molecs[0].atoms[0].x = %f\n", molecs[0].atoms[0].x);
  
     cudaMalloc((void **) &molec_d, deviceMolecSize);
     cudaMalloc((void **) &atoms_d, atomSize);
@@ -107,12 +105,6 @@ void testCopyMolecules(){
         Molecule m = molecs[i];
         Molecule dm = copiedMolecs[i];
         
-        printf("id = %d, %d\n", dm.id, m.id);
-        printf("numOfAtoms = %d, %d\n", dm.numOfAtoms, m.numOfAtoms);
-        printf("numOfBonds = %d, %d\n", dm.numOfBonds, m.numOfBonds);
-        printf("numOfAngles = %d, %d\n", dm.numOfAngles, m.numOfAngles);
-        printf("numOfDihedrals = %d, %d\n", dm.numOfDihedrals, m.numOfDihedrals);
-        printf("numOfHops = %d, %d\n", dm.numOfHops, m.numOfHops);
         assert(dm.id == m.id);
         assert(dm.numOfAtoms == m.numOfAtoms);
         assert(dm.numOfBonds == m.numOfBonds);
@@ -120,51 +112,29 @@ void testCopyMolecules(){
         assert(dm.numOfDihedrals == m.numOfDihedrals);
         assert(dm.numOfHops == m.numOfHops);
         
-        printf("Atoms: \n");
         for(int j = 0; j < copiedMolecs[i].numOfAtoms; j++){
             Atom a1 = copiedMolecs[i].atoms[j];
             Atom a2 = molecs[i].atoms[j];
-            printf("id = %d, %d\n", a1.id, a2.id);
-            printf("x = %f, %f\n", a1.x, a2.x);
-            printf("y = %f, %f\n", a1.y, a2.y);
-            printf("z = %f, %f\n", a1.z, a2.z);
 
         }
-        printf("Bonds: \n");
         for(int j = 0; j < copiedMolecs[i].numOfBonds; j++){
             Bond a1 = copiedMolecs[i].bonds[j];
             Bond a2 = molecs[i].bonds[j];
-            printf("atom1 = %d, %d\n", a1.atom1, a2.atom1);
-            printf("atom2 = %d, %d\n", a1.atom2, a2.atom2);
-            printf("distance = %f, %f\n", a1.distance, a2.distance);
 
         }
-        printf("Angles: \n");
         for(int j = 0; j < copiedMolecs[i].numOfAngles; j++){
             Angle a1 = copiedMolecs[i].angles[j];
             Angle a2 = molecs[i].angles[j];
-            printf("atom1 = %d, %d\n", a1.atom1, a2.atom1);
-            printf("atom2 = %d, %d\n", a1.atom2, a2.atom2);
-            printf("value = %f, %f\n", a1.value, a2.value);
 
         }
-        printf("Dihedrals: \n");
         for(int j = 0; j < copiedMolecs[i].numOfDihedrals; j++){
             Dihedral a1 = copiedMolecs[i].dihedrals[j];
             Dihedral a2 = molecs[i].dihedrals[j];
-            printf("atom1 = %d, %d\n", a1.atom1, a2.atom1);
-            printf("atom2 = %d, %d\n", a1.atom2, a2.atom2);
-            printf("value = %f, %f\n", a1.value, a2.value);
 
         }
-        printf("Hops: \n");
         for(int j = 0; j < copiedMolecs[i].numOfBonds; j++){
             Hop a1 = copiedMolecs[i].hops[j];
             Hop a2 = molecs[i].hops[j];
-            printf("atom1 = %d, %d\n", a1.atom1, a2.atom1);
-            printf("atom2 = %d, %d\n", a1.atom2, a2.atom2);
-            printf("hop = %d, %d\n", a1.hop, a2.hop);
-
         }
 
     }
@@ -180,7 +150,6 @@ void testAllocateMemory(){
    
 
     for(int i = 0; i < numOfMolecules; i++){
-        printf("Creating atom %d\n", i);
 
         Molecule m = molec[i];
         
@@ -235,13 +204,6 @@ void testAllocateMemory(){
     allocateOnDevice(molec, molec_d, numOfMolecules, atoms_d, bonds_d, 
            angles_d, dihedrals_d, hops_d);
     
-    printf("molec_d = %p\n", molec_d);
-    printf("atoms_d = %p\n", atoms_d);
-    printf("bonds_d = %p\n", bonds_d);
-    printf("angles_d = %p\n", angles_d);
-    printf("dihedrals_d = %p\n", dihedrals_d);
-    printf("hops_d = %p\n", hops_d);
-
     assert(molec_d != 0);
     assert(atoms_d != 0);
     assert(bonds_d != 0);

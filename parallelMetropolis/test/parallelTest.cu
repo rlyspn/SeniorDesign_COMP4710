@@ -409,11 +409,20 @@ void testCalcEnergyWithMolecules(){
 
     Molecule *molecules;
     molecules = (Molecule *)malloc(sizeof(Molecule) * numberOfAtoms);
+
+    int atomCount = 0;
     for(int i = 0; i < enviro->numOfMolecules; i++){
         molecules[i].numOfAtoms = 5;
         molecules[i].atoms = (Atom *)malloc(sizeof(Atom) * 5);
+        molecules[i].id = atomCount;
+        Hop *hops = (Hop *)malloc(sizeof(Hop) * 2);
+        hops[0] = createHop(atomCount, atomCount+3, 3);
+        hops[1] = createHop(atomCount, atomCount+4, 4);
+        molecules[i].hops = hops;
+
         for (int j = 0; j < molecules[i].numOfAtoms; j++){
-            molecules[i].atoms[j] = atoms[i * 5 + j];
+            molecules[i].atoms[j] = atoms[atomCount];
+            atomCount++;
         }
     }
 
@@ -459,23 +468,23 @@ void testGetMoleculeFromIDWrapper(){
     int numberOfMolecules = 3;
     
     Atom *atoms;
-    Molecule *molecules;
+    DeviceMolecule *molecules;
     Environment enviro;
     int *answers;
 
     Atom *atoms_device;
-    Molecule *molecules_device;
+    DeviceMolecule *molecules_device;
     int *answers_device;
 
     enviro.numOfAtoms = numberOfAtoms;
     enviro.numOfMolecules = numberOfMolecules;
 
     atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
-    molecules = (Molecule *)malloc(sizeof(Molecule) *numberOfMolecules);
+    molecules = (DeviceMolecule *)malloc(sizeof(DeviceMolecule) *numberOfMolecules);
     answers = (int *)malloc(sizeof(int) * numberOfAtoms);
 
     cudaMalloc((void **) &atoms_device, sizeof(Atom) * numberOfAtoms);
-    cudaMalloc((void **) &molecules_device, sizeof(Molecule) * numberOfMolecules);
+    cudaMalloc((void **) &molecules_device, sizeof(DeviceMolecule) * numberOfMolecules);
     cudaMalloc((void **) &answers_device, sizeof(int) * numberOfAtoms);
 
     enviro.numOfAtoms = numberOfAtoms;
@@ -490,7 +499,7 @@ void testGetMoleculeFromIDWrapper(){
 
 
     cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
-    cudaMemcpy(molecules_device, molecules, sizeof(Molecule) * numberOfMolecules, cudaMemcpyHostToDevice);
+    cudaMemcpy(molecules_device, molecules, sizeof(DeviceMolecule) * numberOfMolecules, cudaMemcpyHostToDevice);
 
     int numberOfBlocks = 1;
     int threadsPerBlock = 128;
@@ -581,68 +590,68 @@ void testCalcBlendingWrapper(){
 
 void testGetFValueWrapper(){
     Environment *enviro, *dev_enviro;
-    Molecule *molecules, *dev_molecules;
+    DeviceMolecule *molecules, *dev_molecules;
     Atom *mol1_atoms, *mol2_atoms, *atom1List, *atom2List, *dev_atom1List, *dev_atom2List;
+    Hop *dev_hops;
     double *fvalues, *dev_fvalues;
-    Bond *mol1_bonds, *blankBonds = NULL;
-    Angle *blankAngles = NULL;
-    Dihedral *blankDihedrals = NULL;
 
-    int numberOfTests = 4;
+    int numberOfTests = 5;
 
     Environment stable_enviro = createEnvironment(5.0,5.0,5.0,1.0,270.0,5);
     enviro = &stable_enviro;
-    mol1_atoms = (Atom *)malloc(sizeof(Atom)*4);
+    mol1_atoms = (Atom *)malloc(sizeof(Atom)*5);
     mol2_atoms = (Atom *)malloc(sizeof(Atom));
-    atom1List = (Atom *)malloc(sizeof(Atom)*4);
-    atom2List = (Atom *)malloc(sizeof(Atom)*4);
+    atom1List = (Atom *)malloc(sizeof(Atom)*numberOfTests);
+    atom2List = (Atom *)malloc(sizeof(Atom)*numberOfTests);
 
     fvalues = (double *)malloc(sizeof(double)*4);
     
-    for (int i = 0; i < 4; i++){
-        mol1_atoms[i] = createAtom(i+1,1.0,1.0,1.0);
+    for (int i = 0; i < 5; i++){
+        mol1_atoms[i] = createAtom(i,1.0,1.0,1.0);
     }
-    for (int i = 0; i < 4; i++){
+    for (int i = 0; i < 5; i++){
         atom1List[i] = mol1_atoms[0];
-        if (i < 3)
+        if (i < 4)
             atom2List[i] = mol1_atoms[i+1];
     }
 
     mol2_atoms[0] = createAtom(5,1.0,1.0,1.0);
     atom2List[4] = mol2_atoms[0];
 
-    mol1_bonds = (Bond *)malloc(sizeof(Bond)*3);
-    for (int i = 0; i < 3; i++){
-        mol1_bonds[i] = createBond(i+1,i+2, 0.5, false);
-    }
+    Hop* hops = (Hop *)malloc(sizeof(Hop)*2);
+    hops[0] = createHop(0,3,3);
+    hops[1] = createHop(0,4,4);
 
-    molecules = (Molecule *)malloc(sizeof(Molecule)*2);
-    molecules[0] = createMolecule(1, mol1_atoms, blankAngles, mol1_bonds, blankDihedrals, 4, 0, 3, 0);
-    molecules[1] = createMolecule(5, mol2_atoms, blankAngles, blankBonds, blankDihedrals, 1, 0, 0, 0);
+    molecules = (DeviceMolecule *)malloc(sizeof(DeviceMolecule)*2);
+    molecules[0] = createDeviceMolecule(0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 2);
+    molecules[1] = createDeviceMolecule(5, 5, 1, 0, 0, 0, 0, 0, 0, 2, 0);
 
     cudaMalloc((void **) &dev_enviro, sizeof(Environment));
-    cudaMalloc((void **) &dev_molecules, sizeof(Molecule)*2);
-    cudaMalloc((void **) &dev_atom1List, sizeof(Atom)*4);
-    cudaMalloc((void **) &dev_atom2List, sizeof(Atom)*4);
-    cudaMalloc((void **) &dev_fvalues, sizeof(double)*4);
+    cudaMalloc((void **) &dev_molecules, sizeof(DeviceMolecule)*2);
+    cudaMalloc((void **) &dev_atom1List, sizeof(Atom)*numberOfTests);
+    cudaMalloc((void **) &dev_atom2List, sizeof(Atom)*numberOfTests);
+    cudaMalloc((void **) &dev_fvalues, sizeof(double)*numberOfTests);
+    cudaMalloc((void **) &dev_hops, sizeof(Hop)*2);
 
     cudaMemcpy(dev_enviro, enviro, sizeof(Environment), cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_molecules, molecules, sizeof(Molecule)*2, cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_atom1List, atom1List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
-    cudaMemcpy(dev_atom2List, atom2List, sizeof(Atom)*4, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_molecules, molecules, sizeof(DeviceMolecule)*2, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_atom1List, atom1List, sizeof(Atom)*numberOfTests, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_atom2List, atom2List, sizeof(Atom)*numberOfTests, cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_hops, hops, sizeof(Hop)*2, cudaMemcpyHostToDevice);
 
     int blocks = 1;
     int threadsPerBlock = 64;
 
-    testGetFValue <<<blocks, threadsPerBlock>>>(dev_atom1List, dev_atom2List, dev_molecules, dev_enviro, dev_fvalues, numberOfTests);
+    testGetFValue <<<blocks, threadsPerBlock>>>(dev_atom1List, dev_atom2List, dev_molecules, dev_enviro, dev_fvalues, numberOfTests, dev_hops);
 
-    cudaMemcpy(fvalues, dev_fvalues, sizeof(double)*4, cudaMemcpyDeviceToHost);
+    cudaMemcpy(fvalues, dev_fvalues, sizeof(double)*numberOfTests, cudaMemcpyDeviceToHost);
 
-    double *expected = (double *)malloc(sizeof(double)*4);
+    double *expected = (double *)malloc(sizeof(double)*numberOfTests);
     expected[0] = 0.0;
     expected[1] = 0.0;
     expected[2] = 0.5;
     expected[3] = 1.0;
+    expected[4] = 1.0;
     for(int i = 0 ; i < numberOfTests; i++){
         assert(expected[i] == fvalues[i]);
     }
@@ -655,11 +664,13 @@ void testGetFValueWrapper(){
     free(atom2List);
     free(fvalues);
     free(molecules);
+    free(hops);
     cudaFree(dev_enviro);
     cudaFree(dev_molecules);
     cudaFree(dev_atom1List);
     cudaFree(dev_atom2List);
     cudaFree(dev_fvalues);
+    cudaFree(dev_hops);
 }
 
 Atom findMaxRotation(Atom pivot, Atom toRotate, double rotation){
@@ -865,10 +876,8 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
-    testAllocateMemory();
+    //testAllocateMemory();
     testCopyMolecules();
-    
-    /*
     testKeepMoleculeInBox();
     testFreeMemory();
     testRotateMolecule();
@@ -881,8 +890,8 @@ int main(){
     setupMakePeriodic();
     testGeneratePoints();
     testCalcEnergy();
-    testCalcEnergyWithMolecules(); //TODO: Rewrite this test, does not put hops into molecules and therefore does not work properly.
-    */
+    testCalcEnergyWithMolecules();
+    
     return 0;
 }
 

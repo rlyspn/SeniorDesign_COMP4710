@@ -145,9 +145,10 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro);
   disagreeable atoms.
   @param atom1 - first atom
   @param atom2 - second atom
-  @parm enviro - the environment for the system
+  @param enviro - the environment for the system
+  @param molecules - array of molecules
 */
-double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro);
+double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *molecules=NULL);
 
 
 /**
@@ -157,8 +158,10 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro);
   @param *atoms - the array of atoms
   @param enviro - the environmental variables
   @param *energySum - the array of block sums
+  @param *dev_molecules - optional array of device representation of molecules
+  @param *hops - optional array of hops for fudge factor
 */
-__global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
+__global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, DeviceMolecule *dev_molecules=NULL, Hop *hops=NULL);
 
 /**
   Calculates the charge portion of the force field energy calculation between two atoms.
@@ -173,29 +176,33 @@ __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 /**
   Returns the molecule id from the atomid
   @param atom - the atom from which to find the molecule
-  @param molecules - the list of molecules to be searched
+  @param dev_molecules - the list of DeviceMolecules to be searched
   @param return - returns the id of the molecule
 */
-__device__ int getMoleculeFromAtomID(Atom a1, Molecule *molecules, Environment enviro);
+__device__ int getMoleculeFromAtomID(Atom a1, DeviceMolecule *dev_molecules, Environment enviro);
 
 /**
   Returns the "fudge factor" to be used in force field calculation.
   @param atom1 - the first atom in calculation
   @param atom2 - the second atom in the calculation
+  @param dev_molecule - array of all DeviceMolecules in simulation
+  @param hops - array of all hops in simulation
   @return - 1.0 if the atoms are in seperate molecules
-            .5 if the bond traversal distance is greater or equal to 4
-            0.0 if the bond traversal is less than 4
+            1.0 if the bond traversal distance is greater than 3
+            .5 if the bond traversal distance is equal to 3
+            0.0 if the bond traversal is less than 3
 */
-__device__ double getFValue(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
+__device__ double getFValue(Atom atom1, Atom atom2, DeviceMolecule *dev_molecules, Environment *enviro, Hop *hops);
 
 /**
   Return if the two atom ids are have a hop value >=3
   returns hop distance if true and 0 if false
   @param atom1 - the id of the starting atom
   @param atom2 - the id of the ending atom
-  @param molecule - the molecule that contains atom1 and atom 2
+  @param dev_molecule - the DeviceMolecule that contains atom1 and atom 2
+  @param molecule_hops - array of hops in dev_molecule
 */
-__device__ int hopGE3(int atom1, int atom2, Molecule molecule);
+__device__ int hopGE3(int atom1, int atom2, DeviceMolecule dev_molecule, Hop *molecule_hops);
 
 /**
   Returns the molecule id from the atomid (on host)
@@ -285,7 +292,7 @@ double soluteSolventTotalEnergy();
   @param dihedrals_d - array of dihedrals as long as the total number of dihedrals
   @param hops_d - array of hops as long as the total number of hops.
 */
-void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
+void  moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
        int numOfMolecules, Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d);
 
@@ -358,7 +365,7 @@ __global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angl
    @param numberOfTests - the number of tests to be run. All other arrays must 
    be of length numberOfTests
  */
-__global__ void testGetMoleculeFromID(Atom *atoms, Molecule *molecules,
+__global__ void testGetMoleculeFromID(Atom *atoms, DeviceMolecule *molecules,
         Environment enviros, int numberOfTests, int *answers);
 
 /**
@@ -369,7 +376,7 @@ __global__ void testCalcBlending(double *d1, double *d2, double *answers, int nu
 /**
   Kernel function that will be used to test the getFValue() function.
 */
-__global__ void testGetFValue(Atom *atom1List, Atom *atom2List, Molecule *molecules, Environment *enviro, double *fValues, int numberOfTests);
+__global__ void testGetFValue(Atom *atom1List, Atom *atom2List, DeviceMolecule *molecules, Environment *enviro, double *fValues, int numberOfTests, Hop *dev_hops);
 
 /**
   Kernel function that will be used to test the calcCharge() function.
