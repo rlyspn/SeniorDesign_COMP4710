@@ -168,35 +168,7 @@ void testCopyMolecules(){
         }
 
     }
-
-/*
-    int atomIndex = 0;
-    for(int i = 0; i < numOfMolecules; i++){
-        Molecule m = molecs[i];
-        for(int j = 0; j < m.numOfAtoms; j++){
-            Atom a1 = copiedAtoms[atomIndex];
-            Atom a2 = molecs[i].atoms[j];
-        printf("id = %d, %d\n", a1.id, a2.id);
-        printf("x = %f, %f\n", a1.x, a2.x);
-        printf("y = %f, %f\n", a1.y, a2.y);
-        printf("z = %f, %f\n", a1.z, a2.z);
-        atomIndex++;
-        }
-    }
-    int bondIndex = 0;
-    for(int i = 0; i < numOfMolecules; i++){
-        Molecule m = molecs[i];
-        for(int j = 0; j < m.numOfBonds; j++){
-            Bond a1 = copiedBonds[bondIndex];
-            Bond a2 = molecs[i].bonds[j];
-            printf("atom1 = %d, %d\n", a1.atom1, a2.atom1);
-            printf("atom2 = %d, %d\n", a1.atom2, a2.atom2);
-            printf("dist  = %f, %f\n", a1.distance, a2.distance);
-            
-            bondIndex++;
-        }
-    }*/
-
+    printf("testCopyMolecules completed successfully.\n");
 }
 
 void testAllocateMemory(){

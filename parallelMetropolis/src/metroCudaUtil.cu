@@ -699,13 +699,7 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
         dihedralCount += m.numOfDihedrals;
         hopCount += m.numOfHops;
     }
-    printf("TOTALS:\n");
-    printf("Molecules: %d\n", numOfMolecules);
-    printf("Atoms: %d\n", atomCount);
-    printf("Bonds: %d\n", bondCount);
-    printf("Angles: %d\n", angleCount);
-    printf("Dihedrals: %d\n", dihedralCount);
-    printf("Hops: %d\n", hopCount);
+    
     //size of each array
     size_t molecSize = sizeof(DeviceMolecule) * numOfMolecules;
     size_t atomSize = sizeof(Atom) * atomCount;
@@ -789,15 +783,6 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     }
 
     //transfer data
-    /*printf("Before copy ID = %d\n", dMolec_h[0].id);
-    printf("atom id = %d\n", atoms_h[0].id);
-    printf("atom x = %f\n", atoms_h[0].x);
-    printf("Bond atom1 = %d\n", bonds_h[0].atom1);
-    printf("Angle atom1 = %d\n", angles_h[0].atom1);
-    printf("Dihedral atom1 = %d\n", dihedrals_h[0].atom1);
-    printf("Hop atom1 = %d\n", hops_h[0].atom1);
-   */ 
-    
     cudaErrorCheck(cudaMemcpy(molec_d, dMolec_h, molecSize, cudaMemcpyHostToDevice));
     cudaErrorCheck(cudaMemcpy(atoms_d, atoms_h, atomSize, cudaMemcpyHostToDevice));
     cudaErrorCheck(cudaMemcpy(bonds_d, bonds_h, bondSize, cudaMemcpyHostToDevice));
@@ -868,17 +853,6 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
             hopIndex++;
         }
     }
-    
-/*
-    printf("After copy ID = %d\n", tempDM[0].id);
-    printf("copy ID2 = %d\n", tempDM[1].id);
-    printf("atom2 id = %d\n", tempA[0].x);
-    printf("atom2 id = %d\n", tempA[1].x);
-    printf("Bond atom2 = %d\n", tempB[0].atom2);
-    printf("Angle atom2 = %d\n", tempAng[0].atom2);
-    printf("Dihedral atom2 = %d\n", tempD[0].atom2);
-    printf("Hop atom2 = %d\n", tempH[0].atom2);
-*/
 
     free(dMolec_h);
     free(atoms_h);
