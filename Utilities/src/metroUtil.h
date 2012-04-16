@@ -1,3 +1,9 @@
+/*!\file
+  \brief Useful abstractions of for use in linear and parallel simulations.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
+
 #ifndef METROUTIL_H
 #define METROUTIL_H
 
@@ -14,35 +20,111 @@
 
 using namespace std;
 
+/*!
+Structure that represents an atom in the simulation.
+*/
 struct Atom{
-    double x; // x coord of the atom
-    double y; // y coord of the atom
-    double z; // z coord of the atom
+    /*!x coordinate of the atom*/
+    double x;
+    /*!y coordinate of the atom*/
+    double y;
+    /*!z coordinate of the atom*/
+    double z;
+    
+    /*!unique id of the atom*/
+    unsigned long id; 
 
-    unsigned long id; // unique id of the atom
-
-    double sigma; // sigma value for the atom for the LJ calculations
-    double epsilon; // epsilon value for the atom for the LJ calculation
-    double charge; // epsilon value for the atom for the LJ calculation
+    /*!sigma value for the atom for the LJ calculations.*/
+    double sigma;
+    /*!  epsilon value for the atom for the LJ calculation*/
+    double epsilon;
+    /*!epsilon value for the atom for the LJ calculation*/
+    double charge;
 };
 
+/*!
+  @param id - the id of the atom to be created.
+  @param x - the x coordinate of the atom.
+  @param y - the y coordinate of the atom.
+  @param z - the z coordinate of the atom.
+  @param sigma - the sigma value of the atom to be used in the LJ calculation.
+  @param epsilon - the epsilon value of the atom to be used in the LJ calculation.
+  @param charge - the charge of the atom used in the energy calculation.
+  @return - an instance of the an atom structure.
+*/
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge);
+
+/*!
+  @param id - the id of the atom to be created.
+  @param x - the x coordinate of the atom.
+  @param y - the y coordinate of the atom.
+  @param z - the z coordinate of the atom.
+  @param sigma - the sigma value of the atom to be used in the LJ calculation.
+  @param epsilon - the epsilon value of the atom to be used in the LJ calculation.
+  @return - an instance of the an atom structure.
+*/
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon);
+
+/*!
+  @param id - the id of the atom to be created.
+  @param x - the x coordinate of the atom.
+  @param y - the y coordinate of the atom.
+  @param z - the z coordinate of the atom.
+  @return - an instance of the an atom structure.
+*/
 Atom createAtom(unsigned long id, double x, double y, double z);
 
+/*!
+  Structure representing the simulation's environment.
+*/
 struct Environment{
-    double x; // length of the box in the x direction
-    double y; // length of the box in the y direction
-    double z; // length of the box in the z direction
+    /*!
+    length of the box in the x direction
+    */
+    double x;
+    
+    /*!
+    length of the box in the y direction
+    */
+    double y; 
+    
+    /*!
+    length of the box in the z direction
+    */
+    double z; 
 
-    double maxTranslation; // the maximum distance that an atom can move
-    double temperature; // the temperature of the box
-
-    int numOfAtoms; // the number of atoms in the environment
-    int numOfMolecules; // the number of molecues in the environment
+    /*!
+    the maximum distance that an atom can move
+    */
+    double maxTranslation; 
+    
+    /*!
+    the temperature of the box in kelvin
+    */
+    double temperature;
+    
+    /*!
+    the number of atoms in the environment
+    */
+    int numOfAtoms; 
+    
+    /*!
+    the number of molecues in the environment
+    */
+    int numOfMolecules; 
 };
 
+/*!
+   @param x - the x dimension of the environment (box).
+   @param y - the y dimension of the environment (box).
+   @param z - the z dimension of the environment (box).
+   @param maxTrans - the maximum translation of an atom/molecule in the simulation.
+   @param temp - the temperature in kelvin of the environment.
+   @param numOfAtoms - the number of atoms in the environment.
+   @return - an instance of an environment structure.
+*/
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms);
+
 /**
   Writes the list of atoms to the file named filename
   @param atoms - list of atoms to be written
@@ -53,16 +135,30 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
 */
 void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy);
 
-// Structure to respresent bonds between atoms in a 
+/*!
+  Structure to respresent bonds between atoms in a molecule.
+*/
 struct Bond{
+    /*!
+       The first atom in the bond.
+    */
     int atom1;
+    /*!
+       The second atom in the bond.
+    */
     int atom2;
 
+    /*!
+       The length of the bond.
+    */
     double distance;
+    /*!
+       Bool indicating if the bond can be varied.
+    */
     bool variable;
 };
 
-/**
+/**!
   @param atom1 - the id of the first atom in the bond
   @param atom2 - the id of the second atom in the bond
   @param distance - the distance between the the two atoms
@@ -70,11 +166,32 @@ struct Bond{
 */
 Bond createBond(int atom1, int atom2, double distance, bool variable);
 
+/*!
+  Structure representing an angle between two atoms in a molecule.
+  A geometric angle is defined using three points(atoms).  Only the end
+  points are listed here.  It is up to the programmer to find the third
+  atom in the angle.
+*/
 struct Angle{
-    int atom1; // the first atom in the angle
-    int atom2; // the second atom in the angle
-    double value; // the angle between the atoms
-    bool variable; // if the angle is variable
+    /*!
+    the first atom in the angle
+    */
+    int atom1; 
+    
+    /*!
+    the second atom in the angle
+    */
+    int atom2;
+    
+    /*!
+    the angle between the atoms
+    */
+    double value; 
+    
+    /*!
+    if the angle is variable
+    */
+    bool variable; 
 };
 
 /**
@@ -85,11 +202,31 @@ struct Angle{
 */
 Angle createAngle(int atom1, int atom2, double value, bool variable);
 
+/**
+  Structure representing a dihedral in the atom.  A dihedral is the angle created
+  by two planes.  The structure is defined using two atoms.  It is up to the programmer
+  to find the other two atoms needed to define two planes.
+*/
 struct Dihedral{
-    int atom1; // the first atom in the dihedral
-    int atom2; // the second atom in the dihedral
-    double value; // the distance between the atoms
-    bool variable; // if the distance between atoms is variable
+    /**
+    the first atom in the dihedral
+    */
+    int atom1; 
+    
+    /**
+      the second atom in the dihedral
+    */
+    int atom2; 
+    
+    /**
+    the distance between the atoms
+    */
+    double value; 
+    
+    /**
+    if the distance between atoms is variable
+    */
+    bool variable; 
 };
 
 /**
@@ -103,33 +240,80 @@ Dihedral createDihedral(int atom1, int atom2, double value, bool variable);
 /**
   Atom pairs and their node distance(hops) away from each other
   used in the fudge factor, for total energy calculations
-  @param atom1 - the starting atom
-  @param atom2 - the ending atom
-  @param hop  - the number of nodes between start and finish
 */
 struct Hop{
+    /**
+    the starting atom
+    */
     int atom1;
-	 int atom2;
-	 int hop;
+    /**
+     the ending atom
+    */
+	int atom2;
+    /**
+    the number of nodes between start and finish
+    */
+	int hop;
 };
 
+/**
+  @param atom1 - the starting atom
+  @param atom2 - the ending atom
+  @param hops - the number of nodes between the start and finish
+  @return - an instance of the hops structure.
+*/
 Hop createHop(int atom1, int atom2, int hops);
 
-// Structure to represent 
+/**
+  Structure to represent a molecule in the simulation.
+*/
 struct Molecule{
-    int id; // the name of the molecule
+    /**
+    the name of the molecule
+    */
+    int id; // 
     
-    Atom *atoms; // array of atoms in the molecule
-    Bond *bonds; // array of bonds of the atoms in the molecule.
-    Angle *angles; // angles in the molecule between atoms
-    Dihedral *dihedrals; // array of dihedrals in the molecule
-	 Hop *hops; //array containing a list of atoms that are less than 4 nodes away
+    /**
+    array of atoms in the molecule
+    */
+    Atom *atoms; // 
+    /**
+    array of bonds of the atoms in the molecule.
+    */
+    Bond *bonds; // 
+    /**
+    angles in the molecule between atoms
+    */
+    Angle *angles; // 
+    /**
+    array of dihedrals in the molecule
+    */
+    Dihedral *dihedrals; // 
+    /**
+    array containing a list of atoms that are less than 4 nodes away
+    */
+	 Hop *hops; //
 
-    int numOfAtoms; // the number of atoms in the molecule
-    int numOfBonds; // the number of bonds in the molecule
-    int numOfAngles; // the number of angles in the molecule
-    int numOfDihedrals; // the number of dihedrals in the atom
-	 int numOfHops; // the number of Hops or pairs of atoms that are less than 4 nodes away
+    /**
+     the number of atoms in the molecule
+    */
+    int numOfAtoms; //
+    /**
+    the number of bonds in the molecule
+    */
+    int numOfBonds; // 
+    /**
+    the number of angles in the molecule
+    */
+    int numOfAngles; // 
+    /**
+     the number of dihedrals in the atom
+    */
+    int numOfDihedrals; //
+    /**
+    the number of Hops or pairs of atoms that are less than 4 nodes away
+    */
+	 int numOfHops; // 
 };
 
 /**
@@ -200,9 +384,11 @@ void writePDB(Atom *atoms, Environment enviro, string filename);
   Logs output to the OutputLog file
   @param text - the text to be written to the output log
 */
-
 void writeToLog(string text, int stamp=0 );
 
+/**
+  Prints a molecule and it's fields
+*/
 void printMolecule(Molecule *molec);
 
 #endif //METROUTIL_H

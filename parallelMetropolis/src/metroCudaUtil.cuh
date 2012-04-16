@@ -1,4 +1,10 @@
-/*!\file*/
+/*!\file
+  \brief Functions that execute on the device or interface with the device.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ This file contains functions that are either executed on the device or 
+ interface with the device.
+ */
 
 #ifndef METROCUDAUTIL_CUH
 #define METROCUDAUTIL_CUH
@@ -16,25 +22,43 @@
 #define THREADS_PER_BLOCK 128
 #define PI 3.14159265
 
+/*!
+Representation of a molecule on the device. It is difficult to use the original
+molecule structure because it contains a pointer to an array.  On the device we have
+glolbal arrays of:
+DeviceAtoms, Atoms, Bonds, Angles, Dihedrals and Hops
+Each of these arrays contains all of the atoms, dihedrals, etc. in the simulation.
+The DeviceMolecule has a field that is the first index in the global array and a 
+number of that element in the molecule.  This is used to index the correct elements
+in the global array.
+*/
 struct DeviceMolecule{
     /*!Number to uniquely identify this molecule.*/
     int id;
 
-    /*!This device molecule's first index in the array of atoms.*/
+    /*!This device molecule's first index in the global array of atoms.*/
     int atomStart; 
     /*!The number of atoms contained in this moleclue.*/
     int numOfAtoms;
 
+    /*!The DeviceMolecule's first index in the global array of bonds.*/
     int bondStart;
+    /*!The number of bonds in the DeviceMolecule.*/
     int numOfBonds;
     
+    /*!The DeviceMolecule's first index in the global array of angles.*/
     int angleStart;
+    /*!The number of angle's in this DeviceMolecule.*/
     int numOfAngles;
 
+    /*!The DeviceMolecule's first index in the global array of dihedrals.*/
     int dihedralStart;
+    /*!The number of dihedrals in the DeviceMolecule.*/
     int numOfDihedrals;
 
+    /*!The DeviceMolecule's first index in the global array of hops.*/
     int hopStart;
+    /*!The number of hops in the DeviceMolecule*/
     int numOfHops;
 };
 
@@ -98,7 +122,12 @@ __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro);
 
 /**
     Global function for GPU to assign random doubles to atom positions.
-    @param dev_doubles - array of randomly generated doubles 0.0 to 1.0
+    @param dev_doublesX - array of randomly generated doubles 0.0 to 1.0 to be
+    used to translate in the x direction.
+    @param dev_doublesY - array of randomly generated doubles 0.0 to 1.0 to be
+    used to translate in the y direction.
+    @param dev_doublesZ - array of randomly generated doubles 0.0 to 1.0 to be
+    used to translate in the z direction.
     @param atoms - array of atoms to be positioned
     @param enviro - Environment of the simulation
 */
@@ -122,8 +151,9 @@ void generatePoints(Molecule *molecules, Environment *enviro);
 
 /**
   This is a wrapper function for the calcEnergy kernel.
-  @param *atoms - the array of atoms
-  @param enviro - the environmental variables
+  @param *atoms - the array of atoms.
+  @param enviro - the environmental variables.
+  @param molecules - array of molecules to be used if calculating energy from molecules and not an array of atoms.
   @return - the total energy of the system.
 */
 double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules=NULL);
@@ -160,8 +190,6 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
   @param atom1 - the first atom in the calculation
   @param atom2 - the second atom in the calculation
   @return - the charge portion of the force field.
-  
-  Assigned to Alex
 */
 __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 
@@ -310,6 +338,14 @@ void freeMoleculeOnDevice(DeviceMolecule *molec_d,
   @param molec_h - pointer to source data that will be used as the sizes for
   mallocation
   @param numOfMolecules - the number of molecules to be allocated.
+  @param atoms_d - array of atoms allocated on the device.  Must be the length
+  of the total number of atoms in the simulation.
+  @param bonds_d - array of bonds allocated on the device.  Must be the length
+  of the total number of bonds in the simulation.
+  @param dihedrals_d - array of dihedrals allocated on the device.  Must be the
+  length of the total number of dihedrals in the simulation.
+  @param hops_d - array of hops allocated on the device.  Must be the length of the
+  total number of hops in the simulation.
 */
 void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
@@ -321,7 +357,8 @@ void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
 */
 __global__ void freeArrays(Molecule *molecules, int numOfMolecules);
 
-/**
+/** \briefDeprecated
+  Deprecated.
   Allocates memory for the subarrays of each molecule in the array.
   @param molecules - array of molecules.
   @param numOfMolecules - the number of molecules in the array.
@@ -329,6 +366,7 @@ __global__ void freeArrays(Molecule *molecules, int numOfMolecules);
 __global__ void allocateArrays(Molecule *molecules, int numOfMolecules);
 
 /**
+  DEPRECATED
   Assigns the various array fields of the molecules.
   Cycles through each of the array and assigned the ith array of atoms, bonds, etc
   to the ith molecule.
