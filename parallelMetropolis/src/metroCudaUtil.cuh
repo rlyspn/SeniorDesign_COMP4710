@@ -21,6 +21,7 @@
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
 #define PI 3.14159265
+#define cudaErrorCheck(call) { cudaAssert(call,__FILE__,__LINE__); }
 
 /*!
 Representation of a molecule on the device. It is difficult to use the original
@@ -32,8 +33,6 @@ The DeviceMolecule has a field that is the first index in the global array and a
 number of that element in the molecule.  This is used to index the correct elements
 in the global array.
 */
-#define cudaErrorCheck(call) { cudaAssert(call,__FILE__,__LINE__); }
-
 struct DeviceMolecule{
     /*!Number to uniquely identify this molecule.*/
     int id;
