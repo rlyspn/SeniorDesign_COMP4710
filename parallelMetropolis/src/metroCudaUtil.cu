@@ -1,3 +1,4 @@
+/*!\file*/
 #include "metroCudaUtil.cuh"
 
 //create a device molecule structure.
@@ -26,7 +27,7 @@ DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
     return dm;
 }
 
-//calculates X (larger indexed atom) for energy calculation based on index in atom array
+//gets the x atom from the thread index
 __device__ int getXFromIndex(int idx){
     int c = -2 * idx;
     int discriminant = 1 - 4 * c;

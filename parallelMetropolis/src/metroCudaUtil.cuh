@@ -1,3 +1,5 @@
+/*!\file*/
+
 #ifndef METROCUDAUTIL_CUH
 #define METROCUDAUTIL_CUH
 
@@ -15,9 +17,12 @@
 #define PI 3.14159265
 
 struct DeviceMolecule{
+    /*!Number to uniquely identify this molecule.*/
     int id;
 
-    int atomStart; // the start index in the molecules atoms.  id = atomStart.
+    /*!This device molecule's first index in the array of atoms.*/
+    int atomStart; 
+    /*!The number of atoms contained in this moleclue.*/
     int numOfAtoms;
 
     int bondStart;
