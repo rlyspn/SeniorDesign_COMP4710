@@ -20,7 +20,7 @@ def getMemory(fileStr):
     
 def getVirtualMemory(fileStr):
     '''Returns the amount of virtual memory used in kilobytes.'''
-    vMemReg = re.complie(',vmem=(\d+)kb,')
+    vMemReg = re.compile(',vmem=(\d+)kb,')
     vMem = re.findall(vMemReg, fileStr)
     return int(vMem[0])
 
