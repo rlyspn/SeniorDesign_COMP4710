@@ -81,6 +81,9 @@ double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
                 lj_energy = 0.0;
                 charge_energy = 0.0;
             }
+
+            printf("Linear Energy(%d,%d): lj=%f | q=%f | f=%f\n", i, j, lj_energy, charge_energy, fValue);
+
             totalEnergy += fValue * (lj_energy + charge_energy);
         }
     }
@@ -162,20 +165,14 @@ double getFValueLinear(Atom atom1, Atom atom2, Molecule *molecules, Environment 
     int m1 = getMoleculeFromIDLinear(atom1, molecules, *enviro);
     int m2 = getMoleculeFromIDLinear(atom2, molecules, *enviro);
     Molecule molec = molecules[0];
-    for(int i = 0; i < enviro->numOfMolecules; i++){
-        if(molecules[i].id == m1){
-            molec = molecules[i];
-            break;
-        }
-    }
 
     if(m1 != m2)
         return 1.0;
 	else{
-        int hops = hopGE3Linear(atom1.id, atom2.id, molecules[m1]);
-        if (hops == 3)
+        int hopChain = hopGE3Linear(atom1.id, atom2.id, molecules[m1]);
+        if (hopChain == 3)
             return 0.5;
-        else if (hops > 3)
+        else if (hopChain > 3)
             return 1.0;
         else
             return 0.0;
