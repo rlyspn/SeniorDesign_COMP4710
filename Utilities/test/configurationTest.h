@@ -5,7 +5,7 @@
 #include "../src/Config_Scan.h"
 
 /*
-Runs the needed tests on the configuration scanner.
+  Runs the needed tests on the configuration scanner.
 */
 void testConfigScan();
 

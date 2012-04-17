@@ -50,4 +50,5 @@ void testWriteOutReadInState();
   Runs the tests that test state input and output
 */
 void runStateTests();
+
 #endif //STATETEST_H

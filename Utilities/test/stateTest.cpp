@@ -1,4 +1,5 @@
 #include "stateTest.h"
+
 void testGetDihedralFromLine(){
     string line = "3 5 3.456 0";
     string line2 = "89 21 45.21 1";
@@ -174,7 +175,6 @@ void testWriteOutReadInState(){
         for(int i = 0; i < molec.numOfBonds; i++){
             
             Bond d = molec.bonds[i];
-            //printf("bond: %d, %d, %f\n", d.atom1, d.atom2, d.distance); 
             assert(d.atom1 == bondArray[i].atom1);
             assert(d.atom2 == bondArray[i].atom2);
             assert(fabs(d.distance - bondArray[i].distance) < floatThreshold);
@@ -184,14 +184,10 @@ void testWriteOutReadInState(){
         for(int i = 0; i < molec.numOfAngles; i++){
             
             Angle d = molec.angles[i];
-            //printf("angle: %d, %d, %f\n", d.atom1, d.atom2, d.value); 
             assert(d.atom1 == angleArray[i].atom1);
             assert(d.atom2 == angleArray[i].atom2);
-            //cout << d.value << " value " << angleArray[i].value << endl;
             assert(fabs(d.value - angleArray[i].value) < floatThreshold);
-
         }
-
     }
 
     cout << "readInEnvironment Passed" << endl;
@@ -206,6 +202,5 @@ void runStateTests(){
     testGetAngleFromLine();
     testGetEnvironmentFromLine();
     testWriteOutReadInState();
-
 }
 
