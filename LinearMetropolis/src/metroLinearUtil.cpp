@@ -1,6 +1,5 @@
 #include "metroLinearUtil.h"
 
-//calculates X (larger indexed atom) for energy calculation based on index in atom array
 int getXFromIndex(int idx){
     int c = -2 * idx;
     int discriminant = 1 - 4 * c;
@@ -8,12 +7,10 @@ int getXFromIndex(int idx){
     return qv + 1;
 }
 
-//calculates Y (smaller indexed atom) for energy calculation based on index in atom array
 int getYFromIndex(int x, int idx){
     return idx - (x * x - x) / 2;
 }
 
-//apply periodic boundaries
 double makePeriodic(double x, double box){
     
     while(x < -0.5 * box){
@@ -28,7 +25,6 @@ double makePeriodic(double x, double box){
 
 }
 
-//keep coordinates with box
 double wrapBox(double x, double box){
 
     while(x > box){
@@ -119,7 +115,6 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
     }
 }
 
-//calculate Lennard-Jones energy between two atoms
 double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     //store LJ constants locally
     double sigma = calcBlending(atom1.sigma, atom2.sigma);
@@ -134,7 +129,6 @@ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     deltaX = makePeriodic(deltaX, enviro.x);
     deltaY = makePeriodic(deltaY, enviro.y);
     deltaZ = makePeriodic(deltaZ, enviro.z);
-
     const double r2 = (deltaX * deltaX) +
                       (deltaY * deltaY) + 
                       (deltaZ * deltaZ);
@@ -169,14 +163,13 @@ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, double *dev
     }
 }
 
-//generate coordinate data for the atoms
 void generatePoints(Molecule *molec, Environment *enviro){
     double *devXDoubles = (double*)malloc(enviro->numOfMolecules * sizeof(double));
     double *devYDoubles = (double*)malloc(enviro->numOfMolecules * sizeof(double));
     double *devZDoubles = (double*)malloc(enviro->numOfMolecules * sizeof(double));
    
     srand((unsigned int) time(NULL));
-	 //for each Molecule assaign a new XYZ
+	 //for each Molecule assign a new XYZ
     for (int i = 0; i < enviro->numOfMolecules; i = i++){
         double newDouble = ((double) rand()) / ((double) (RAND_MAX));
         devXDoubles[i] = newDouble;
@@ -193,9 +186,8 @@ void generatePoints(Molecule *molec, Environment *enviro){
     free(devZDoubles);
 }
 
-//Calculates the energy of system using molecules
 double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
-    
+    //Copy atoms out of molecules
     Atom *atoms = (Atom *) malloc(sizeof(Atom) * enviro->numOfAtoms);
     int atomIndex = 0;
     for(int i = 0; i < enviro->numOfMolecules; i++){
@@ -205,56 +197,51 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
             atomIndex++;
         }
     }
+
+    //pass to original wrapper
     double totalEnergy = calcEnergyWrapper(atoms, enviro, molecules);
     free(atoms);
+
     return totalEnergy;
 }
 
 double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
-    //setup CUDA storage
+    //setup storage
     double totalEnergy = 0.0;
     double *energySum_device;
 
-    //calculate CUDA thread mgmt
+    //determine number of energy calculations
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;	 
-    size_t energySumSize = N * sizeof(double); 
-	 
+    size_t energySumSize = N * sizeof(double);
 	double* energySum = (double*) malloc(energySumSize);
 
+    //calulate all energies
     calcEnergy(atoms, enviro, energySum);
     
     for(int i = 0; i < N; i++){
-
-        int c = -2 * i;
-        int discriminant = 1 - 4 * c;
-        int qv = (-1 + sqrtf(discriminant)) / 2;
-        int atomXid = qv + 1;
-        
-        int atomYid =  i - (atomXid * atomXid - atomXid) / 2;
-
-        double xx = atoms[atomXid].x;
-        double xy = atoms[atomXid].y;
-        double xz = atoms[atomXid].z;
-
-        double yx = atoms[atomYid].x;
-        double yy = atoms[atomYid].y;
-        double yz = atoms[atomYid].z;
-        if (molecules != NULL){
+        //apply fudge factor
+        if (molecules != NULL){ 
+            int atomXid = getXfromIndex(i);
+            int atomYid = getYfromIndex(atomXid, i);
             energySum[i] = energySum[i] * getFValue(&(atoms[atomXid]), &(atoms[atomYid]), molecules, enviro); 
         }
-        totalEnergy += energySum[i];
 
+        totalEnergy += energySum[i];
     }
-   free(energySum); 
+
+    free(energySum);
     return totalEnergy;
 }
 
 void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
     double lj_energy,charge_energy, fValue;
 
+    //determine number of calculations
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
+
+    //for each calculation
     for(int idx=0; idx<N; idx++){
-    //calculate the x and y positions in the Atom array
+        //calculate the x and y positions in the Atom array
         int xAtom_pos, yAtom_pos;
         xAtom_pos = getXFromIndex(idx);
         yAtom_pos = getYFromIndex(xAtom_pos, idx);
@@ -262,15 +249,17 @@ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum){
         Atom xAtom, yAtom;
         xAtom = atoms[xAtom_pos];
         yAtom = atoms[yAtom_pos];
+
+        //determine the lennard-jones and charge sum between the two atoms
         if (xAtom.sigma < 0 || xAtom.epsilon < 0 || yAtom.sigma < 0 || yAtom.epsilon < 0){
             energySum[idx] = 0.0;
         }
         else{
             lj_energy = calc_lj(xAtom,yAtom,*enviro);
             charge_energy = calcCharge(xAtom, yAtom, enviro);
-            fValue = 1.0;
-            
-            energySum[idx] = fValue * (lj_energy + charge_energy);
+
+            //store the sum in array
+            energySum[idx] = (lj_energy + charge_energy);
         }
 	 }
 }
@@ -306,7 +295,6 @@ double calcBlending(double d1, double d2){
     return sqrt(d1 * d2);
 }
 
-//returns the molecule that contains a given atom
 Molecule* getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro){
     int atomId = a1->id;
     int currentIndex = enviro->numOfMolecules - 1;
@@ -315,8 +303,8 @@ Molecule* getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *envi
         currentIndex -= 1;
         molecId = molecules[currentIndex].id;
     }
-    return &(molecules[currentIndex]);
 
+    return &(molecules[currentIndex]);
 }
 
 double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *enviro){
@@ -339,6 +327,7 @@ double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *env
 int hopGE3(int atom1, int atom2, Molecule *molecule){
     for(int x=0; x< molecule->numOfHops; x++){
         Hop *myHop = &(molecule->hops[x]);
+        //compare atoms to each hop struct in molecule
 		if((myHop->atom1==atom1 && myHop->atom2==atom2) || (myHop->atom1==atom2 && myHop->atom2==atom1)){
             return myHop->hop;
         }
@@ -403,39 +392,3 @@ void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation){
         molecule.atoms[i].z += pivotAtomZ;
     }
 }
-
-/**
-  This  is currently a stub pending information from Dr. Acevedo
-*/
-double solventAccessibleSurfaceArea(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventDistributionFunction(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double atomAtomDistributionFunction(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double solventSolventTotalEnergy(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventTotalEnergy(){
-    return -1.f;
-}
-

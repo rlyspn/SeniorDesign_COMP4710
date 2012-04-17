@@ -36,7 +36,7 @@ double wrapBox(double x, double box);
 /**
     Keeps a molecule intact within the box
     @param molecule - molecule to keep in box
-    @param enviro - environment structure to keep bounds
+    @param enviro - simulation environment pointer
 */
 void keepMoleculeInBox(Molecule *molecule, Environment *enviro);
 
@@ -44,13 +44,15 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro);
   Calculates the energy between 2 atoms
   @param atom1 - the first atom in the pair
   @param atom2 - the second atom in the pair
-  @param enviro - the environmental variables
+  @param enviro - simulation environment pointer
 */
 double calc_lj(Atom atom1, Atom atom2, Environment enviro); 
 
 /**
     Global function for GPU to assign random doubles to atom positions.
-    @param dev_doubles - array of randomly generated doubles 0.0 to 1.0
+    @param dev_doublesX - array of randomly generated doubles 0.0 to 1.0 (x dimension)
+    @param dev_doublesY - array of randomly generated doubles 0.0 to 1.0 (y dimension)
+    @param dev_doublesZ - array of randomly generated doubles 0.0 to 1.0 (z dimension)
     @param atoms - array of atoms to be positioned
     @param enviro - Environment of the simulation
 */
@@ -58,7 +60,6 @@ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, double *dev
 
 /**
   Generate random positions for atoms in the box
-  nVidia CURAND reference: http://developer.download.nvidia.com/compute/cuda/5_0/toolkit/docs/CURAND_Library.pdf
   @param molec - array of molecules to generate positions
   @param enviro - enviroment structure defining the box
 */
@@ -66,8 +67,9 @@ void generatePoints(Molecule *molec, Environment *enviro);
 
 /**
   This is a wrapper function for the calcEnergy kernel.
-  @param molec - the array of molecules
-  @param enviro - the environmental variables
+  @param atoms - the array of atoms to calculate energies between
+  @param enviro - simulation environment pointer
+  @param molecules - optional array of molecules within which the atoms reside
   @return - the total energy of the system.
 */
 double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules=NULL);
@@ -80,22 +82,12 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules=N
 double calcEnergyWrapper(Molecule *molecules, Environment *enviro);
 
 /**
-  This calculates energy between two atoms on host for fringe
-  disagreeable atoms.
-  @param atom1 - first atom
-  @param atom2 - second atom
-  @parm enviro - the environment for the system
-*/
-//double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro);
-
-
-/**
   Calculates the energy between n atoms where n is the
   the number of threads in the block. The block's sum is then stored 
   in the energySum array at its block index position.
-  @param *atoms - the array of atoms
-  @param enviro - the environmental variables
-  @param *energySum - the array of block sums
+  @param atoms - the array of atoms
+  @param enviro - simulation environment pointer
+  @param energySum - the array of block sums
 */
 void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
 
@@ -103,9 +95,8 @@ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum);
   Calculates the charge portion of the force field energy calculation between two atoms.
   @param atom1 - the first atom in the calculation
   @param atom2 - the second atom in the calculation
+  @param enviro - simulation environment pointer
   @return - the charge portion of the force field.
-  
-  Assigned to Alex
 */
 double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 
@@ -113,11 +104,12 @@ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
   Returns the "fudge factor" to be used in force field calculation.
   @param atom1 - the first atom in calculation
   @param atom2 - the second atom in the calculation
+  @param molecules - array of molecules in the simulation
+  @param enviro - simulation environment pointer
   @return - 1.0 if the atoms are in seperate molecules
-            .5 if the bond traversal distance is greater or equal to 4
-            0.0 if the bond traversal is less than 4
-
-  Assigned to TBD
+            1.0 if the bond traversal distance is greater than 3
+            0.5 if the bond traversal distance is equal to 3
+            0.0 if the bond traversal is less than 3
 */
 double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *enviro);
 
@@ -151,37 +143,7 @@ Molecule* getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *envi
   @param molecule - the molecule to be rotated
   @param pivotAtom - the atom that the molecule is rotated about
   @param maxRotation - the maximum number of degrees for each axis of rotation
-
 */
 void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation);
-
-/****************************
-  Begin Stubs for outputs
-****************************/
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double solventAccessibleSurfaceArea();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventDistributionFunction();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double atomAtomDistributionFunction();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double solventSolventTotalEnergy();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventTotalEnergy();
 
 #endif
