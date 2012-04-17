@@ -1,3 +1,9 @@
+/*!\file
+  \brief Structures and functions used to do geometric transformations.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
+
 #ifndef GEOMETRICUTIL_H
 #define GEOMETRICUTIL_H
 
@@ -8,11 +14,20 @@
 #define PI 3.14159265
 
 /**
-  Structure representing a geometic point
+  Structure representing a geometic point.
 */
 struct Point{
+    /**
+      x coordinate of a point.
+    */
     double x;
+    /**
+      y coordinate of a point.
+    */
     double y;
+    /**
+      z coordinate of a point.
+    */
     double z;
 };
 
@@ -24,13 +39,38 @@ struct Point{
 */
 Point createPoint(double X, double Y, double Z);
 
+/**
+  Structure representing a vector with an origin and end point.
+*/
 struct Vector{
+    /**
+      Point representing the start point fo the vector.
+    */
     Point origin;
+    /**
+      Point representing the ending point for the vector.
+    */
     Point end;
 };
 
+/**
+  @param startPoint - the starting point of the vector.
+  @param endPoint - the ending point of the vector.
+  @return - a vector that starts at startPoint and ends at endPoint
+*/
 Vector createVector(Point startPoint, Point endPoint);
 
+/**
+  @param startPoint - the starting point for the vector.
+  @param deltaX - the change in the x direction from the startPoint to the
+  end point of the vector.
+  @param deltaY - the change in the y direction from the startPoint to the
+  end point of the vector.
+  @param deltaZ - the change in the z direction from the startPoint to the
+  end point of the vectoro.
+  @return - a vector that starts at startPoint and ends at
+  (startPoint.x + deltaX, startPoint.y + deltaY, startPoint.z + deltaZ)
+*/
 Vector createVector(Point startPoint, double deltaX, double deltaY, double deltaZ);
 
 /**
@@ -38,11 +78,24 @@ Vector createVector(Point startPoint, double deltaX, double deltaY, double delta
   A plane is described by three points.
 */
 struct Plane{
+    /**
+      The first atom (point) to define the plane.
+    */
     Atom atom1;
+    /**
+      The second atom (point) to define the plane.
+    */
     Atom atom2;
+    /**
+      The third atom (point) to define the plane.
+    */
     Atom atom3;
 };
 
+/**
+  Prints position information about point p.
+  @param p - the point to be printed.
+*/
 void printPoint(Point p);
 
 /**
@@ -263,6 +316,25 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta);
 */
 bool compareDoubleDifference(double a, double b, double precision);
 
+/**
+  Translates a molecule based on the xTrans, yTrans and zTrans parameters
+  and then rotates the atoms in the molecule about an atom.
+  @param molec - the molecule to be translated and rotated
+  @param pivot - the atom that will be the point about which all of the otehr
+  atoms are rotated.
+  @param xTrans - the distance in angstroms that the molecule will be translated
+  in the x direction.
+  @param yTrans - the distance in angstroms that the molecule will be translated
+  in the y direction.
+  @param zTrans - the distance in angstroms that the molecule will be translated
+  in the z direction.
+  @param xRot - the amount to be rotated about the vector through the pivot atom 
+  parallel to the x axis. (degrees)
+  @param yRot - the amount to be rotated about the vector through the pivot atom 
+  parallel to the y axis. (degrees)
+  @param zRot - the amount to be rotated about the vector through the pivot atom 
+  parallel to the z axis. (degrees)
+*/
 Molecule moveMolecule(Molecule molec, Atom pivot, double xTrans, double yTrans,
         double zTrans, double xRot, double yRot, double zRot);
 #endif //GEOMETRICUTIL_H

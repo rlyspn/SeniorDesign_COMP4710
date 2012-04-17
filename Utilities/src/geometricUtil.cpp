@@ -1,3 +1,9 @@
+/*!\file
+  \brief Structures and functions used to do geometric transformations.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
+
 #include "geometricUtil.h"
 
 Point createPoint(double X, double Y, double Z){
