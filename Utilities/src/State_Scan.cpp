@@ -1,3 +1,8 @@
+/*!\file
+  \brief Structures and functions used to read and write configuration files.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
 #include "State_Scan.h"
 
 void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, string filename){

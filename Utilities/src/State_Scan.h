@@ -1,3 +1,9 @@
+/*!\file
+  \brief Structures and functions used to read and write configuration files.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
+
 #ifndef STATE_SCAN_H
 #define STATE_SCAN_H
 
