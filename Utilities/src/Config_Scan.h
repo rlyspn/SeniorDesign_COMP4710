@@ -52,19 +52,19 @@ class Config_Scan{
     public:
 
         /**
-            Config file scanner instantiated with a path.
-            @param configPath - path to paramaters.cfg
+          Config file scanner instantiated with a path.
+          @param configPath - path to paramaters.cfg
         */
         Config_Scan(string configPath);
 
         /**
-            Reads in the config file located at config path
-            given in teh constructor.
+          Reads in the config file located at config path
+          given in teh constructor.
         */
         void readInConfig();
 
         /**
-            @return - returns the environment variable in this Config_Scan 
+          @return - returns the environment variable in this Config_Scan 
         */
         Environment getEnviro();
 
@@ -84,7 +84,7 @@ class Config_Scan{
         string getOplsusaparPath();
 
         /**
-          @return - returns the path to the opls file to be used in the
+          @return - returns the path to the z-matrix file to be used in the
           simulation
         */
         string getZmatrixPath();

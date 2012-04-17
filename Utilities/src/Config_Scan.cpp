@@ -10,19 +10,18 @@ Config_Scan::Config_Scan(string configPath){
 }
 
 void Config_Scan::readInConfig(){
-    cout << "Reading configuration file." << endl;
     ifstream configscanner(configpath.c_str());
     if (! configscanner.is_open()){
-        cout << "Configuration file failed to open." << endl;
+        cerr << "Configuration file failed to open." << endl;
     
         return;
     }
     else {
-        cout << "Configuration file opened successfully." << endl;
         string line;
         int currentLine = 1;
         while (configscanner.good()){
             getline(configscanner,line);
+            //assigns attributes based on line number
             switch(currentLine){
                 case 2:
                     enviro.x = atof(line.c_str());

@@ -48,7 +48,9 @@ class Opls_Scan{
 		/**
 		Scans in the opls File calls sub-function addLineToTable
 		@param filename - the name/path of the opls file
-        @return - the current atom number? TODO
+        @return - success code 
+                  0: successful
+                  1: error
 		*/
       int scanInOpls(string filename); 
 		
@@ -65,7 +67,10 @@ class Opls_Scan{
 		Checks the format of the line being read in
 		returns false if the format of the line is invalid
 		@param line -  a line from the opls file
-        @return - TODO
+        @return - Format code
+                  -1: Invalid Format
+                  1: Normal OPLS format
+                  2: Dihedral format
 		*/
 		int checkFormat(string line);
 		
@@ -81,13 +86,13 @@ class Opls_Scan{
 		/**
 		Returns the sigma value based on the hashNum (1st col) in Z matrix filee
 		@param hashNum -  the hash number (1st col) in Z matrix file
-        @return - the sigman value of the atom that is the value associated with the hasNum key.
+        @return - the sigma value of the atom that is the value associated with the hasNum key.
 		*/
 		double getSigma(string hashNum);
 		
 		/**
 		Returns the epsilon value based on the hashNum (1st col) in Z matrix filee
-		@param hashNum -  the hash number (1st col) in Z matrix file
+		@param hashNum - the hash number (1st col) in Z matrix file
         @return - the epsilon value of the atom that is the value associated with the hashNum key.
 		*/
 		double getEpsilon(string hashNum);

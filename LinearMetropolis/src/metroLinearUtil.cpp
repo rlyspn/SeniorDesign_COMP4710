@@ -221,8 +221,8 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
     for(int i = 0; i < N; i++){
         //apply fudge factor
         if (molecules != NULL){ 
-            int atomXid = getXfromIndex(i);
-            int atomYid = getYfromIndex(atomXid, i);
+            int atomXid = getXFromIndex(i);
+            int atomYid = getYFromIndex(atomXid, i);
             energySum[i] = energySum[i] * getFValue(&(atoms[atomXid]), &(atoms[atomYid]), molecules, enviro); 
         }
 

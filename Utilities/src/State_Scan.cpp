@@ -66,7 +66,6 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
     outFile.close();
 }
 
-// Returns an Environment read from the line of the state file.
 Environment getEnvironmentFromLine(string line){
     Environment enviro;
     //tokenize input line
@@ -103,7 +102,6 @@ Environment getEnvironmentFromLine(string line){
     return enviro;
 }
 
-// Returns an Atom read from a line of the state file
 Atom getAtomFromLine(string line){
     Atom returnAtom = createAtom(-1, -1, -1, -1, -1, -1);
     char *tokens;
@@ -113,6 +111,7 @@ Atom getAtomFromLine(string line){
     strcpy(charLine, line.c_str());
     tokens = strtok(charLine, " ");
     
+    //read in atoms
     int tokenNumber = 0;
     while(tokens != NULL){
         switch(tokenNumber){
@@ -142,7 +141,6 @@ Atom getAtomFromLine(string line){
     return returnAtom;
 }
 
-// reads information about a bond from the line and returns a bond
 Bond getBondFromLine(string line){
     Bond bond = createBond( -1, -1, -1, false);
 
@@ -151,8 +149,8 @@ Bond getBondFromLine(string line){
     strcpy(charLine, line.c_str());
     tokens = strtok(charLine, " ");
     strcpy(charLine, line.c_str());
+
     int tokenNumber = 0;
-    
     while(tokens != NULL){
         switch(tokenNumber){
             case 0: // atom 1
@@ -185,8 +183,8 @@ Angle getAngleFromLine(string line){
     strcpy(charLine, line.c_str());
     tokens = strtok(charLine, " ");
     strcpy(charLine, line.c_str());
+    
     int tokenNumber = 0;
-
     while(tokens != NULL){
        switch(tokenNumber){
            case 0:
@@ -242,7 +240,6 @@ Dihedral getDihedralFromLine(string line){
 
 }
 
-//Read in the environment from the provided file
 Environment readInEnvironment(string filename){
     ifstream inFile (filename.c_str());
     string line;
@@ -329,7 +326,8 @@ vector<Molecule> readInMolecules(string filename){
                             atomArray[i] = atoms[i];
                         for(int i = 0; i < dihedrals.size(); i++)
                             dihedralArray[i] = dihedrals[i];
-                        
+                       
+                        //assign arrays to molecule
                         currentMolec.atoms = atomArray;
                         currentMolec.numOfAtoms = atoms.size();
                         
@@ -341,7 +339,8 @@ vector<Molecule> readInMolecules(string filename){
 
                         currentMolec.dihedrals = dihedralArray;
                         currentMolec.numOfDihedrals = dihedrals.size();
-
+                        
+                        //add molecule to array of returned molecules
                         molecules.push_back(currentMolec); 
                         
                         Molecule newMolec;
@@ -365,13 +364,6 @@ vector<Molecule> readInMolecules(string filename){
     }
     
    return molecules;
-/**   Molecule *moleculeArray;
-   moleculeArray = (Molecule *)malloc(sizeof(Molecule) * molecules.size());
-   for(int i = 0; i < molecules.size(); i++){
-        moleculeArray[i] = molecules[i];
-   }
-
-   return moleculeArray;*/
 
 }
 
