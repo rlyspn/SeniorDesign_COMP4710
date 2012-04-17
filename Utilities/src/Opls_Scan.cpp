@@ -1,3 +1,9 @@
+/*!\file
+  \brief Structures and functions used to read and write OPLS files.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
+
 #include "Opls_Scan.h"
 #include <exception>
 #include <stdexcept>
