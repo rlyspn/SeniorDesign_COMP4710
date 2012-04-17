@@ -1,7 +1,6 @@
 #include "metroUtil.h"
 
 
-//create an instance of an Atom struct
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon, double charge){
     Atom atom;
     atom.id = id;
@@ -14,7 +13,7 @@ Atom createAtom(unsigned long id, double x, double y, double z, double sigma, do
 
     return atom;
 }
-//create an instance of an Atom struct
+
 Atom createAtom(unsigned long id, double x, double y, double z, double sigma, double epsilon){
     Atom atom;
     atom.id = id;
@@ -26,7 +25,7 @@ Atom createAtom(unsigned long id, double x, double y, double z, double sigma, do
 
     return atom;
 }
-//create an instance of an Atom struct w/o sigma/epsilon constants
+
 Atom createAtom(unsigned long id, double x, double y, double z){
     Atom atom;
     atom.id = id;
@@ -40,8 +39,6 @@ Atom createAtom(unsigned long id, double x, double y, double z){
     return atom;
 }
 
-
-//create an instance of the Environment struct
 Environment createEnvironment(double x, double y, double z, double maxTrans, double temp, int numOfAtoms){
     Environment enviro;
     enviro.x = x;
@@ -54,7 +51,6 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
     return enviro;
 }
 
-//returns an instance of a molecule object
 Molecule createMolecule(int id, 
                         Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals, 
                         int atomCount, int angleCount, int bondCount, int dihedralCount){
@@ -74,7 +70,6 @@ Molecule createMolecule(int id,
     return molecule;
 }
 
-//returns an instance of a molecule object
 Molecule createMolecule(int id, 
                         Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals, Hop *hops, 
                         int atomCount, int angleCount, int bondCount, int dihedralCount, int hopCount){
@@ -96,8 +91,6 @@ Molecule createMolecule(int id,
     return molecule;
 }
 
-
-// returns an instance of the molecule struct
 Molecule createMolecule(int id, Atom *atoms, int atomCount){
     Molecule molecule;
     molecule.id = id;
@@ -107,7 +100,6 @@ Molecule createMolecule(int id, Atom *atoms, int atomCount){
     return molecule;
 }
 
-//returns an instance of a bond
 Bond createBond(int atom1, int atom2, double distance, bool variable){
     Bond bond;
     bond.atom1 = atom1;
@@ -118,7 +110,6 @@ Bond createBond(int atom1, int atom2, double distance, bool variable){
     return bond;
 }
 
-//returns an instance of a dihedral
 Dihedral createDihedral(int atom1, int atom2, double value, bool variable){
     Dihedral dihedral;
 
@@ -149,15 +140,12 @@ Hop createHop(int atom1, int atom2, int hop){
     return hops;
 }
 
-
-//utility to print off Atom coordinate data
 void printAtoms(Atom *atoms, int count){
     for(int i = 0; i < count; i++){
         printf("%d, %f, %f, %f\n", atoms[i].id, atoms[i].x, atoms[i].y, atoms[i].z);
     }
 }
 
-//writes to the listed filename in the protein databank format
 void writePDB(Atom *atoms, Environment enviro, string filename){
     ofstream outputFile;
     outputFile.open(filename.c_str());
@@ -170,7 +158,6 @@ void writePDB(Atom *atoms, Environment enviro, string filename){
     outputFile.close();
 }
 
-// writes atom information to a file.  Based on the siremol files.
 void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy){
    ofstream outputFile;
    outputFile.open(filename.c_str());
@@ -183,21 +170,19 @@ void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accept
    }
    outputFile.close();
 }
-/**
-  Copies by value the values in molec2 into molec1
-*/
+
 void copyMolecule(Molecule *molec1, Molecule *molec2){
     molec1->atoms = (Atom *)malloc(sizeof(Atom) * molec2->numOfAtoms);
     molec1->bonds = (Bond *)malloc(sizeof(Bond) * molec2->numOfBonds);
     molec1->angles = (Angle *)malloc(sizeof(Angle) * molec2->numOfAngles);
     molec1->dihedrals = (Dihedral *)malloc(sizeof(Dihedral) * molec2->numOfDihedrals);
-	 molec1->hops = (Hop *)malloc(sizeof(Hop) * molec2->numOfHops);
+	molec1->hops = (Hop *)malloc(sizeof(Hop) * molec2->numOfHops);
 
     molec1->numOfAtoms = molec2->numOfAtoms;
     molec1->numOfBonds = molec2->numOfBonds;
     molec1->numOfAngles = molec2->numOfAngles;
     molec1->numOfDihedrals = molec2->numOfDihedrals;
-	 molec1->numOfHops =  molec2->numOfHops;
+    molec1->numOfHops =  molec2->numOfHops;
     molec1->id = molec2->id;
 
     for(int i = 0; i < molec1->numOfAtoms; i++){
@@ -219,35 +204,35 @@ void copyMolecule(Molecule *molec1, Molecule *molec2){
 
 void writeToLog(string text,int stamp){
     string filename = "OutputLog";
-	 ofstream logFile;
-	 logFile.open(filename.c_str(),ios::out|ios::app);
-	 switch(stamp){
-	     case START://The start of a new simulation
-		      logFile << "\n\n\n\n\n\n" << endl;
-				logFile << "======================================================================"<<endl;
-				logFile << "                       Starting Simulation: ";
-				time_t current_time;
+    ofstream logFile;
+    logFile.open(filename.c_str(),ios::out|ios::app);
+    switch(stamp){
+        case START://The start of a new simulation
+            logFile << "\n\n\n\n\n\n" << endl;
+            logFile << "======================================================================"<<endl;
+            logFile << "                       Starting Simulation: ";
+            time_t current_time;
             struct tm * time_info;
             char timeString[9];  // space for "HH:MM:SS\0"
             time(&current_time);
             time_info = localtime(&current_time);
             strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
-				logFile << timeString;
-				logFile << "======================================================================"<<endl;
-	     case OPLS:
-	         logFile << "--OPLS: ";
-		      break;
-	     case Z_MATRIX:
-	         logFile << "--Z_Matrix: ";
-		      break;
-	     default:
-	         logFile << "";
-		      break;		
-	 }
-	 logFile << text << endl;
-	 logFile.close();	 
-}
+            logFile << timeString;
+            logFile << "======================================================================"<<endl;
+        case OPLS:
+            logFile << "--OPLS: ";
+            break;
+        case Z_MATRIX:
+            logFile << "--Z_Matrix: ";
+            break;
+        default:
+            logFile << "";
+            break;		
+    }
 
+    logFile << text << endl;
+    logFile.close();	 
+}
 
 void printMolecule(Molecule *molec){
     cout << "Molecule: " << molec->id << endl;
@@ -277,6 +262,7 @@ void printMolecule(Molecule *molec){
         Angle current = molec->angles[i];
         printf("%d -- | -- %d = %f\n", current.atom1, current.atom2, current.value);
     }
+
     //print dihedrals
     printf("Dihedrals(%d): \n", molec->numOfDihedrals);
     for(int i = 0; i < molec->numOfDihedrals; i++){

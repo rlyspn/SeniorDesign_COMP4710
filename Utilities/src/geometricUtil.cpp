@@ -192,7 +192,7 @@ Point getNormal(Plane p){
 
 double getDistance(Atom atom0, Atom atom1, Atom atom2, Atom atom3){
     if(fabs(getAngle(atom1, atom2, atom3)) < .00001){
-        //determin if line passes through origin
+        //determine if line passes through origin
         // see : http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
         
         Atom a1_a0 = createAtom(-1, atom1.x - atom0.x, atom1.y - atom0.y,
@@ -222,11 +222,11 @@ double getDistance(Atom atom0, Atom atom1, Atom atom2, Atom atom3){
 }
 
 Point getNormal(Atom atom1, Atom atom2, Atom atom3){
-    //lines are on co-linear
+    //atoms are co-linear
     if(fabs(getAngle(atom1, atom2, atom3)) < .00001){
         //will try to use 0,0,0 then 1,0,0 then 0,1,0 as normals
 
-        //determin if line passes through origin
+        //determine if line passes through origin
         Atom atom0 = createAtom(-1, 0, 0, 0);
         double distance_2_origin = getDistance(atom0, atom1, atom2, atom3);
         
@@ -312,31 +312,13 @@ Atom rotateAtomInPlane(Atom atom1, Atom atom2, Atom atom3, double theta){
     }
     Atom vectorEnd = createAtom(-1, atom2.x + normal.x, atom2.y + normal.y,
             atom2.z + normal.z);
-    
-    /*printf("Vector start: ");
-    printAtoms(&atom2, 1);
-    printf("Normal: ");
-    printPoint(normal);
-    printf("Vector end: ");
-    printAtoms(&vectorEnd, 1);*/
-    
+   
    //Rotate about that normal vector
     return rotateAtomAboutVector(atom1, atom2, vectorEnd, theta);
 }
 
 Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     theta *= -1;
- 
-    /*
-    printf("Rotating atom %f degrees.\n", theta);
-    printf("Before translation:\n");
-    printf("Atom3: ");
-    printAtoms(&atom3, 1);
-    printf("Atom2: ");
-    printAtoms(&atom2, 1);
-    printf("Atom1: ");
-    printAtoms(&atom1, 1);
-    */
 
     //Translate all atoms so that atom2 is at the origin.
     //The rotation axis needs to pass through the origin
@@ -345,16 +327,6 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     atom1 = translateAtom(atom1, -originalAtom2.x, -originalAtom2.y, -originalAtom2.z);
     atom2 = translateAtom(atom2, -originalAtom2.x, -originalAtom2.y, -originalAtom2.z);
     atom3 = translateAtom(atom3, -originalAtom2.x, -originalAtom2.y, -originalAtom2.z);
-
-    /**
-    printf("After translation:\n");
-    printf("Atom3: ");
-    printAtoms(&atom3, 1);
-    printf("Atom2: ");
-    printAtoms(&atom2, 1);
-    printf("Atom1: ");
-    printAtoms(&atom1, 1);
-    */  
 
     //find the angle between the vector and xz plane
     double xzAngle = 0.0; 
@@ -370,8 +342,6 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
             xzVector = createAtom(-1, atom3.x, 0, atom3.z);
 
         }
-       // printf("xzVector = ");
-        //printAtoms(&xzVector, 1);
         xzAngle = getAngle(atom3, atom2, xzVector);  
         
         //rotate about z axis so that vector is parallel to xz plane
@@ -385,45 +355,13 @@ Atom rotateAtomAboutVector(Atom atom1, Atom atom2, Atom atom3, double theta){
     Atom zAxis = createAtom(-1, 0, 0, 1);
     double zAngle = getAngle(atom3, atom2, zAxis);
     
-    /*
-    printf("xzAngle = %f\n", xzAngle);
-    printf("After rotation into xz:\n");
-    printf("Atom3: ");
-    printAtoms(&atom3, 1);
-    printf("Atom2: ");
-    printAtoms(&atom2, 1);
-    printf("Atom1: ");
-    printAtoms(&atom1, 1);
-    printf("zAngle = %f\n", zAngle);
-    */
     //rotate about y axis so that the vector is parallel to z axis
     atom1 = rotateAboutY(atom1, zAngle);
     atom2 = rotateAboutY(atom2, zAngle);
     atom3 = rotateAboutY(atom3, zAngle);
 
-    /*
-    printf("After rotation onto z axis:\n");
-    printf("Atom3: ");
-    printAtoms(&atom3, 1);
-    printf("Atom2: ");
-    printAtoms(&atom2, 1);
-    printf("Atom1: ");
-    printAtoms(&atom1, 1);
-    printf("Theta = %f\n", theta);
-    */
-
     //rotate atom1 theta about the z axis.
     atom1 = rotateAboutZ(atom1, theta);
-    
-    /*
-    printf("After rotation about z axis:\n");
-    printf("Atom3: ");
-    printAtoms(&atom3, 1);
-    printf("Atom2: ");
-    printAtoms(&atom2, 1);
-    printf("Atom1: ");
-    printAtoms(&atom1, 1);
-*/
 
     //invert rotation about y axis
     atom1 = rotateAboutY(atom1, -zAngle);

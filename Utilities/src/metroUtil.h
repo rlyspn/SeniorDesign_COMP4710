@@ -130,8 +130,9 @@ Environment createEnvironment(double x, double y, double z, double maxTrans, dou
   @param atoms - list of atoms to be written
   @param enviro - environmental information
   @param filename - name of the file to be written
-  @pararm accepts - the number of moves accepted by the system.
-  @param rejects - the number of moves rejected by the system.
+  @pararm accepts - the number of moves accepted by the system
+  @param rejects - the number of moves rejected by the system
+  @param totalEnergy - the totalEnergy in the system
 */
 void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy);
 
@@ -163,6 +164,7 @@ struct Bond{
   @param atom2 - the id of the second atom in the bond
   @param distance - the distance between the the two atoms
   @param variable - boolean if distance is variable
+  @return - instance of the new bond
 */
 Bond createBond(int atom1, int atom2, double distance, bool variable);
 
@@ -199,6 +201,7 @@ struct Angle{
   @param atom2 - the second atom in the angle
   @param value - the value of the angle in degrees
   @param variable - if the angle between the atoms can change
+  @return - instance of the new Angle
 */
 Angle createAngle(int atom1, int atom2, double value, bool variable);
 
@@ -234,6 +237,7 @@ struct Dihedral{
   @param atom2 - the second atom in the dihedral
   @param value - the distance between the atoms
   @param variable - if the dihedral is variable
+  @return - instance of the new dihedral
 */
 Dihedral createDihedral(int atom1, int atom2, double value, bool variable);
 
@@ -260,7 +264,7 @@ struct Hop{
   @param atom1 - the starting atom
   @param atom2 - the ending atom
   @param hops - the number of nodes between the start and finish
-  @return - an instance of the hops structure.
+  @return - an instance of the Hop structure.
 */
 Hop createHop(int atom1, int atom2, int hops);
 
@@ -271,60 +275,60 @@ struct Molecule{
     /**
     the name of the molecule
     */
-    int id; // 
-    
+    int id;
     /**
     array of atoms in the molecule
     */
-    Atom *atoms; // 
+    Atom *atoms;
     /**
     array of bonds of the atoms in the molecule.
     */
-    Bond *bonds; // 
+    Bond *bonds;
     /**
     angles in the molecule between atoms
     */
-    Angle *angles; // 
+    Angle *angles;
     /**
     array of dihedrals in the molecule
     */
-    Dihedral *dihedrals; // 
+    Dihedral *dihedrals;
     /**
     array containing a list of atoms that are less than 4 nodes away
     */
-	 Hop *hops; //
-
+    Hop *hops;
     /**
      the number of atoms in the molecule
     */
-    int numOfAtoms; //
+    int numOfAtoms;
     /**
     the number of bonds in the molecule
     */
-    int numOfBonds; // 
+    int numOfBonds;
     /**
     the number of angles in the molecule
     */
-    int numOfAngles; // 
+    int numOfAngles;
     /**
      the number of dihedrals in the atom
     */
-    int numOfDihedrals; //
+    int numOfDihedrals;
     /**
     the number of Hops or pairs of atoms that are less than 4 nodes away
     */
-	 int numOfHops; // 
+	 int numOfHops;
 };
 
 /**
     @param id - the integer id of the molecule
-    @param name - the name of the molecule
     @param atoms - an array of the atoms in the molecule
-    @param bonds - an array of the bonds in the atom
-    @pararm dihedrals - array of dihedrals in the atom
+    @param angles - an array of the angles in the molecule
+    @param bonds - an array of the bonds in the molecule
+    @pararm dihedrals - array of dihedrals in the molecule
     @param atomCount - the number of atoms in the molecule
-    @param bondCount - the number of bonds in the atom
+    @param angleCount - the number of angles in the molecule
+    @param bondCount - the number of bonds in the molecule
     @param dihedralCount - the number of dihedrals in the molecule
+    @return - an instance of the new molecule
 */
 Molecule createMolecule(int id,
                         Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals,
@@ -332,13 +336,17 @@ Molecule createMolecule(int id,
 
 /**
     @param id - the integer id of the molecule
-    @param name - the name of the molecule
     @param atoms - an array of the atoms in the molecule
-    @param bonds - an array of the bonds in the atom
-    @pararm dihedrals - array of dihedrals in the atom
+    @param angles - an array of the angles in the molecule
+    @param bonds - an array of the bonds in the molecule
+    @param dihedrals - array of dihedrals in the molecule
+    @param hops - array of hops in the molecule
     @param atomCount - the number of atoms in the molecule
-    @param bondCount - the number of bonds in the atom
+    @param angleCount - the number of angles in the molecule
+    @param bondCount - the number of bonds in the molecule
     @param dihedralCount - the number of dihedrals in the molecule
+    @param hopsCount - the number of hops in the molecule
+    @return - an instance of the new molecule
 */
 Molecule createMolecule(int id,
                         Atom *atoms, Angle *angles, Bond *bonds, Dihedral *dihedrals, Hop *hops,
@@ -347,9 +355,9 @@ Molecule createMolecule(int id,
 								
 /**
     @param id - the integer id of the molecule
-    @param name - the name of the molecule
     @param atoms - an array of the atoms in the molecule
     @param atomCount - the number of atoms in the molecule
+    @return - an instance of the new molecule
 */
 Molecule createMolecule(int id, 
                         Atom *atoms,
@@ -383,11 +391,12 @@ void writePDB(Atom *atoms, Environment enviro, string filename);
 /**
   Logs output to the OutputLog file
   @param text - the text to be written to the output log
+  @param stamp - optional variable that uses one of the above flags
 */
 void writeToLog(string text, int stamp=0 );
 
 /**
-  Prints a molecule and it's fields
+  Prints a molecule and its fields
 */
 void printMolecule(Molecule *molec);
 
