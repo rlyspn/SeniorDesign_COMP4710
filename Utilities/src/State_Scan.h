@@ -1,5 +1,5 @@
 /*!\file
-  \brief Structures and functions used to read and write configuration files.
+  \brief Structures and functions used to read and write state files.
   \author Alexander Luchs, Riley Spahn, Seth Wooten
  
  */

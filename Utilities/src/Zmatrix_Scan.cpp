@@ -1,3 +1,8 @@
+/*!\file
+  \brief Structures and functions used to read and write Z-matrix files.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
 #include "Zmatrix_Scan.h"
 
 //constructor

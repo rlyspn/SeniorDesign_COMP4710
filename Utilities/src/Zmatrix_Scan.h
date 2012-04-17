@@ -1,3 +1,8 @@
+/*!\file
+  \brief Structures and functions used to read and write Z-matrix files.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
 #ifndef ZMATRIX_SCAN_H
 #define ZMATRIX_SCAN_H
 
@@ -19,16 +24,45 @@ using namespace std;
 
 class Zmatrix_Scan{
    private:
+       /**
+         The path to the Z-matrix file
+      */
       string fileName;
+      /**
+        Opls_Scan object used to assign sigma, epsilon and charge values.
+      */
       Opls_Scan *oplsScanner;
+      /**
+        Vector that holds example molecules.
+      */
       vector<Molecule> moleculePattern;
+      /**
+        Vector that holds the atoms contained in the molecule in the Z-matrix.
+      */
       vector<Atom> atomVector;
+      /**
+        Vector that holds the bonds contained in the molecule in the Z-matrix.
+      */
       vector<Bond> bondVector;
+      /**
+        Vector that holds the angles contained in the molecule in the Z-matrix.
+      */
       vector<Angle> angleVector;
+      /**
+        Vector that holds the dihedralss contained in the molecule in the Z-matrix.
+      */
       vector<Dihedral> dihedralVector;
+      /**
+        Vector of dummy atoms held seperately from the normal atoms.
+      */
       vector<unsigned long> dummies;
-
+      /**
+        Global variable that determines if there are multiple molecules in a Z-matrix.
+      */
       bool startNewMolecule;
+      /**
+        TODO
+      */
       int previousFormat;
 
    public:
@@ -38,6 +72,7 @@ class Zmatrix_Scan{
 		/**
 		Scans in the z-matrix File calls sub-function parseLine
 		@param filename - the name/path of the z-matrix file
+        @return - TODO
 		*/
       int scanInZmatrix(); 
 		
@@ -55,6 +90,7 @@ class Zmatrix_Scan{
 		returns false if the format of the line is invalid
 		@param line -  a line from the zmatrix file
       @param stringCount - number of strings in a line you're looking at
+      @return - TODO
 		*/
         int checkFormat(string line);
 
@@ -69,6 +105,7 @@ class Zmatrix_Scan{
 		  Creates a vector containg the Hop distances of a molecule
 		  for all hops that have a distance greater than 3.
 		  @param molec - the molecule to check its bonds for valid hops
+          @return - returns a vector of hops needed for energy calculations
 		  */
 		  vector<Hop> calculateHops(Molecule molec);
 		  
@@ -76,6 +113,7 @@ class Zmatrix_Scan{
 		  Checks if the int item is contained in the vector
 		  @param vect - the vector to search through
 		  @param item - the item to search for
+          @return - true if the int is in the vector and false otherwise.
 		  */
 		  bool contains(vector<int> &vect, int item);
 		  
@@ -84,6 +122,7 @@ class Zmatrix_Scan{
 		  @param atom1 - the id of the starting atom
 		  @param atom2 -  the if of the ending atom
 		  @param graph - a 2d array representing all the bonds in the molecule
+          @return - returns the number of bonds seperating atom1 and atom2.
 		  */
 		  int findHopDistance(int atom1,int atom2,int size, int **graph);
 		  
@@ -101,6 +140,8 @@ class Zmatrix_Scan{
         Creates a molecule(s)  based on a starting unique ID and the pattern specified
         by the Z-matrix in the scan functions
         @param startingID - first ID for the molecule being built
+        @return - vector of unique molecules that are copies of the molecules from the
+        Z-matrix file.
         */
         vector<Molecule> buildMolecule(int startingID);
 };
