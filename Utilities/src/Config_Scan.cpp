@@ -1,3 +1,8 @@
+/*!\file
+  \brief Class used to read and write configuration files.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+ */
 #include "Config_Scan.h"
 
 Config_Scan::Config_Scan(string configPath){
