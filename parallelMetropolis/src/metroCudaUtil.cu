@@ -6,11 +6,9 @@ void cudaAssert(const cudaError err, const char *file, const int line)
     if( cudaSuccess != err) {                                                
         fprintf(stderr, "Cuda error in file '%s' in line %i : %s.\n",        
                 file, line, cudaGetErrorString(err) );
-        //exit(1);
     } 
 }
 
-//create a device molecule structure.
 DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
         int bondStart, int numOfBonds, int angleStart, int numOfAngles,
         int dihedralStart, int numOfDihedrals, int hopStart, int numOfHops){
@@ -36,7 +34,6 @@ DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
     return dm;
 }
 
-//gets the x atom from the thread index
 __device__ int getXFromIndex(int idx){
     int c = -2 * idx;
     int discriminant = 1 - 4 * c;
@@ -44,14 +41,11 @@ __device__ int getXFromIndex(int idx){
     return qv + 1;
 }
 
-//calculates Y (smaller indexed atom) for energy calculation based on index in atom array
 __device__ int getYFromIndex(int x, int idx){
     return idx - (x * x - x) / 2;
 }
 
-//apply periodic boundaries
 __device__ double makePeriodic(double x, double box){
-    
     while(x < -0.5 * box){
         x += box;
     }
@@ -61,12 +55,9 @@ __device__ double makePeriodic(double x, double box){
     }
 
     return x;
-
 }
 
-//keep coordinates with box
 double wrapBox(double x, double box){
-
     while(x >  box){
         x -= box;
     }
@@ -78,7 +69,6 @@ double wrapBox(double x, double box){
 }
 
 void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
-
     double maxX = DBL_MIN;
     double maxY = DBL_MIN;
     double maxZ = DBL_MIN;
@@ -115,7 +105,6 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
     bool isFullyOutX = (minX > enviro->x || maxX < 0) ? true : false;
     bool isFullyOutY = (minY > enviro->y || maxY < 0) ? true : false;
     bool isFullyOutZ = (minZ > enviro->z || maxZ < 0) ? true : false;
-
 
     //for each axis, determine if the molecule escapes the environment 
     //and wrap it around into the environment
@@ -156,11 +145,9 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro){
                 *currentZ -= maxZ;
             *currentZ = wrapBox(*currentZ - nudge, enviro->z);
         }
-        
     }
-
 }
-//calculate Lennard-Jones energy between two atoms
+
 __device__ double calc_lj(Atom atom1, Atom atom2, Environment enviro){
     //store LJ constants locally
     double sigma = calcBlending(atom1.sigma, atom2.sigma);
@@ -205,7 +192,6 @@ __global__ void assignAtomPositions(double *dev_doublesX, double *dev_doublesY, 
     }
 }
 
-//generate coordinate data for the atoms
 void generatePoints(Atom *atoms, Environment *enviro){
     //setup CUDA storage
     curandGenerator_t generator;
@@ -215,8 +201,6 @@ void generatePoints(Atom *atoms, Environment *enviro){
     //double *hostDoubles;
     Atom *devAtoms;
     Environment *devEnviro;
-    
-    //hostDoubles = (double *) malloc(sizeof(double) * N);
 
     //allocate memory on device
     cudaMalloc((void**)&devXDoubles, enviro->numOfAtoms * sizeof(double));
@@ -254,7 +238,6 @@ void generatePoints(Atom *atoms, Environment *enviro){
     cudaFree(devEnviro);
 }
 
-//generate coordinate data for the atoms with all molecules
 void generatePoints(Molecule *molecules, Environment *enviro){
     srand(time(NULL));
 
@@ -272,7 +255,6 @@ void generatePoints(Molecule *molecules, Environment *enviro){
     }
 }
 
-//Calculates the energy of system using molecules
 double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
     
     Atom *atoms = (Atom *) malloc(sizeof(Atom) * enviro->numOfAtoms);
@@ -281,9 +263,6 @@ double calcEnergyWrapper(Molecule *molecules, Environment *enviro){
         Molecule currentMolecule = molecules[i];
         for(int j = 0; j < currentMolecule.numOfAtoms; j++){
             atoms[atomIndex] = currentMolecule.atoms[j];
-            //printf("%d, %f, %f, %f, %f, %f\n", atoms[atomIndex].id, atoms[atomIndex].x,
-            //        atoms[atomIndex].y, atoms[atomIndex].z, atoms[atomIndex].sigma,
-             //       atoms[atomIndex].epsilon);
             atomIndex++;
         }
     }
@@ -368,27 +347,21 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
 
     for(int i = 0; i < N; i++){
 
+        //get atom IDs for each calculation
         int c = -2 * i;
         int discriminant = 1 - 4 * c;
         int qv = (-1 + sqrtf(discriminant)) / 2;
         int atomXid = qv + 1;
         
         int atomYid =  i - (atomXid * atomXid - atomXid) / 2;
-
+        
+        //check for stray calculations that returned invalid results
         if (isnan(energySum_host[i]) != 0 || isinf(energySum_host[i]) != 0){
             energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro, molecules);
         }
-        
-        //cout << "EnergySum[" << i << "]: " << energySum_host[i] << " (before)" << endl;
-       /* 
-        if (molecules != NULL){
-            energySum_host[i] = energySum_host[i] * getFValueHost(atoms[atomXid], atoms[atomYid], molecules, enviro); 
-        }
-        */
-        //cout << "EnergySum[" << i << "]: " << energySum_host[i] << " (after)" << endl;
+       
+        //sum up energies 
         totalEnergy += energySum_host[i];
-        //cout << "totalEnergy: " << totalEnergy << endl;
-
     }
 
     //cleanup
@@ -400,11 +373,12 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
 }
 
 double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *molecules){
+    //define terms
     const double e = 332.06;
-
     double sigma = sqrt(atom1.sigma * atom2.sigma);
     double epsilon = sqrt(atom1.epsilon * atom2.epsilon);
     
+    //calculate distance between atoms
     double deltaX = atom1.x - atom2.x;
     double deltaY = atom1.y - atom2.y;
     double deltaZ = atom1.z - atom2.z;
@@ -419,6 +393,7 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *m
 
     double r = sqrt(r2);
 
+    //combine terms and calculate energies
     double sig2OverR2 = pow(sigma, 2) / r2;
     double sig6OverR6 = pow(sig2OverR2, 3);
     double sig12OverR12 = pow(sig6OverR6, 2);
@@ -426,6 +401,7 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *m
 
     double charge_energy = (atom2.charge * atom1.charge * e) / r;
     
+    //check if atoms overlap
     if (r2 == 0.0){
         lj_energy = 0.0;
         charge_energy = 0.0;
@@ -441,12 +417,6 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *m
 }
 
 __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, DeviceMolecule *dev_molecules, Hop *hops){
-
-//need to figure out how many threads per block will be executed
-// must be a power of 2
-//    __shared__ double cache[THREADS_PER_BLOCK];
-
-    //int cacheIndex = threadIdx.x;
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     double lj_energy,charge_energy, fValue;
@@ -454,7 +424,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, 
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
 
     if(idx < N ){
-    //calculate the x and y positions in the Atom array
+        //calculate the x and y positions in the Atom array
         int xAtom_pos, yAtom_pos;
         xAtom_pos = getXFromIndex(idx);
         yAtom_pos = getYFromIndex(xAtom_pos, idx);
@@ -480,28 +450,8 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, 
     else {
         energySum[idx] = 0.0;
     }
-
-
-    /**
-// set the cache values
-cache[cacheIndex] = lj_energy;
-// synchronize threads in this block
-__syncthreads();
-// adds 2 positions together
-int i = blockDim.x/2;
-while (i != 0) {
-if (cacheIndex < i)
-cache[cacheIndex] += cache[cacheIndex + i];
-__syncthreads();
-i /= 2;
 }
-// copy this block's sum to the enrgySums array
-// at its block index postition
-if (cacheIndex == 0)
-energySum[blockIdx.x] = cache[0];
-*/
 
-}
 __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro){
     const double e = 332.06;
  
@@ -534,7 +484,6 @@ __device__ double calcBlending(double d1, double d2){
     return sqrt(d1 * d2);
 }
 
-//returns the molecule that contains a given atom
 __device__ int getMoleculeFromAtomID(Atom a1, DeviceMolecule *dev_molecules, Environment enviro){
     int atomId = a1.id;
     int currentIndex = enviro.numOfMolecules - 1;
@@ -584,7 +533,6 @@ __device__ int hopGE3(int atom1, int atom2, DeviceMolecule dev_molecule, Hop *mo
 	 return 0;
 }
 
-//returns the molecule that contains a given atom
 Molecule* getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro){
     int atomId = a1.id;
     int currentIndex = enviro.numOfMolecules - 1;
@@ -689,46 +637,6 @@ void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation){
     }
 }
 
-/**
-  This  is currently a stub pending information from Dr. Acevedo
-*/
-double solventAccessibleSurfaceArea(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventDistributionFunction(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double atomAtomDistributionFunction(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double solventSolventTotalEnergy(){
-    return -1.f;
-}
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventTotalEnergy(){
-    return -1.f;
-}
-
-//Implementation of the copy to device function
-    /**
-      It might be better if we do this where it just copies.
-      This might be better as a create molecule on device function
-    */
 void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
         int numOfMolecules, Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d){
@@ -770,6 +678,7 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     int angleIndex = 0;
     int dihedralIndex = 0;
     int hopIndex = 0;
+
     //split fields into their own arrays
     for(int i = 0; i < numOfMolecules; i++){
         Molecule m = molec_h[i];
@@ -918,14 +827,6 @@ void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
     
 }
 
-
-void freeMoleculeOnDevice(DeviceMolecule *molec_d,
-        Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
-        Dihedral *dihedrals_d, Hop *hops_d){
-    
-}
-
-//Allocates needed memory for the molecule on the device
 void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d){
@@ -961,6 +862,7 @@ void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
     cudaMalloc((void **) &dihedrals_d, dihedralSize);
     cudaMalloc((void **) &hops_d, hopSize);
 }
+
 __global__ void freeArrays(Molecule *molecules, int numOfMolecules){
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     
@@ -992,10 +894,8 @@ __global__ void allocateArrays(Molecule *molecules, int numOfMolecules){
         size_t hopSize = sizeof(Hop) * molecules[idx].numOfHops;
         molecules[idx].hops = (Hop *)malloc(hopSize);
     }
-
 }
 
-//Can easily be optimized.  Wanted it right first.
 __global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angle *angles,
         Dihedral *dihedrals, Hop *hops, int numOfMolecules, int maxAtoms, int maxBonds, int maxAngles,
         int maxDihedrals, int maxHops){
@@ -1025,8 +925,6 @@ __global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angl
     }
 }
 #ifdef DEBUG
-
-//these are all test wrappers for __device__ functions because they cannot be called from an outside source file.
 
 __global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *answers, Environment *enviro){
     int idx = threadIdx.x + blockIdx.x * blockDim.x;

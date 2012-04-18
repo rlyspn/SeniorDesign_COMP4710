@@ -84,6 +84,7 @@ void cudaAssert(const cudaError err, const char *file, const int line);
   @param numOfDihedrals - the number of dihedrals in this molecule
   @param hopStart - this molecule's first hop in the hop array.
   @param numOfHops - the number of hops in this molecule.
+  @return - instance of DeviceMolecule that is created
 */
 DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
         int bondStart, int numOfBonds, int angleStart, int numOfAngles,
@@ -91,13 +92,14 @@ DeviceMolecule createDeviceMolecule(int id, int atomStart, int numOfAtoms,
 
 /**
   @param idx - the index in the 1 dimensional array of energies
-  @return - the id of the X atom
+  @return - the id of the X atom (atom in the calculation with the larger id)
 */
 __device__ int getXFromIndex(int idx);
 
 /**
   @param x - the id of the x atom
   @param idx - the index in the 1 dimensional array of energies
+  @return - the id of the Y atom (atom in the calculation with the smaller id)
 */
 __device__ int getYFromIndex(int x, int idx);
 
@@ -111,6 +113,7 @@ __device__ double makePeriodic(double x, const double box);
 /**
   @param x - the value to continue on the other side of the box
   @param box - the length of one side of the box (cube)
+  @return - x after being wrapped around the box dimension
 */
 double wrapBox(double x, double box);
 
@@ -201,14 +204,16 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, 
   Calculates the charge portion of the force field energy calculation between two atoms.
   @param atom1 - the first atom in the calculation
   @param atom2 - the second atom in the calculation
+  @param enviro - simulation environment pointer
   @return - the charge portion of the force field.
 */
 __device__ double calcCharge(Atom atom1, Atom atom2, Environment *enviro);
 
 /**
   Returns the molecule id from the atomid
-  @param atom - the atom from which to find the molecule
-  @param dev_molecules - the list of DeviceMolecules to be searched
+  @param a1 - the atom from which to find the molecule
+  @param dev_molecules - the list of DeviceMolecules to be searchedi
+  @param enviro - simulation environment
   @param return - returns the id of the molecule
 */
 __device__ int getMoleculeFromAtomID(Atom a1, DeviceMolecule *dev_molecules, Environment enviro);
@@ -217,7 +222,7 @@ __device__ int getMoleculeFromAtomID(Atom a1, DeviceMolecule *dev_molecules, Env
   Returns the "fudge factor" to be used in force field calculation.
   @param atom1 - the first atom in calculation
   @param atom2 - the second atom in the calculation
-  @param dev_molecule - array of all DeviceMolecules in simulation
+  @param dev_molecules - array of all DeviceMolecules in simulation
   @param hops - array of all hops in simulation
   @return - 1.0 if the atoms are in seperate molecules
             1.0 if the bond traversal distance is greater than 3
@@ -233,6 +238,8 @@ __device__ double getFValue(Atom atom1, Atom atom2, DeviceMolecule *dev_molecule
   @param atom2 - the id of the ending atom
   @param dev_molecule - the DeviceMolecule that contains atom1 and atom 2
   @param molecule_hops - array of hops in dev_molecule
+  @return - 0 if hop is not found
+            Traversal distance if found
 */
 __device__ int hopGE3(int atom1, int atom2, DeviceMolecule dev_molecule, Hop *molecule_hops);
 
@@ -240,6 +247,7 @@ __device__ int hopGE3(int atom1, int atom2, DeviceMolecule dev_molecule, Hop *mo
   Returns the molecule id from the atomid (on host)
   @param atom - the atom from which to find the molecule
   @param molecules - the list of molecules to be searched
+  @param enviro - simulation environment
   @param return - returns the id of the molecule
 */
 Molecule* getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment enviro);
@@ -248,9 +256,12 @@ Molecule* getMoleculeFromAtomIDHost(Atom a1, Molecule *molecules, Environment en
   Returns the "fudge factor" to be used in force field calculation. (on host)
   @param atom1 - the first atom in calculation
   @param atom2 - the second atom in the calculation
+  @param molecules - array of molecules in the simulation
+  @param enviro - simulation environment pointer
   @return - 1.0 if the atoms are in seperate molecules
-            .5 if the bond traversal distance is greater or equal to 4
-            0.0 if the bond traversal is less than 4
+            1.0 if the bond traversal distance is greater than 3
+            0.5 if the bond traversal distance is equal to 3
+            0.0 if the bond traversal is less than 3
 */
 double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *enviro);
 
@@ -260,6 +271,8 @@ double getFValueHost(Atom atom1, Atom atom2, Molecule *molecules, Environment *e
   @param atom1 - the id of the starting atom
   @param atom2 - the id of the ending atom
   @param molecule - the molecule that contains atom1 and atom 2
+  @return - 0 if hop is not found
+            Traversal distance if found
 */
 int hopGE3Host(int atom1, int atom2, Molecule molecule);
 
@@ -276,38 +289,8 @@ __device__ double calcBlending(double d1, double d2);
   @param molecule - the molecule to be rotated
   @param pivotAtom - the atom that the molecule is rotated about
   @param maxRotation - the maximum number of degrees for each axis of rotation
-
 */
 void rotateMolecule(Molecule molecule, Atom pivotAtom, double maxRotation);
-
-/****************************
-  Begin Stubs for outputs
-****************************/
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double solventAccessibleSurfaceArea();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventDistributionFunction();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double atomAtomDistributionFunction();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double solventSolventTotalEnergy();
-
-/**
-  This is currently a stub pending information from Dr. Acevedo
-*/
-double soluteSolventTotalEnergy();
 
 /**
 
@@ -333,31 +316,30 @@ void  moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
   @param molec_h - pointer to the host array of molecules to be copied from the device
   @param molec_d - pointer to the host array of molecules to be copied from the device to the host.
   @param numOfMolecules - the number of molecules in the array
+  @param atoms_d - pointer to the device array of atoms
+  @param bonds_d - pointer to the device array of bonds
+  @param angles_d - pointer to the device array of angles
+  @param dihedrals_d - pointer to the device array of dihedrals
+  @param hops_d - pointer to the device array of hops
 */
 void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d);
 
 /**
-  Frees all of the memory associated with the molecule on the device.
-  @param - molec - the memory to be freed by the function.
-*/
-void freeMoleculeOnDevice(DeviceMolecule *molec_d,
-        Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
-        Dihedral *dihedrals_d, Hop *hops_d);
-
-/**
   Allocates neccesary memory for an array of molecules.
   Also allocates all neccesary memory for the arrays held in the molecule.
   Assumes the that the molecule has already been allocated. 
-  @param molec_d - pointer to where memory will be allocated on the device.
   @param molec_h - pointer to source data that will be used as the sizes for
   mallocation
+  @param molec_d - pointer to where memory will be allocated on the device.
   @param numOfMolecules - the number of molecules to be allocated.
   @param atoms_d - array of atoms allocated on the device.  Must be the length
   of the total number of atoms in the simulation.
   @param bonds_d - array of bonds allocated on the device.  Must be the length
   of the total number of bonds in the simulation.
+  @param angles_d - array of angles allocated on the device.  Must be the length
+  of the total number of angles in the simulation.
   @param dihedrals_d - array of dihedrals allocated on the device.  Must be the
   length of the total number of dihedrals in the simulation.
   @param hops_d - array of hops allocated on the device.  Must be the length of the
@@ -367,7 +349,9 @@ void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d);
 
+
 /**
+  DEPRECATED
   @param molecules - the array of molecules to be freed.
   @param numOfMolecules - then number of molecules to be freed
 */
@@ -406,6 +390,7 @@ __global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angl
    @param enviros - the array of environments to be used in the enviro parameter
    @param numberOfTests - the number of tests to be run. All other arrays must 
    be of length numberOfTests
+   @param answers - array where results of tests are stored
  */
 __global__ void testGetMoleculeFromID(Atom *atoms, DeviceMolecule *molecules,
         Environment enviros, int numberOfTests, int *answers);
@@ -427,7 +412,6 @@ __global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *charges, Envi
 
 /**
     Kernel call that will be used to test the getXFromIndexFunction
-    @apram xValues - a series of xValues used to test
 */
 __global__ void testGetXKernel(int *xValues, int totalTests);
 

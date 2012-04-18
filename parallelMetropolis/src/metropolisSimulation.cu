@@ -12,7 +12,7 @@
 #include "../../Utilities/src/geometricUtil.h"
 #include "metroCudaUtil.cuh"
 /**
-Will run simulations of any single atom system.  Can run from either z matrix
+Will run simulations of any system consisting of a single molecule type.  Can run from either z matrix
 file or from a state file.
 
 Date: 1/26/2012
@@ -39,6 +39,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
    
     Atom *atoms;
     atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
+    
     //create array of atoms from arrays in the molecules
     cout << "Allocated array" << endl;
     int atomIndex = 0;
@@ -46,51 +47,42 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         for(int j = 0; j < molecules[i].numOfAtoms; j++){
             atoms[atomIndex] = molecules[i].atoms[j];
             atomIndex++;
-            
         }
     }
 
     cout << "array assigned " << endl;
     generatePoints(atoms, enviro);
-            int atomTotal = 0;
-            int aIndex = 0;
-            int mIndex = 0;
-            while(atomTotal < numberOfAtoms && mIndex < enviro->numOfMolecules){
-                /*cout << atomTotal << " atoms out of " << numberOfAtoms - 1<< endl;
-                cout << aIndex << " atoms in this molec out of " << molecules[mIndex].numOfAtoms - 1<< endl;
-                cout << mIndex << " molecules out of " << enviro->numOfMolecules - 1 << endl;*/
-                molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
-                atomTotal++;
-                aIndex++;
-                if(mIndex == enviro->numOfMolecules){
-                    break;
-                }
-                if(aIndex == molecules[mIndex].numOfAtoms){
-                    aIndex = 0;
-                    mIndex++;
-                }
-            }
+            
+    int atomTotal = 0;
+    int aIndex = 0;
+    int mIndex = 0;
+    while(atomTotal < numberOfAtoms && mIndex < enviro->numOfMolecules){
+        molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
+        atomTotal++;
+        aIndex++;
+        if(mIndex == enviro->numOfMolecules){
+            break;
+        }
+        if(aIndex == molecules[mIndex].numOfAtoms){
+            aIndex = 0;
+            mIndex++;
+        }
+    }
+
     printState(enviro, molecules, enviro->numOfMolecules, "initialState");
     for(int move = 0; move < numberOfSteps; move++){
-        //cout << "Move " << move << endl;
         double oldEnergy = calcEnergyWrapper(atoms, enviro);
         
-        /**
-        int atomIndex = randomFloat(0, numberOfAtoms);
-        Atom oldAtom = atoms[atomIndex];
-        */
         //Pick a molecule to move
         int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
         Molecule toMove = molecules[moleculeIndex];
         Molecule oldToMove;
         copyMolecule(&oldToMove, &toMove);
-        //printMolecule(&toMove);
+        
         //Pick an atom in the molecule about which to rotate
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
         Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
-        
-        //cout << "Molecule and vertex picked" << endl;
-
+`
         //From here ========== to 
         const double deltaX = randomFloat(-maxTranslation, maxTranslation);
         const double deltaY = randomFloat(-maxTranslation, maxTranslation);
@@ -104,23 +96,12 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 degreesX, degreesY, degreesZ);
         
         keepMoleculeInBox(&toMove, enviro);
-        //printMolecule(&toMove);
-        //cout << "Molecule Moved." << endl;
-
         molecules[moleculeIndex] = toMove;
-        /**
-        double newX = wrapBox(oldAtom.x + deltaX, enviro->x);
-        double newY = wrapBox(oldAtom.y + deltaY, enviro->y);
-        double newZ = wrapBox(oldAtom.z + deltaZ, enviro->z);
-        atoms[atomIndex] = createAtom((unsigned long) atomIndex,newX, newY, newZ, oldAtom.sigma, oldAtom.epsilon);
-        */
         //here ===== could be its own function
 
         double newEnergy = calcEnergyWrapper(molecules, enviro);
 
         bool accept = false;
-        /*cout << "newEnergy: " << newEnergy << endl;
-        cout << "oldEnergy: " << oldEnergy << endl;*/
         if(newEnergy < oldEnergy){
             accept = true;
         }
@@ -134,8 +115,6 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 accept = false;
             }
         }
-        
-        //cout << "testing for acceptance" << endl;
 
         if(accept){
             accepted++;
@@ -143,14 +122,11 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         else{
             rejected++;
             //restore previous configuration
-            //atoms[atomIndex] = oldAtom;
             copyMolecule(&toMove, &oldToMove);
             molecules[moleculeIndex] = toMove;
         }
 
-        /**
-          Print the state every 100 moves.
-        */
+        //Print the state every 100 moves.
         if(move % 100 == 0){
              atomTotal = 0;
              aIndex = 0;
@@ -165,11 +141,9 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 }
             }
 
-           // printState(enviro, molecules, enviro->numOfMolecules, stateFile);
             cout << "Move: " << move << endl;
             cout << "Current Energy: " << newEnergy << endl;
         }
-//        cout << "Accepted: " << accepted << endl;
     }
         atomTotal = 0;
         aIndex = 0;
@@ -183,8 +157,6 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
                 mIndex++;
             }
         }
-
-
 }
 
 /**
@@ -213,6 +185,7 @@ int main(int argc, char ** argv){
    
     string flag = "-z";
     string configPath = "bin/demoConfiguration.txt";
+
     //Configuration file scanner
     Config_Scan configScan(configPath);
     configScan.readInConfig();
@@ -241,6 +214,7 @@ int main(int argc, char ** argv){
             exit(1);
         }
         cout << "Opened zMatrix file" << endl;
+
         //Convert molecule vectors into an array
         molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
         int moleculeIndex = 0;
