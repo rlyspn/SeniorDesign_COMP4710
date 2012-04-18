@@ -59,11 +59,6 @@ void testKeepMoleculeInBox(){
     printAtoms(molec.atoms, 3);
 }
 
-/**
-    Wrapper function that will call the global function used to 
-    test the functions that calculate indexes in the half array
-    used to hold the energies.
-*/
 void setupGetIndexTest(){
     int numberOfBlocks = 3;
     int threadsPerBlock = 2;
@@ -94,7 +89,7 @@ void setupGetIndexTest(){
 
     printf("getXFromIndex Correct\n");
 
-    //test getYFromIndex)
+    //test getYFromIndex
     testGetYKernel <<<numberOfBlocks, threadsPerBlock>>> (xValues_device,
             yValues_device, totalTests);
 
@@ -122,10 +117,6 @@ bool compareDouble(double a, double b, double limit){
         return false;
 }
 
-
-/**
-  wrapper function for the __device__ makePeriodic function
-*/
 void setupMakePeriodic(){
     srand(time(NULL));
     int numberOfTests = 128;
@@ -173,8 +164,6 @@ void setupMakePeriodic(){
     free(inputs_host);
     free(outputs_host);
     cudaFree(inputs_device);
-
-
 }
 
 
@@ -203,8 +192,6 @@ void testWrapBox(){
     printf("wrapBox passed Tests\n");
 
     free(testDoubles);
-
-
 }
 
 void setupCalc_lj(){
@@ -307,7 +294,6 @@ void testGeneratePoints(){
              assert(dim_x >= 0 && dim_x <= (enviro.x) &&
                dim_y >= 0 && dim_y <= (enviro.y) &&
                dim_z >= 0 && dim_z <= (enviro.z));
-    
         }
     }
 
@@ -450,7 +436,6 @@ void testCalcEnergyWithMolecules(){
     gettimeofday(&pl_tvEnd,NULL); //start clock for execution time
     long pl_runTime = timevaldiff(&pl_tvBegin,&pl_tvEnd); //get difference in time in milli seconds
 
-
     //Print out Results
     printf("Number of elements: %d\n", numberOfAtoms);
     printf("Linear Total Energy:   %f \n", te_linear);
@@ -459,8 +444,6 @@ void testCalcEnergyWithMolecules(){
     printf("In %d ms\n", pl_runTime);
     assert(compareDouble(te_linear, te_parallel, .05));
     printf("testCalcEnergyWithMolecules successful.\n");
-
-    
 }
 
 void testGetMoleculeFromIDWrapper(){
@@ -497,7 +480,6 @@ void testGetMoleculeFromIDWrapper(){
     molecules[1].id = 2;
     molecules[2].id = 6;
 
-
     cudaMemcpy(atoms_device, atoms, sizeof(Atom) * numberOfAtoms, cudaMemcpyHostToDevice);
     cudaMemcpy(molecules_device, molecules, sizeof(DeviceMolecule) * numberOfMolecules, cudaMemcpyHostToDevice);
 
@@ -529,8 +511,6 @@ void testGetMoleculeFromIDWrapper(){
     cudaFree(atoms_device);
     cudaFree(molecules_device);
     cudaFree(answers_device);
-
-
 }
 
 
@@ -555,7 +535,6 @@ void testCalcBlendingWrapper(){
     
     d1[2] = 52.34;
     d2[2] = 5.f;
-
 
     d1[3] = 1.f;
     d2[3] = 7.f;
@@ -759,15 +738,6 @@ void testRotateMolecule(){
         double maxAngle1 = getAngle(maxAtom1, toRotate, origAtom1);
         double maxAngle2 = getAngle(maxAtom2, toRotate, origAtom2);
        
-       /** 
-        printf("maxRotation = %f", getAngle(maxAtom1, toRotate, origAtom1));
-        printf("atom1 = %f, %f, %f\n", origAtom1.x, origAtom1.y, origAtom1.z);
-        printf("atom1 = %f, %f, %f\n", newAtom1.x, newAtom1.y, newAtom1.z);
-        printf("atom2 = %f, %f, %f\n", origAtom2.x, origAtom2.y, origAtom2.z);
-        printf("atom2 = %f, %f, %f\n", newAtom2.x, newAtom2.y, newAtom2.z);
-        printf("rotate = %f %f %f\n", toRotate.x, toRotate.y, toRotate.z);
-        printf("rotate = %f %f %f\n", atoms[1].x, atoms[1].y, atoms[1].z);
-        */
         assert(angleChange1 <= maxAngle1);
         assert(angleChange2 <= maxAngle2);
 
@@ -777,13 +747,10 @@ void testRotateMolecule(){
         molec.atoms[1] = hydrogen1;
         molec.atoms[2] = hydrogen2;
     }
-    /*
-   */ 
     printf("rotateMolecule passed tests.\n");
 }
 
 void testCalcChargeWrapper(){
-    
     printf("Testing calcCharge()\n");
     
     int numberOfTests = 10;

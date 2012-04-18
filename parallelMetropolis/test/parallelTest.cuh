@@ -19,7 +19,6 @@ void setupGetXFromIndex();
 /**
 Tests the getYFromIndex function. The global Kernel is used to setup the tests.
 */
-
 void setupGetYFromIndex();
 
 /**
@@ -102,4 +101,5 @@ void testRotateMolecule();
 Wrapper function that calls a global function to test the calc charge device function.
 */
 void testCalcChargeWrapper();
+
 #endif //PARALLELTEST_H

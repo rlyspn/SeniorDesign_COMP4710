@@ -82,7 +82,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         //Pick an atom in the molecule about which to rotate
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
         Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
-`
+
         //From here ========== to 
         const double deltaX = randomFloat(-maxTranslation, maxTranslation);
         const double deltaY = randomFloat(-maxTranslation, maxTranslation);

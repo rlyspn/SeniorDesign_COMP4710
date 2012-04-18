@@ -1,7 +1,6 @@
 #include "copyTests.cuh"
 
 void testCopyMolecules(){
-    printf("testCopyMolecules()\n");
     //Molecules on host
     Molecule *molecs;
     Molecule *copiedMolecs;
@@ -82,10 +81,6 @@ void testCopyMolecules(){
     Dihedral *dihedrals_d;
     Hop *hops_d;
     DeviceMolecule *molec_d;
-/*
-    allocateOnDevice(molecs, molec_d, numOfMolecules, atoms_d, bonds_d, 
-           angles_d, dihedrals_d, hops_d);
-*/
  
     cudaMalloc((void **) &molec_d, deviceMolecSize);
     cudaMalloc((void **) &atoms_d, atomSize);

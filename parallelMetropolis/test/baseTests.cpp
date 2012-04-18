@@ -38,7 +38,6 @@ double calculate_energy(double **coords,  int n_atoms,  double *box_size,
     return total_energy;
 }
 
-//Same as above but uses the new enviorment struct
 double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
     int atomNumber = enviro->numOfAtoms;
 
@@ -87,14 +86,10 @@ double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
             totalEnergy += fValue * (lj_energy + charge_energy);
         }
     }
-    //printf("Sigma: %f\n", sigma);
-    //printf("Epsilon: %f\n", epsilon);
-    return totalEnergy;
 
+    return totalEnergy;
 }
 
-
-// Subroutine to apply periodic boundaries
 double make_periodic(double x,  double box)
 {
     while (x < -0.5*box)
@@ -110,7 +105,6 @@ double make_periodic(double x,  double box)
     return x;
 }
 
-// Subroutine to wrap the coordinates into a box
 double wrap_into_box(double x, double box)
 {
     while (x > box)
@@ -125,6 +119,7 @@ double wrap_into_box(double x, double box)
 
     return x;
 }
+
 long timevaldiff(struct timeval *starttime, struct timeval *finishtime)
 {
     long msec;
@@ -148,7 +143,6 @@ double calc_charge(Atom a1, Atom a2, Environment enviro){
     return (a1.charge * a2.charge * e) / calc_r_value(a1, a2, enviro);
 }
 
-//returns the molecule that contains a given atom
 int getMoleculeFromIDLinear(Atom a1, Molecule *molecules, Environment enviro){
     int atomId = a1.id;
     int currentIndex = enviro.numOfMolecules - 1;
