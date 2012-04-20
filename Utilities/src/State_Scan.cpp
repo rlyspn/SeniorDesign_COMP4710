@@ -46,6 +46,17 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
             else
                 outFile << "0" << endl;
         }
+
+        outFile << "=Hops" << endl;
+
+        for(int j = 0; j < currentMol.numOfHops; j++){
+            Hop currentHop = currentMol.hops[j];
+
+            outFile << currentHop.atom1 << " " << currentHop.atom2 << " "
+                << currentHop.hop << endl;
+        }
+        
+        
         outFile << "= Angles" << endl; // delimiter
 
         //print angless
@@ -59,6 +70,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
             else
                 outFile << "0" << endl;
         }
+
 
         //write a == line
         outFile << "==" << endl;
@@ -240,6 +252,34 @@ Dihedral getDihedralFromLine(string line){
 
 }
 
+//returns a hop based on the information on the line
+Hop getHopFromLine(string line){
+    Hop hop = createHop(-1, -1, -1);
+
+    char *tokens;
+    char *charLine = (char *)malloc(sizeof(char) * line.size());
+    
+    strcpy(charLine, line.c_str());
+    tokens = strtok(charLine, " ");
+    int tokenNumber = 0;
+    while(tokens != NULL){
+        switch(tokenNumber){
+            case 0:
+                hop.atom1 = atoi(tokens);
+                break;
+            case 1:
+                hop.atom2 = atoi(tokens);
+                break;
+            case 2:
+                hop.hop = atoi(tokens);
+                break;
+        }
+        tokens = strtok(NULL, " ");
+        tokenNumber++;
+    }
+    return hop;
+}
+
 Environment readInEnvironment(string filename){
     ifstream inFile (filename.c_str());
     string line;
@@ -267,13 +307,14 @@ vector<Molecule> readInMolecules(string filename){
         vector<Angle> angles;
         vector<Atom> atoms;
         vector<Dihedral> dihedrals;
+        vector<Hop> hops;
 
         //the third line starts the first molecule
         getline(inFile, line); // envrionment
         getline(inFile, line); //blank
         
         Molecule currentMolec;
-        int section = 0; // 0 = id, 1 = atom, 2 = bond, 3 = dihedral, 4 = angle
+        int section = 0; // 0 = id, 1 = atom, 2 = bond, 3 = dihedral, 4 = hop, 5 = angle
         while(inFile.good()){
             //printf("bonds: %d\nangles: %d\natoms: %d\ndihedrals: %d\n\n",
               //      bonds.size(), angles.size(), atoms.size(), dihedrals.size());
@@ -306,9 +347,14 @@ vector<Molecule> readInMolecules(string filename){
                     else{
                        dihedrals.push_back(getDihedralFromLine(line)); 
                     }
-
                     break;
-                case 4: // angle
+                case 4: // hop
+                    if(line.compare("=") == 0)
+                        section++;
+                    else{
+                        hops.push_back(getHopFromLine(line));
+                    }
+                case 5: // angle
                     if(line.compare("==") == 0){
                         section = 0;
                         
@@ -317,6 +363,7 @@ vector<Molecule> readInMolecules(string filename){
                         Angle *angleArray = (Angle *) malloc(sizeof(Angle) * angles.size());
                         Atom *atomArray = (Atom *) malloc(sizeof(Atom) * atoms.size());
                         Dihedral *dihedralArray = (Dihedral *) malloc(sizeof(Dihedral) * dihedrals.size());
+                        Hop *hopArray = (Hop *) malloc(sizeof(Hop) * hops.size());
 
                         for(int i = 0; i < bonds.size(); i++)
                             bondArray[i] = bonds[i];
@@ -326,6 +373,8 @@ vector<Molecule> readInMolecules(string filename){
                             atomArray[i] = atoms[i];
                         for(int i = 0; i < dihedrals.size(); i++)
                             dihedralArray[i] = dihedrals[i];
+                        for(int i = 0; i < hops.size(); i++)
+                            hopArray[i] = hops[i];
                        
                         //assign arrays to molecule
                         currentMolec.atoms = atomArray;
@@ -339,6 +388,9 @@ vector<Molecule> readInMolecules(string filename){
 
                         currentMolec.dihedrals = dihedralArray;
                         currentMolec.numOfDihedrals = dihedrals.size();
+
+                        currentMolec.hops = hopArray;
+                        currentMolec.numOfHops = hops.size();
                         
                         //add molecule to array of returned molecules
                         molecules.push_back(currentMolec); 
@@ -350,6 +402,7 @@ vector<Molecule> readInMolecules(string filename){
                         atoms.clear();
                         bonds.clear();
                         angles.clear();
+                        hops.clear();
 
                     }
                     else{
