@@ -31,6 +31,11 @@ void testGetEnvironmentFromLine();
 */
 void testGetAtomFromLine();
 
+/*
+  tests the getHopFromLine function
+*/
+void testGetHopFromLine();
+
 /**
   tests the getEnvironmentFromLine function
 */

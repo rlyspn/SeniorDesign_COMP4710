@@ -89,4 +89,13 @@ Angle getAngleFromLine(string line);
 */
 Dihedral getDihedralFromLine(string line);
 
+/**
+  expected input line:
+  "atom1 atom2 hopDistance"
+
+  @param line - line containing information about the hop
+  @return - a hop represented by the information on the line.
+*/
+Hop getHopFromLine(string line);
+
 #endif // STATE_SCAN_H

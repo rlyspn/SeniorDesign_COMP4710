@@ -1,5 +1,24 @@
 #include "stateTest.h"
 
+void testGetHopFromLine(){
+    string line = "3 4 2";
+    string line2 = "6 3 6";
+
+    Hop h1 = getHopFromLine(line);
+    Hop h2 = getHopFromLine(line2);
+
+    assert(h1.atom1 == 3);
+    assert(h1.atom2 == 4);
+    assert(h1.hop == 2);
+
+    assert(h2.atom1 == 6);
+    assert(h2.atom2 == 3);
+    assert(h2.hop == 6);
+
+    cout << "getHopFromLine Passed" << endl;
+
+}
+
 void testGetDihedralFromLine(){
     string line = "3 5 3.456 0";
     string line2 = "89 21 45.21 1";
@@ -123,14 +142,18 @@ void testWriteOutReadInState(){
     Dihedral d1 = createDihedral(1,2,4.35,false);
     Dihedral d2 = createDihedral(0,2,5.34,true);
     Dihedral dihedralArray[2] = {d1, d2};
+    
+    Hop h1 = createHop(1,2,3);
+    Hop h2 = createHop(4,2,5);
+    Hop hopArray[2] = {h1, h2};
 
     Environment enviro = createEnvironment(10.f, 10.f, 10.f, .5, 273, 2);
 
-    Molecule molec1 = createMolecule(1, atomArray, angleArray, bondArray, dihedralArray,
-            3,2,2,2);
+    Molecule molec1 = createMolecule(1, atomArray, angleArray, bondArray, dihedralArray, hopArray,
+            3,2,2,2,2);
 
-    Molecule molec2 = createMolecule(2, atomArray, &a1, &b1, dihedralArray,
-            3,1,1,2);
+    Molecule molec2 = createMolecule(2, atomArray, &a1, &b1, dihedralArray, hopArray,
+            3,1,1,2, 2);
 
     Molecule molecArray[2] = {molec1, molec2};
     string filename = "STATE_TEST.state";
@@ -180,13 +203,20 @@ void testWriteOutReadInState(){
             assert(fabs(d.distance - bondArray[i].distance) < floatThreshold);
 
         }
-        
+        // test angles 
         for(int i = 0; i < molec.numOfAngles; i++){
             
             Angle d = molec.angles[i];
             assert(d.atom1 == angleArray[i].atom1);
             assert(d.atom2 == angleArray[i].atom2);
             assert(fabs(d.value - angleArray[i].value) < floatThreshold);
+        }
+        //test hops
+        for(int i = 0; i < molec.numOfHops; i++){
+            Hop h = molec.hops[i];
+            assert(h.atom1 == hopArray[i].atom1);
+            assert(h.atom2 == hopArray[i].atom2);
+            assert(h.hop == hopArray[i].hop);
         }
     }
 
@@ -196,6 +226,7 @@ void testWriteOutReadInState(){
 
 
 void runStateTests(){
+    testGetHopFromLine();
     testGetDihedralFromLine();
     testGetAtomFromLine();
     testGetBondFromLine();
