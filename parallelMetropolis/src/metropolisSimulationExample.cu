@@ -83,7 +83,6 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         int atomIndex = randomFloat(0, molecules[moleculeIndex].numOfAtoms);
         Atom vertex = molecules[moleculeIndex].atoms[atomIndex];
 
-        //From here ========== to 
         const double deltaX = randomFloat(-maxTranslation, maxTranslation);
         const double deltaY = randomFloat(-maxTranslation, maxTranslation);
         const double deltaZ = randomFloat(-maxTranslation, maxTranslation);
@@ -97,7 +96,6 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
         
         keepMoleculeInBox(&toMove, enviro);
         molecules[moleculeIndex] = toMove;
-        //here ===== could be its own function
 
         double newEnergy = calcEnergyWrapper(molecules, enviro);
 
