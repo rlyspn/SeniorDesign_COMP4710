@@ -8,10 +8,10 @@ Required Hardware:
 
 Required Software:
     Linux Operating System
-        Tested on SUSE Linux Enterprise Server 11 SP1
+        Tested on: SUSE Linux Enterprise Server 11 SP1
     NVIDIA Developer Toolkit
         Download from http://developer.nvidia.com/cuda-downloads based on your OS
-        Tested with CUDA 4.0
+        Tested with: CUDA 4.0
 
     When you have both of the above installed you should be ready to build.
 
