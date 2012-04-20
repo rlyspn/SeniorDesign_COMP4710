@@ -25,8 +25,8 @@ metroSim: cudaUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $(PA
 	$(NV) $(FLAGS) $(PARA)$(SRC)metropolisSimulationExample.cu -o $(BIN)metropolisSimulationExample.o 
 	$(NV) $(FLAGSALT) $(COMMONUTILO) $(SCANNERO) $(BIN)metroCudaUtil.o $(BIN)metropolisSimulationExample.o $(BIN)baseTests.o -o $(BIN)$(EXE) 
 
-linearSim: linearUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $(LIN)$(SRC)linearSimulationExample.cpp
-	$(NV) $(FLAGS) $(LIN)$(SRC)linearSimulationExample.cpp -o $(BIN)linearSimulationExample.o 
+linearSim: linearUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $(LIN)$(SRC)linearSimulation.cpp
+	$(NV) $(FLAGS) $(LIN)$(SRC)linearSimulation.cpp -o $(BIN)linearSimulationExample.o 
 	$(NV) $(FLAGSALT) $(COMMONUTILO) $(SCANNERO) $(BIN)metroLinearUtil.o $(BIN)linearSimulationExample.o $(BIN)baseTests.o -o $(BIN)$(LINEXE) 
 
 tests: cudaUtil geoUtil metroUtil copyTest baseTest $(PARA)$(TST)parallelTest.cu $(PARA)$(TST)parallelTest.cuh

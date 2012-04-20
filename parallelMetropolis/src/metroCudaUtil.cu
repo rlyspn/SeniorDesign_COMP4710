@@ -440,6 +440,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, 
             lj_energy = calc_lj(xAtom,yAtom,*enviro);
             charge_energy = calcCharge(xAtom, yAtom, enviro);
             double fValue = 1.0;
+            //Should this be here?
             if (dev_molecules != NULL){
                 
             }
