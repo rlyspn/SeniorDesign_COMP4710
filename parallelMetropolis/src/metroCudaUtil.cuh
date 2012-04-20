@@ -349,14 +349,6 @@ void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d);
 
-
-/**
-  DEPRECATED
-  @param molecules - the array of molecules to be freed.
-  @param numOfMolecules - then number of molecules to be freed
-*/
-__global__ void freeArrays(Molecule *molecules, int numOfMolecules);
-
 /** \briefDeprecated
   Deprecated.
   Allocates memory for the subarrays of each molecule in the array.

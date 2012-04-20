@@ -81,8 +81,6 @@ double calculate_energy(Atom *atoms, Environment *enviro, Molecule *molecules){
                 charge_energy = 0.0;
             }
 
-            printf("Linear Energy(%d,%d): lj=%f | q=%f | f=%f\n", i, j, lj_energy, charge_energy, fValue);
-
             totalEnergy += fValue * (lj_energy + charge_energy);
         }
     }

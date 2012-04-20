@@ -6,7 +6,7 @@
 #include "../../Utilities/src/metroUtil.h"
 #include <curand.h>
 #define THREADS_PER_BLOCK 128
-#define PI 3.14159265358979323
+#define PI 3.14159265
 
 /**
   @param idx - the index in the 1 dimensional array of energies

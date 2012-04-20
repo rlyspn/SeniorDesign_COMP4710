@@ -11,7 +11,7 @@
 #include <cmath>
 
 using namespace std;
-string oplsPath = "oplsua.par";
+string oplsPath = "bin/oplsua.par";
 
 string atomNumber1 = "418";
 string atomNumber2 = "1";
@@ -336,7 +336,7 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
 }
 
 void testZmatrixScanner(Opls_Scan opls){
-    string zMatrixFile1 = "../Utilities/bossFiles/mesh.z";
+    string zMatrixFile1 = "bin/mesh.z";
     Molecule meshZ= createMeshZMolecules(opls);
     Zmatrix_Scan zScan (zMatrixFile1,&opls);
     vector<Molecule> scannedInMolecules;
@@ -354,7 +354,7 @@ void testZmatrixScanner(Opls_Scan opls){
 }
 
 void testZmatrixScanner_multpleSingle(Opls_Scan opls){
-    string zMatrixFile1 = "../Utilities/bossFiles/testZ.z";
+    string zMatrixFile1 = "Utilities/bossFiles/testZ.z";
     Zmatrix_Scan zScan (zMatrixFile1,&opls);
     vector<Molecule> scannedInMolecules;
 
@@ -378,7 +378,7 @@ void testZmatrixScanner_multpleSingle(Opls_Scan opls){
 }
 
 void testZmatrixScanner_multpleAmount(Opls_Scan opls){
-    string zMatrixFile1 = "../Utilities/bossFiles/mesh.z";
+    string zMatrixFile1 = "bin/mesh.z";
     Zmatrix_Scan zScan (zMatrixFile1,&opls);
     vector<Molecule> scannedInMolecules;
 

@@ -361,9 +361,6 @@ void testRotateAboutX(){
     double expectedY = cos(theta * dtr) * oldY + sin(theta * dtr) * oldZ;
     double expectedZ = cos(theta * dtr) * oldZ - sin(theta * dtr) * oldY;
 
-    printf("expectedY = %f\nactual Y = %f\n", expectedY, testAtom.y);
-    printf("expectedZ = %f\nactual Z = %f\n", expectedZ, testAtom.z);
-
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
 
@@ -464,7 +461,6 @@ void testRotateAboutVector(){
     rotation = 45;
     
     rotated = rotateAtomAboutVector(toRotate, vertex, head, rotation);
-    printAtoms(&rotated, 1);
     assert(fabs(rotated.y - sqrt(.5)) < .01);
     assert(fabs(rotated.x - 0.0) < .01);
     assert(fabs(rotated.z - sqrt(.5)) < .01);
@@ -472,9 +468,7 @@ void testRotateAboutVector(){
     rotation = 90;
     //test rotating about atom with 0 intial angle
     toRotate = createAtom(-1,2,0,0);
-    printAtoms(&toRotate, 1);
     rotated = rotateAtomAboutVector(toRotate, vertex, head, rotation);
-    printAtoms(&rotated, 1);
     assert(fabs(rotated.x - 2) < .01);
     assert(fabs(rotated.y - 0) < .01);
     assert(fabs(rotated.z - 0) < .01);
@@ -504,7 +498,6 @@ void testRotateInPlane(){
     toRotate = createAtom(-1, 0, 1, 0);
 
     rotated = rotateAtomInPlane(toRotate, vertex, head, rotation);
-    printAtoms(&rotated, 1);
     assert(fabs(rotated.y - sqrt(.5)) < .01);
     assert(fabs(rotated.x - 0.0) < .01);
     assert(fabs(rotated.z - sqrt(.5)) < .01);

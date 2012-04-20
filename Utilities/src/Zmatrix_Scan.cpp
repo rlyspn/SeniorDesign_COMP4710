@@ -184,7 +184,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                 otherID);
                 Atom commonAtom = getAtom(atomVector, commonID);
 
-                printf("Building Angle:\n%d -- %d -- %d\n", lineAtom.id,
+                printf("Building Angle:\n%lu -- %lu -- %lu\n", lineAtom.id,
                 commonAtom.id, otherAtom.id);
 
                 double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
@@ -242,7 +242,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
                         }
                     }
                 }
-                printf("Building Dihedral:\n%d -- (%d %d) -- %d\n", lineAtom.id,
+                printf("Building Dihedral:\n%lu -- (%d %d) -- %lu\n", lineAtom.id,
                 linkingBond.atom1, linkingBond.atom2, otherAtom.id);
                 //plane 1 is lineAtom and atoms in linking bond and will be rotated
                 //plane 2 is otherAtom and atoms in linking bond

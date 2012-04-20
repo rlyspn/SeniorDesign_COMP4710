@@ -190,7 +190,7 @@ int main(int argc, char ** argv){
 
     //Environment for the simulation
     Environment enviro;
-    long simulationSteps = configScan.getSteps();
+    unsigned long simulationSteps = configScan.getSteps();
     Molecule *molecules;
 
     //Simulation will run based on the zMatrix and configuration Files
@@ -290,7 +290,7 @@ int main(int argc, char ** argv){
         exit(1);
     }
     cout << "Beginning simulation with: " << endl;
-    printf("%d atoms\n%d molecules\n%d steps\n", enviro.numOfAtoms,
+    printf("%d atoms\n%d molecules\n%lu steps\n", enviro.numOfAtoms,
             enviro.numOfMolecules, simulationSteps);
 
     

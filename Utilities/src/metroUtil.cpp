@@ -142,7 +142,7 @@ Hop createHop(int atom1, int atom2, int hop){
 
 void printAtoms(Atom *atoms, int count){
     for(int i = 0; i < count; i++){
-        printf("%d, %f, %f, %f\n", atoms[i].id, atoms[i].x, atoms[i].y, atoms[i].z);
+        printf("%lu, %f, %f, %f\n", atoms[i].id, atoms[i].x, atoms[i].y, atoms[i].z);
     }
 }
 

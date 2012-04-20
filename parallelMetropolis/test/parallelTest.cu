@@ -44,14 +44,10 @@ void testKeepMoleculeInBox(){
         
         double expectedZ = answers[i][2];
         double actualZ = molec.atoms[i].z;
-        
-        printf("expectedX: %f  actualX: %f\n", expectedX, actualX);
-        printf("expectedY: %f  actualY: %f\n", expectedY, actualY);
-        printf("expectedZ: %f  actualZ: %f\n", expectedZ, actualZ);
 
-        assert(fabs(actualX - expectedX)< precision);
-        assert(fabs(expectedY - actualY) < precision);
         assert(fabs(expectedX - actualX) < precision);
+        assert(fabs(expectedY - actualY) < precision);
+        assert(fabs(expectedZ - actualZ) < precision);
 
     }
 
@@ -348,9 +344,9 @@ void testCalcEnergy(){
     //Print out Results
     printf("Number of elements: %d\n", numberOfAtoms);
     printf("Linear Total Energy:   %f \n", te_linear);
-    printf("In %d ms\n", le_runTime);
+    printf("In %lu ms\n", le_runTime);
     printf("Parallel Total Energy: %f \n", te_parallel);
-    printf("In %d ms\n", pl_runTime);
+    printf("In %lu ms\n", pl_runTime);
     assert(compareDouble(te_linear, te_parallel, .05));
     printf("testCalcEnergy successful.\n");
 
@@ -439,9 +435,9 @@ void testCalcEnergyWithMolecules(){
     //Print out Results
     printf("Number of elements: %d\n", numberOfAtoms);
     printf("Linear Total Energy:   %f \n", te_linear);
-    printf("In %d ms\n", le_runTime);
+    printf("In %lu ms\n", le_runTime);
     printf("Parallel Total Energy: %f \n", te_parallel);
-    printf("In %d ms\n", pl_runTime);
+    printf("In %lu ms\n", pl_runTime);
     assert(compareDouble(te_linear, te_parallel, .05));
     printf("testCalcEnergyWithMolecules successful.\n");
 }
@@ -846,7 +842,6 @@ int main(){
     //testAllocateMemory();
     testCopyMolecules();
     testKeepMoleculeInBox();
-    testFreeMemory();
     testRotateMolecule();
     testCalcChargeWrapper();
     testCalcBlendingWrapper();

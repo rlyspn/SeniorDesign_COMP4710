@@ -1,7 +1,7 @@
 #include "configurationTest.h"
 
 void testConfigScan(){
-    string configPath = "configurationTest.txt"; 
+    string configPath = "bin/configurationTest.txt"; 
     string oplsPath = "path/to/opls/file";
     string zMatrixPath = "path/to/zMatrix/file";
     string stateInputPath = "path/to/state/input";

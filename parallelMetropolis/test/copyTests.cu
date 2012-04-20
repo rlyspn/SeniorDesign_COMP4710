@@ -110,26 +110,44 @@ void testCopyMolecules(){
         for(int j = 0; j < copiedMolecs[i].numOfAtoms; j++){
             Atom a1 = copiedMolecs[i].atoms[j];
             Atom a2 = molecs[i].atoms[j];
-
+            assert(a1.x == a2.x);
+            assert(a1.y == a2.y);
+            assert(a1.z == a2.z);
+            assert(a1.id == a2.id);
+            assert(a1.sigma == a2.sigma);
+            assert(a1.epsilon == a2.epsilon);
+            assert(a1.charge == a2.charge);
         }
         for(int j = 0; j < copiedMolecs[i].numOfBonds; j++){
             Bond a1 = copiedMolecs[i].bonds[j];
             Bond a2 = molecs[i].bonds[j];
-
+            assert(a1.atom1 == a2.atom1);
+            assert(a1.atom2 == a2.atom2);
+            assert(a1.distance == a2.distance);
+            assert(a1.variable == a2.variable);
         }
         for(int j = 0; j < copiedMolecs[i].numOfAngles; j++){
             Angle a1 = copiedMolecs[i].angles[j];
             Angle a2 = molecs[i].angles[j];
-
+            assert(a1.atom1 == a2.atom1);
+            assert(a1.atom2 == a2.atom2);
+            assert(a1.value == a2.value);
+            assert(a1.variable == a2.variable);
         }
         for(int j = 0; j < copiedMolecs[i].numOfDihedrals; j++){
             Dihedral a1 = copiedMolecs[i].dihedrals[j];
             Dihedral a2 = molecs[i].dihedrals[j];
-
+            assert(a1.atom1 == a2.atom1);
+            assert(a1.atom2 == a2.atom2);
+            assert(a1.value == a2.value);
+            assert(a1.variable == a2.variable);
         }
-        for(int j = 0; j < copiedMolecs[i].numOfBonds; j++){
+        for(int j = 0; j < copiedMolecs[i].numOfHops; j++){
             Hop a1 = copiedMolecs[i].hops[j];
             Hop a2 = molecs[i].hops[j];
+            assert(a1.atom1 == a2.atom1);
+            assert(a1.atom2 == a2.atom2);
+            assert(a1.hop == a2.hop);
         }
 
     }
@@ -189,12 +207,12 @@ void testAllocateMemory(){
         molec[i] = m;
     }
     
-    Atom *atoms_d;
-    Bond *bonds_d;
-    Angle *angles_d;
-    Dihedral *dihedrals_d;
-    Hop *hops_d;
-    DeviceMolecule *molec_d;
+    Atom *atoms_d = NULL;
+    Bond *bonds_d = NULL;
+    Angle *angles_d = NULL;
+    Dihedral *dihedrals_d = NULL;
+    Hop *hops_d = NULL;
+    DeviceMolecule *molec_d = NULL;
     
     allocateOnDevice(molec, molec_d, numOfMolecules, atoms_d, bonds_d, 
            angles_d, dihedrals_d, hops_d);
@@ -207,8 +225,4 @@ void testAllocateMemory(){
     assert(hops_d != 0);
     
     printf("allocateOnDevice passed tests.\n");
-}
-
-void testFreeMemory(){
-    //TODO
 }

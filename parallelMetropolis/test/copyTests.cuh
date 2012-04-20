@@ -15,10 +15,4 @@ void testCopyMolecules();
 */
 void testAllocateMemory();
 
-/**
-  tests the freeMOleculeOnDevice() function.
-*/
-void testFreeMemory();
-
-
 #endif // COPYTEST_H

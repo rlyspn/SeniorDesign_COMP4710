@@ -419,7 +419,7 @@ double calcEnergyOnHost(Atom atom1, Atom atom2, Environment *enviro, Molecule *m
 __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, DeviceMolecule *dev_molecules, Hop *hops){
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    double lj_energy,charge_energy, fValue;
+    double lj_energy, charge_energy, fValue;
 
     int N =(int) ( pow( (float) enviro->numOfAtoms,2)-enviro->numOfAtoms)/2;
 
