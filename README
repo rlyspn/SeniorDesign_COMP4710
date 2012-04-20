@@ -1,1 +1,21 @@
-GPU Computing Senior Design Repository
+#########################
+--GPU Comp Chem--
+#########################
+
+Required Hardware:
+    NVIDIA card with compute Compute Capability 2.0
+    Tested on: NVIDIA Tesla M2070
+
+Required Software:
+    Linux Operating System
+        Tested on SUSE Linux Enterprise Server 11 SP1
+    NVIDIA Developer Toolkit
+        Download from http://developer.nvidia.com/cuda-downloads based on your OS
+        Tested with CUDA 4.0
+
+    When you have both of the above installed you should be ready to build.
+
+Build Instructions:
+    >> git clone git://github.com/rlyspn/SeniorDesign_COMP4710.git
+    >> cd SeniorDesign_COMP4710/
+    >> make
