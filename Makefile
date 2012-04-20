@@ -27,9 +27,9 @@ metroSim: cudaUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $(PA
 	$(NV) $(FLAGS) -c $(PARA)$(SRC)metropolisSimulation.cu -o $(BIN)metropolisSimulation.o 
 	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)State_Scan.o $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroCudaUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)metropolisSimulation.o $(BIN)baseTests.o -o $(BIN)$(EXE) 
 
-linearSim: linearUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $(LIN)$(SRC)linearSimulation.cpp
-	$(NV) $(FLAGS) -c $(LIN)$(SRC)linearSimulation.cpp -o $(BIN)linearSimulation.o 
-	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)State_Scan.o $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroLinearUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)linearSimulation.o $(BIN)baseTests.o -o $(BIN)$(LINEXE) 
+linearSim: linearUtil metroUtil stateScan configScan zMatrix OPLSScan baseTest $(LIN)$(SRC)linearSimulationExample.cpp
+	$(NV) $(FLAGS) -c $(LIN)$(SRC)linearSimulationExample.cpp -o $(BIN)linearSimulationExample.o 
+	$(NV) $(FLAGS) $(BIN)geometricUtil.o $(BIN)State_Scan.o $(BIN)metroUtil.o $(BIN)Config_Scan.o $(BIN)metroLinearUtil.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o $(BIN)linearSimulationExample.o $(BIN)baseTests.o -o $(BIN)$(LINEXE) 
 
 kryptonSim: cudaUtil metroUtil baseTest $(PARA)$(SRC)kryptonSimulation.cu
 	$(NV) $(FLAGS) $(BIN)metroCudaUtil.o $(BIN)metroUtil.o $(BIN)baseTests.o $(PARA)$(SRC)kryptonSimulation.cu -o $(BIN)$(KRYPTONEXE)	
