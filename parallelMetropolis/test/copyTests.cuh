@@ -10,9 +10,4 @@
 */
 void testCopyMolecules();
 
-/**
-  Tests the allocateOnDeviceFunction
-*/
-void testAllocateMemory();
-
 #endif // COPYTEST_H
