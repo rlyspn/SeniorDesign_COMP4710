@@ -516,6 +516,7 @@ __device__ double getFValue(Atom atom1, Atom atom2, DeviceMolecule *dev_molecule
             molecHops[i] = hops[hopStart + i];
         }
         int hopChain = hopGE3(atom1.id, atom2.id, dev_molecules[m1], molecHops);
+        free(molecHops);
         if (hopChain == 3)
             return 0.5;
         else if (hopChain > 3)
