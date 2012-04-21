@@ -19,3 +19,25 @@ Build Instructions:
     >> git clone git://github.com/rlyspn/SeniorDesign_COMP4710.git
     >> cd SeniorDesign_COMP4710/
     >> make
+
+To Run a Simulation on a local machine:
+    >> cd /path/to/SeniorDesign_COMP4710/
+    >> cd bin/
+    >> ./ParallelExample
+
+To Run a Simulation on the Alabama Supercomputer Center:
+    >> cd /path/to/SeniorDesign_COMP4710/
+    >> cd bin/
+    >> run_gpu ParallelExample
+    ...
+    ...
+    ...
+    ...
+    ... fermi
+    ...
+    <name of your job>
+    
+    You standard out for your job will be written to 
+    <jobname>.o<job number>
+
+    For more information see the Alabama Supercomputer Center manual.
