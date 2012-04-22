@@ -326,54 +326,6 @@ void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
         int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
         Dihedral *dihedrals_d, Hop *hops_d);
 
-/**
-  Allocates neccesary memory for an array of molecules.
-  Also allocates all neccesary memory for the arrays held in the molecule.
-  Assumes the that the molecule has already been allocated. 
-  @param molec_h - pointer to source data that will be used as the sizes for
-  mallocation
-  @param molec_d - pointer to where memory will be allocated on the device.
-  @param numOfMolecules - the number of molecules to be allocated.
-  @param atoms_d - array of atoms allocated on the device.  Must be the length
-  of the total number of atoms in the simulation.
-  @param bonds_d - array of bonds allocated on the device.  Must be the length
-  of the total number of bonds in the simulation.
-  @param angles_d - array of angles allocated on the device.  Must be the length
-  of the total number of angles in the simulation.
-  @param dihedrals_d - array of dihedrals allocated on the device.  Must be the
-  length of the total number of dihedrals in the simulation.
-  @param hops_d - array of hops allocated on the device.  Must be the length of the
-  total number of hops in the simulation.
-*/
-void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
-        int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
-        Dihedral *dihedrals_d, Hop *hops_d);
-
-/** \briefDeprecated
-  Deprecated.
-  Allocates memory for the subarrays of each molecule in the array.
-  @param molecules - array of molecules.
-  @param numOfMolecules - the number of molecules in the array.
-*/
-__global__ void allocateArrays(Molecule *molecules, int numOfMolecules);
-
-/**
-  DEPRECATED
-  Assigns the various array fields of the molecules.
-  Cycles through each of the array and assigned the ith array of atoms, bonds, etc
-  to the ith molecule.
-
-  @param molecules - array of molecules to have fields assigned.
-  @param atoms - 2d array of atoms to be assigned to the molecules.
-  @param bonds - 2d array of bonds to be assigned to the molecules.
-  @param angles - 2d array of bonds to be assigned to the molecules.
-  @param dihedrals - 2d array of dihedrals to be assigned to the molecules.
-  @param hops - 2d array of hops to be assigned to the molecules
-  @param - the length of Each array.
-*/
-__global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angle *angles,
-        Dihedral *dihedrals, Hop *hops, int numOfMolecules, int maxAtoms, int maxBonds, int maxAngles,
-        int maxDihedrals, int maxHops);
 #ifdef DEBUG
 
 /**

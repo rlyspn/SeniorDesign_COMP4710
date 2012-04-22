@@ -1,3 +1,10 @@
+/*!\file
+  \brief Functions used for benchmarking against a linear implementation.
+  \author Alexander Luchs, Riley Spahn, Seth Wooten
+ 
+  This file contains functions that are used as a linear benchmark to compare
+  to our parallel implmentation.
+ */
 #ifndef METROLINEARUTIL_H
 #define METROLINEARUTIL_H
 
@@ -9,18 +16,25 @@
 #define PI 3.14159265
 
 /**
+  Gets the X atom in an energy calculation based on the thread index.  
+  Implementation is based on the quadratic equation.  See architectural spike
+  cycle binder for further information.
   @param idx - the index in the 1 dimensional array of energies
   @return - the id of the X atom
 */
 int getXFromIndex(int idx);
 
 /**
-  @param x - the id of the x atom
-  @param idx - the index in the 1 dimensional array of energies
+  Returns the y atom to be used in the energy calculation.
+  See arch. spike cycle binder for full explanation.
+  @param x - the id of the x atom.
+  @param idx - the index in the 1 dimensional array of energies.
+  @return - the id of the y atom to be used in the energy calculation.
 */
 int getYFromIndex(int x, int idx);
 
 /**
+  Make periodic function from the original example.
   @param x - the variable to make periodic
   @param box - the size of the period
   @return - x after being made periodic
@@ -28,8 +42,11 @@ int getYFromIndex(int x, int idx);
 double makePeriodic(double x, const double box);
 
 /**
+  If an atom moves out of the "box" then it will be wrapped to the other
+  side of the box like a torus.
   @param x - the value to continue on the other side of the box
   @param box - the length of one side of the box (cube)
+  @return - the position after wrapping around the box.
 */
 double wrapBox(double x, double box);
 
@@ -45,6 +62,7 @@ void keepMoleculeInBox(Molecule *molecule, Environment *enviro);
   @param atom1 - the first atom in the pair
   @param atom2 - the second atom in the pair
   @param enviro - simulation environment pointer
+  @param the energy between the two atoms.
 */
 double calc_lj(Atom atom1, Atom atom2, Environment enviro); 
 
@@ -119,6 +137,7 @@ double getFValue(Atom *atom1, Atom *atom2, Molecule *molecules, Environment *env
   @param atom1 - the id of the starting atom
   @param atom2 - the id of the ending atom
   @param molecule - the molecule that contains atom1 and atom 2
+  @return - 1 if true and 0 otherwise.
 */
 int hopGE3(int atom1, int atom2, Molecule *molecule);
 
@@ -134,7 +153,7 @@ double calcBlending(double d1, double d2);
   Returns the molecule id from the atomid
   @param atom - the atom from which to find the molecule
   @param molecules - the list of molecules to be searched
-  @param return - returns a pointer to the molecule
+  @return - returns a pointer to the molecule
 */
 Molecule* getMoleculeFromAtomID(Atom *a1, Molecule *molecules, Environment *enviro);
 

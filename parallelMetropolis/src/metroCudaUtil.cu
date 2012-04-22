@@ -516,6 +516,7 @@ __device__ double getFValue(Atom atom1, Atom atom2, DeviceMolecule *dev_molecule
             molecHops[i] = hops[hopStart + i];
         }
         int hopChain = hopGE3(atom1.id, atom2.id, dev_molecules[m1], molecHops);
+        free(molecHops);
         if (hopChain == 3)
             return 0.5;
         else if (hopChain > 3)
@@ -828,103 +829,6 @@ void moleculeDeepCopyToHost(Molecule *molec_h, DeviceMolecule *molec_d,
     
 }
 
-void allocateOnDevice(Molecule *molec_h, DeviceMolecule *molec_d,
-        int numOfMolecules,Atom *atoms_d, Bond *bonds_d, Angle *angles_d,
-        Dihedral *dihedrals_d, Hop *hops_d){
-
-    //find the total size of the smaller arrays;
-    int atomCount = 0;
-    int bondCount = 0;
-    int angleCount = 0;
-    int dihedralCount = 0;
-    int hopCount = 0;
-    for(int i = 0; i < numOfMolecules; i++){
-        Molecule m = molec_h[i];
-                
-        atomCount += m.numOfAtoms;
-        bondCount += m.numOfBonds;
-        angleCount += m.numOfAngles;
-        dihedralCount += m.numOfDihedrals;
-        hopCount += m.numOfHops;
-
-    }
-    //find the size of each array
-    size_t molecSize = sizeof(DeviceMolecule) * numOfMolecules;
-    size_t atomSize = sizeof(Atom) * atomCount;
-    size_t bondSize = sizeof(Bond) * bondCount;
-    size_t angleSize = sizeof(Angle) * angleCount;
-    size_t dihedralSize = sizeof(Dihedral) * dihedralCount;
-    size_t hopSize = sizeof(Hop) * hopCount;
-
-    cudaMalloc((void **) &molec_d, molecSize);
-    cudaMalloc((void **) &atoms_d, atomSize);
-    cudaMalloc((void **) &bonds_d, bondSize);
-    cudaMalloc((void **) &angles_d, angleSize);
-    cudaMalloc((void **) &dihedrals_d, dihedralSize);
-    cudaMalloc((void **) &hops_d, hopSize);
-}
-
-__global__ void freeArrays(Molecule *molecules, int numOfMolecules){
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    
-    if(idx < numOfMolecules){
-        free(molecules[idx].atoms);
-        free(molecules[idx].bonds);
-        free(molecules[idx].angles);
-        free(molecules[idx].dihedrals);
-        free(molecules[idx].hops);
-    }
-}
-
-__global__ void allocateArrays(Molecule *molecules, int numOfMolecules){
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if(idx < numOfMolecules){
-        size_t atomSize = sizeof(Atom) * molecules[idx].numOfAtoms;
-        molecules[idx].atoms = (Atom *)malloc(atomSize);
-        
-        size_t bondSize = sizeof(Bond) * molecules[idx].numOfBonds;
-        molecules[idx].bonds = (Bond *)malloc(bondSize);
-        
-        size_t angleSize = sizeof(Angle) * molecules[idx].numOfAngles;
-        molecules[idx].angles = (Angle *)malloc(angleSize);
-        
-        size_t dihedralSize = sizeof(Dihedral) * molecules[idx].numOfDihedrals;
-        molecules[idx].dihedrals = (Dihedral *)malloc(dihedralSize);
-        
-        size_t hopSize = sizeof(Hop) * molecules[idx].numOfHops;
-        molecules[idx].hops = (Hop *)malloc(hopSize);
-    }
-}
-
-__global__ void assignArrays(Molecule *molecules, Atom *atoms, Bond *bonds, Angle *angles,
-        Dihedral *dihedrals, Hop *hops, int numOfMolecules, int maxAtoms, int maxBonds, int maxAngles,
-        int maxDihedrals, int maxHops){
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-
-    if(idx < numOfMolecules){
-        int atomIndex = idx * maxAtoms;
-        int bondIndex = idx * maxBonds;
-        int angleIndex = idx * maxAngles;
-        int dihedralIndex = idx * maxDihedrals;
-        int hopIndex = idx * maxHops;
-        for(int i = 0; i < molecules[idx].numOfAtoms; i++){
-            molecules[idx].atoms[i] = atoms[i + atomIndex];
-        }
-        for(int i = 0; i < molecules[idx].numOfBonds; i++){
-            molecules[idx].bonds[i] = bonds[i + bondIndex];
-        }
-        for(int i = 0; i < molecules[idx].numOfAngles; i++){
-            molecules[idx].angles[i] = angles[i + angleIndex];
-        }
-        for(int i = 0; i < molecules[idx].numOfDihedrals; i++){
-            molecules[idx].dihedrals[i] = dihedrals[i + dihedralIndex];
-        }
-        for(int i = 0; i < molecules[idx].numOfHops; i++){
-            molecules[idx].hops[i] = hops[i + hopIndex];
-        }
-    }
-}
 #ifdef DEBUG
 
 __global__ void testCalcCharge(Atom *atoms1, Atom *atoms2, double *answers, Environment *enviro){
