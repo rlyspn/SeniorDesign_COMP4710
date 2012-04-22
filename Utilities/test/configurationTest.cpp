@@ -1,6 +1,7 @@
 #include "configurationTest.h"
 
 void testConfigScan(){
+     cout << "Configuration completed" << endl;
     string configPath = "bin/configurationTest.txt"; 
     string oplsPath = "path/to/opls/file";
     string zMatrixPath = "path/to/zMatrix/file";
@@ -41,6 +42,6 @@ void testConfigScan(){
     assert(enviro.temperature == temperature);
     assert(cs.getSteps() == numberOfSteps); 
 
-    cout << "Configuration completed successfully." << endl;
+    cout << "Configuration completed Complete\n" << endl;
 }
 

@@ -49,7 +49,7 @@ class Zmatrix_Scan{
       */
       vector<Angle> angleVector;
       /**
-        Vector that holds the dihedralss contained in the molecule in the Z-matrix.
+        Vector that holds the dihedrals contained in the molecule in the Z-matrix.
       */
       vector<Dihedral> dihedralVector;
       /**
@@ -61,7 +61,8 @@ class Zmatrix_Scan{
       */
       bool startNewMolecule;
       /**
-        TODO
+        Global variable used to store the format id of the last line scanned.
+		  needed to read the bottom sections of the Z-matrix file.
       */
       int previousFormat;
 

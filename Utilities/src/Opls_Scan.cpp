@@ -37,8 +37,8 @@ int Opls_Scan::scanInOpls(string filename){
             catch (std::out_of_range& e){}
         }
         oplsScanner.close();
+        logErrors();
     }
-
     return 0;
 }
 
@@ -60,7 +60,7 @@ void Opls_Scan::addLineToTable(string line, int numOfLines){
         ret = oplsTable.insert( pair<string,Atom>(hashNum,temp) );
 
         if (ret.second==false)
-            cerr << "Err Opls Scanner: element "<< hashNum << "already existed" <<endl;
+		      errHashes.push_back(hashNum);
     }
     else if(format == 2)
     {
@@ -68,14 +68,13 @@ void Opls_Scan::addLineToTable(string line, int numOfLines){
         ss >> hashNum >> v0 >> v1 >> v2 >> v3 ;
         Fourier vValues = {v0,v1,v2,v3};
         pair<map<string,Fourier>::iterator,bool> ret2;
-        ret2 = vTable.insert( pair<string,Fourier>(hashNum,vValues) );
+        ret2 = fourierTable.insert( pair<string,Fourier>(hashNum,vValues) );
 
         if (ret2.second==false)
-            cerr << "Err Opls Scanner: element "<< hashNum << "already existed" <<endl;
+		      errHashesFourier.push_back(hashNum);		  
     }
     else
-        cerr << "Err Opls Scanner: line "<< numOfLines <<"contains bad format\n---" << line<< endl;
-
+	     errLines.push_back(numOfLines);
 }
 
 int Opls_Scan::checkFormat(string line){   	 
@@ -98,12 +97,49 @@ int Opls_Scan::checkFormat(string line){
         return -1;
 }
 
+void Opls_Scan::logErrors(){
+    stringstream output;
+    // See if there were any errors
+    if(errLines.empty() || errHashes.empty()|| errHashesFourier.empty()){
+	     //Errors in the format
+		  output<<"Errors found in the OPLS file: "<< fileName<<endl;
+        if(!errLines.empty()){
+		      output << "Found Errors in the Format of the following Lines: " << endl;
+				for(int a=0; a<errLines.size(); a++){
+				    if(a%10==0 && a!=0) //ten per line
+					     output << endl;
+				    output << errLines[a]<< " ";
+				}
+				output << endl<< endl;
+		  }
+		  if(!errHashes.empty()){
+		      output << "Error - The following OPLS values existed more than once: " << endl;
+				for(int a=0; a<errHashes.size(); a++){
+				    if(a%10==0 && a!=0) //ten per line
+					     output << endl;
+				    output << errHashes[a]<< " ";
+				}
+				output << endl<< endl;
+		  }
+		  if(!errHashesFourier.empty()){
+		      output << "Error - The following Fourier Coefficent values existed more than once: " << endl;
+				for(int a=0; a<errHashesFourier.size(); a++){
+				    if(a%10==0 && a!=0) //ten per line
+					     output << endl;
+				    output << errHashesFourier[a]<< " ";
+				}
+				output << endl<< endl;
+		  }
+		  writeToLog(output,OPLS);
+	}
+}
+
 Atom Opls_Scan::getAtom(string hashNum){
     if(oplsTable.count(hashNum)>0 ){
 	     return oplsTable[hashNum];
 	 }
 	 else{
-	    cerr << "Index does not exist" <<endl;
+	    cerr << "Index does not exist: "<< hashNum <<endl;
 		 return createAtom(0, -1, -1, -1, -1, -1, -1);
 	 }
 }
@@ -114,7 +150,7 @@ double Opls_Scan::getSigma(string hashNum){
         return temp.sigma;
     }
     else{
-        cerr << "Index does not exist" <<endl;
+        cerr << "Index does not exist: "<< hashNum <<endl;
         return -1;
     }
 }
@@ -125,7 +161,7 @@ double Opls_Scan::getEpsilon(string hashNum){
         return temp.epsilon;
     }
     else{
-        cerr << "Index does not exist" <<endl;
+        cerr << "Index does not exist: "<< hashNum <<endl;
         return -1;
     }
 }
@@ -136,18 +172,18 @@ double Opls_Scan::getCharge(string hashNum){
         return temp.charge;
     }
     else{
-        cerr << "Index does not exist" <<endl;
+        cerr << "Index does not exist: "<< hashNum <<endl;
         return -1;
     }
 }
 
 Fourier Opls_Scan::getFourier(string hashNum){
-    if(vTable.count(hashNum)>0 ){
-        Fourier temp = vTable[hashNum];
+    if(fourierTable.count(hashNum)>0 ){
+        Fourier temp = fourierTable[hashNum];
         return temp;
     }
     else{	    
-        cerr << "Index does not exist" <<endl;
+        cerr << "Index does not exist: "<< hashNum <<endl;
         Fourier temp ={-1,-1,-1,-1};
         return temp;
     }

@@ -13,6 +13,8 @@
 #define DOUBPREC .000001
 #define PI 3.14159265
 
+
+
 /**
   Structure representing a geometic point.
 */
@@ -346,5 +348,59 @@ bool compareDoubleDifference(double a, double b, double precision);
 Molecule moveMolecule(Molecule molec, Atom pivot, double xTrans, double yTrans,
         double zTrans, double xRot, double yRot, double zRot);
 
+/**
+  Checks the vector of bonds to see if the atom has a bond with another atom in the Molecule.
+  If the atomId is 1, and X is other atoms it looks for 1--X and not X--1.
+  @param Bonds - the vector of Bond structs that it seaches.
+  @param atomId - the atoms id to check for.
+  @return -  the index in the Bond vector that matches the Bond structure. 
+  Returns -1 if not found. 
+*/
+int hasBond(vector<Bond> Bonds, unsigned long atomId);
+
+/**
+  Checks the vector of angles to see if the atom has a angle with another atom in the Molecule.
+  If the atomId is 1, and X is other atoms it looks for 1--X and not X--1.
+  @param Angles - the vector of Angle structs that it seaches.
+  @param atomId - the atoms id to check for.
+  @return -  the index in the Angle vector that matches the Angle structure. 
+  Returns -1 if not found. 
+*/
+int hasAngle(vector<Angle> Angles, unsigned long atomId);
+
+/**
+  Checks the vector of dihedrals to see if the atom has a dihedral with another atom in the Molecule.
+  If the atomId is 1, and X is other atoms it looks for 1--X and not X--1.
+  @param Dihedrals - the vector of Dihedral structs that it seaches.
+  @param atomId - the atoms id to check for.
+  @return -  the index in the Dihedrals vector that matches the Dihedral structure. 
+  Returns -1 if not found. 
+*/
+int hasDihedral(vector<Dihedral> Dihedrals, unsigned long atomId);
+
+/**
+  Sets the Bond, Angle, and Dihedral vectors with their corresponding values from the Molecule
+  where the the structures have an atom1 id <= lineAtomId. Used in buildMoleculeInSpace() to
+  fill the vectors with defined Structs from the Molecule that contain relationships between
+  atoms that are >= to the lineAtom.
+  @param *molec - the molecule structure to copy the data from.
+  @param &lineAtomId -  the atom id used to find defined structs
+  @param &bondVector - the vector of bonds to fill
+  @param &angleVector - the vector of angles to fill
+  @param &dihedralVector -  the vector of dihedrals to fill 
+*/
+void setMoleculeVectors(Molecule *molec, unsigned long lineAtomId, vector<Bond> &bondVector, 
+    vector<Angle> &angleVector, vector<Dihedral> &dihedralVector);
+
+/**
+  Calculates and sets the Atom positions in a Molecule based on the atom to atom relationships
+  defined in the Bond, Angle, and Dihedral structures. Builds the Molecule structure one atom at
+  a time, starting with the first atom in the Atom array. Builds the Molecule around the first
+  atoms position.  
+  @param *molec - the molecule to be set
+  @param printFlg - a flag used to print the building proces to the Log file
+  @return - a new Molecule structure with its atoms in he correct 3d postions(x,y,z).
+*/
+Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg=false);
 
 #endif //GEOMETRICUTIL_H

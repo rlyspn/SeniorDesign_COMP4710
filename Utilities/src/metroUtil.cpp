@@ -204,35 +204,62 @@ void copyMolecule(Molecule *molec1, Molecule *molec2){
 
 void writeToLog(string text,int stamp){
     string filename = "OutputLog";
-    ofstream logFile;
-    logFile.open(filename.c_str(),ios::out|ios::app);
-    switch(stamp){
-        case START://The start of a new simulation
-            logFile << "\n\n\n\n\n\n" << endl;
-            logFile << "======================================================================"<<endl;
-            logFile << "                       Starting Simulation: ";
-            time_t current_time;
-            struct tm * time_info;
-            char timeString[9];  // space for "HH:MM:SS\0"
+	 ofstream logFile;
+	 logFile.open(filename.c_str(),ios::out|ios::app);
+	 
+	 string hash ="";
+	 time_t current_time;
+    struct tm * time_info;
+    char timeString[9];  // space for "HH:MM:SS\0"
+	 
+	 switch(stamp){
+	     case START:
+		      //The start of a new simulation
+		      logFile << "\n\n\n\n\n\n" << endl;
+				logFile << "======================================================================"<<endl;
+				logFile << "                       Starting Simulation: ";				
             time(&current_time);
             time_info = localtime(&current_time);
             strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
-            logFile << timeString;
-            logFile << "======================================================================"<<endl;
-        case OPLS:
-            logFile << "--OPLS: ";
-            break;
-        case Z_MATRIX:
-            logFile << "--Z_Matrix: ";
-            break;
-        default:
-            logFile << "";
-            break;		
-    }
-
-    logFile << text << endl;
-    logFile.close();	 
+				logFile << timeString << endl;
+				logFile << "----------------------------------------------------------------------"<<endl;
+				break;
+			case END: 
+			   //The end of a running simulation
+				logFile << "----------------------------------------------------------------------"<<endl;
+				logFile << "                       Ending Simulation: ";
+            time(&current_time);
+            time_info = localtime(&current_time);
+            strftime(timeString, sizeof(timeString), "%H:%M:%S", time_info);
+				logFile << timeString << endl;
+				logFile << "======================================================================"<<endl;
+				break;		
+	     case OPLS:
+		      //OPLS error
+	         logFile << "--OPLS: ";
+		      break;
+	     case Z_MATRIX:
+		      //Zmatrix error
+	         logFile << "--Z_Matrix: ";
+		      break;
+		  case GEOM:
+		      //GEOM error Geometric
+				logFile << "--GEOM: ";
+				break;
+	     default:
+	         logFile << "";
+		      break;		
+	 }
+	 logFile << text << endl;
+	 logFile.close();	 
 }
+
+void writeToLog(stringstream& ss, int stamp ){
+    writeToLog(ss.str(),stamp);
+	 ss.str(""); // clears the string steam...
+	 ss.clear();
+}
+
 
 void printMolecule(Molecule *molec){
     cout << "Molecule: " << molec->id << endl;
@@ -269,4 +296,29 @@ void printMolecule(Molecule *molec){
         Dihedral current = molec->dihedrals[i];
         printf("%d -- () -- %d = %f\n", current.atom1, current.atom2, current.value);
     }
+}
+
+bool percentDifference(double d1, double d2){
+    double difference = d2-d1;
+	 if(difference < 0)
+	     difference = difference*-1;
+    double average = (d2+d1)/d2;	 
+	 //check for divide by zero
+	 if(isnan(average))
+	      average = (d2+d1)/d1;
+			
+    double percentDiff = (difference/average)*100;
+	 if( isnan(percentDiff))
+	     return true;
+	 //cout << "PercentDiff: "<<percentDiff<<endl;
+    return percentDiff < 3;
+}
+
+bool asserTwoBool(bool b1, bool b2){
+    if(b1 && b2)
+        return true;
+    else if(!b1 && !b2)
+        return true;
+    else
+        return false;
 }

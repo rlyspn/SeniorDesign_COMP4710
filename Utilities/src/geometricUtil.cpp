@@ -6,6 +6,11 @@
 
 #include "geometricUtil.h"
 
+/**
+  Global stringstream used to write data to the output Log file
+*/
+stringstream output;
+
 Point createPoint(double X, double Y, double Z){
     Point p;
     p.x = X;
@@ -414,3 +419,249 @@ Molecule moveMolecule(Molecule molec, Atom pivot, double xTrans, double yTrans,
     
     return molec;
 }
+
+
+//returns the index of the first Bond found where Atom1 = atomID
+//else returns -1
+int hasBond(vector<Bond> Bonds, unsigned long atomId){
+    for(int x = 0; x<Bonds.size(); x++){
+		  if(atomId == Bonds[x].atom1)
+            return x;
+    }
+    return -1;	 
+}
+
+//returns the index of the first Angle found where Atom1 = atomID
+//else returns -1
+int hasAngle(vector<Angle> Angles, unsigned long atomId){
+    for(int x = 0; x<Angles.size(); x++){
+		  if((int)atomId == Angles[x].atom1)
+            return x;
+    }
+    return -1;
+}
+
+//returns the index of the first Dihedral found where Atom1 = atomID
+//else returns -1
+int hasDihedral(vector<Dihedral> Dihedrals, unsigned long atomId){
+    for(int x = 0; x<Dihedrals.size(); x++){
+		  if((int)atomId == Dihedrals[x].atom1)
+            return x;
+    }
+    return -1;
+
+}
+
+void setMoleculeVectors(Molecule *molec, unsigned long lineAtomId, vector<Bond> &bondVector, 
+    vector<Angle> &angleVector, vector<Dihedral> &dihedralVector){
+	 bondVector.clear();  angleVector.clear();  dihedralVector.clear();
+	int atomId = (int) lineAtomId;
+	 for(int x=0; x<molec->numOfBonds; x++){
+	     if(molec->bonds[x].atom1 <= atomId)
+		      bondVector.push_back(molec->bonds[x]);
+	 }
+	 for(int x=0; x<molec->numOfAngles; x++){
+	     if(molec->angles[x].atom1 <= atomId)
+		      angleVector.push_back(molec->angles[x]);
+	 }
+	  for(int x=0; x<molec->numOfDihedrals; x++){
+	     if(molec->dihedrals[x].atom1 <= atomId)
+		      dihedralVector.push_back(molec->dihedrals[x]);
+	 }
+	 //cout << "Sizes Bond Angle Dihedral vectors\n" << bondVector.size()<<" | "<<angleVector.size()<<" | "<<dihedralVector.size()<<endl;
+} 
+
+
+Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg){
+    if(printFlg)
+	     output << "Building New Molecule Structure:"<<endl ;
+    vector<Atom> atomVector;
+	 vector<Bond> bondVector;
+    vector<Angle> angleVector;
+	 vector<Dihedral> dihedralVector;
+    vector<unsigned long> dummies;
+	 double centX, centY, centZ=0.0; //centerPoint to build molecule around
+	 Atom lineAtom;
+    //run build on each atom in the molecule
+    for(int x = 0; x < molec->numOfAtoms; x++){
+	     lineAtom = molec->atoms[x];
+		  //set the vectors with appropiate contents as if in Zmatrix		  
+		  setMoleculeVectors(molec, lineAtom.id, bondVector, angleVector, dihedralVector);
+		  
+		  if(printFlg)
+	         output << "\nBuilding Atom: " << lineAtom.id << endl;
+			
+		  //use the first atoms position as the centerpoint
+		  if(x==0){
+		      centX=lineAtom.x;
+				centY=lineAtom.y;
+				centZ=lineAtom.z;
+		  }
+		  
+		  lineAtom.x=centX;
+		  lineAtom.y=centY;
+		  lineAtom.z=centZ;
+		  
+		  int bondFound = hasBond(bondVector,lineAtom.id);
+		  if(bondFound >= 0){
+		      Bond lineBond =  bondVector[bondFound];
+				// Get other atom in bond
+            unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
+				
+				if(printFlg)
+                output << "Building Bond:\n" << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
+					 
+            Atom otherAtom = getAtom(atomVector, otherID);
+
+            // Move newAtom bond distance away from other atom in y direction.
+            lineAtom.x = otherAtom.x;
+            lineAtom.y = otherAtom.y + lineBond.distance;
+            lineAtom.z = otherAtom.z;
+		  }
+		  
+		  int angleFound = hasAngle(angleVector,lineAtom.id);
+		  if(angleFound >=0 ){
+		      Angle lineAngle = angleVector[angleFound];
+				// Get other atom listed in angle
+            Atom otherAtom = createAtom(-1, -1, -1, -1);
+            unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
+            otherAtom = getAtom(atomVector, otherID);
+
+            // Get common atom that lineAtom and otherAtom are bonded to
+            //it will be the vertex of the angle.
+            unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
+                otherID);
+            Atom commonAtom = getAtom(atomVector, commonID);
+
+            if(printFlg)
+				    output << "Building Angle:\n" << lineAtom.id <<" -- "<< commonAtom.id<<" -- "<< otherAtom.id << endl;
+
+            double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
+            double angleChange = lineAngle.value - currentAngle;
+
+            lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
+		  }
+		  
+		  int dihedralFound = hasDihedral(dihedralVector, lineAtom.id);
+		  if(dihedralFound >= 0){
+		      Dihedral lineDihedral = dihedralVector[dihedralFound];
+				//get other atom in the dihedral
+            unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
+            Atom otherAtom = getAtom(atomVector, otherID);
+
+            //There are guranteed to be 4 atoms involved in the dihedral
+            //because it takes atleast 4 atoms to define two non equal
+            //planes.
+
+            //get all of the atoms bonded to lineAtom
+            vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
+            //get all of the atoms bonded to  otherAtom
+            vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
+
+            //find bond that bonds together two of the atoms in the intersection
+            Bond linkingBond = createBond(-1, -1, -1, false);
+            bool foundBond = false; 
+
+            // this could possibly be abstracted into its own function and may made not to be and n^3 algorithm. ugh
+            for(int i = 0; i < bondedToLineAtom.size(); i++){
+                unsigned long currentToLine = bondedToLineAtom[i];
+                for(int j = 0; j < bondedToOtherAtom.size(); j++){
+                    unsigned long currentToOther = bondedToOtherAtom[i];
+                    for(int k = 0; k < bondVector.size(); k++){
+                        Bond currentBond = bondVector[k];
+                        if(getOppositeAtom(currentBond, currentToOther) == currentToLine){
+                            linkingBond = currentBond;
+                            foundBond = true;
+                        }
+                        if(foundBond)
+                            break;
+                    }
+                    if(foundBond)
+                        break;
+                }
+                if(foundBond)
+                    break;
+            }
+
+            //find atom bonded to the common atom that is not line atom or otherAtom
+            if(linkingBond.atom1 == -1 || linkingBond.atom2 == -1){
+                unsigned long commonAtom = getCommonAtom(bondVector, otherAtom.id, lineAtom.id);
+                for(int i = 0; i < bondVector.size(); i++){
+                    unsigned long opposite = getOppositeAtom(bondVector[i], commonAtom);
+                    if(opposite != -1 && opposite != otherAtom.id && opposite != lineAtom.id){
+                        linkingBond = bondVector[i];
+                        break;
+                    }
+                }
+            }
+				if(printFlg)
+                output << "Building Dihedral:\n"<< lineAtom.id<<" -- ("<< linkingBond.atom1<<" "<<linkingBond.atom2<<") -- "<<otherAtom.id<<endl;
+            
+				//plane 1 is lineAtom and atoms in linking bond and will be rotated
+            //plane 2 is otherAtom and atoms in linking bond
+            //the bond creates the vector about which lineAtom will be rotated.
+
+            Plane rotatePlane = createPlane(lineAtom,
+            getAtom(atomVector, linkingBond.atom1),
+            getAtom(atomVector, linkingBond.atom2));
+
+            Plane nonMovingPlane = createPlane(otherAtom,
+            getAtom(atomVector, linkingBond.atom1),
+            getAtom(atomVector, linkingBond.atom2));
+            //find the angle between the planes.
+            double initialAngle = getAngle(rotatePlane, nonMovingPlane);
+            //find the angle needed to rotate.
+            double toRotate = initialAngle - lineDihedral.value;
+            //rotate lineAtom needed degrees about linkbond.
+            //determine which atom in linkingBond is vector head and tail
+            Atom vectorHead;
+            Atom vectorTail;
+            Bond temp = getBond(bondVector, lineAtom.id, linkingBond.atom1);
+            if(temp.atom1 == -1 && temp.atom2 == -1){
+                // linkingBond.atom1 is not bonded to line atom and is the tail(start)
+                vectorTail = getAtom(atomVector, linkingBond.atom1);
+                vectorHead = getAtom(atomVector, linkingBond.atom2);
+            }
+            else{
+                vectorTail = getAtom(atomVector, linkingBond.atom2);
+                vectorHead = getAtom(atomVector, linkingBond.atom1);
+            }
+
+            lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
+		  }
+		  if(printFlg){
+		      output<<"Built Atom:"<<endl;
+				output<<lineAtom.id<<", "<<lineAtom.x<<", "<<lineAtom.y<<", "<<lineAtom.z<<endl;
+			}
+        atomVector.push_back(lineAtom);
+    }//for loop
+	 
+	 if(printFlg)
+	     writeToLog(output,GEOM);
+	 
+	 Atom *atomCopy = new Atom[atomVector.size()];
+	 for(int i =0; i<atomVector.size(); i++)
+	     atomCopy[i] = atomVector[i];
+		  
+	 Bond *bondCopy = new Bond[bondVector.size()];
+	 for(int i =0; i<bondVector.size(); i++)
+	     bondCopy[i] = bondVector[i];
+		  
+	 Angle *angleCopy = new Angle[angleVector.size()];
+	 for(int i =0; i<angleVector.size(); i++)
+	     angleCopy[i] = angleVector[i];
+		  
+	 Dihedral *dihedralCopy = new Dihedral[dihedralVector.size()];
+	 for(int i =0; i<dihedralVector.size(); i++)
+	     dihedralCopy[i] = dihedralVector[i];
+	 
+	 Hop *hopCopy = new Hop[molec->numOfHops];
+	 for(int i =0; i<molec->numOfHops; i++)
+	     hopCopy[i] = molec->hops[i];	
+		  
+	Molecule retMolec = createMolecule(molec->id, atomCopy, angleCopy, bondCopy, dihedralCopy, hopCopy, 
+	                          atomVector.size(), angleVector.size(), bondVector.size(), dihedralVector.size(), molec->numOfHops);
+	return retMolec;
+
+}
+

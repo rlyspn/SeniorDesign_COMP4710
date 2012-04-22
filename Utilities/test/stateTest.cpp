@@ -1,6 +1,7 @@
 #include "stateTest.h"
 
 void testGetHopFromLine(){
+    cout << "Testing getHopFromLine" << endl;
     string line = "3 4 2";
     string line2 = "6 3 6";
 
@@ -15,11 +16,12 @@ void testGetHopFromLine(){
     assert(h2.atom2 == 3);
     assert(h2.hop == 6);
 
-    cout << "getHopFromLine Passed" << endl;
+    cout << "Testing getHopFromLine Complete\n" << endl;
 
 }
 
 void testGetDihedralFromLine(){
+    cout << "Testing getDihedralFromLine" << endl;
     string line = "3 5 3.456 0";
     string line2 = "89 21 45.21 1";
 
@@ -36,10 +38,12 @@ void testGetDihedralFromLine(){
     assert(d2.value = 3.456);
     assert(d2.variable = true);
 
-    cout << "getDihedralFromLine Passed" << endl;
+    cout << "Testing getDihedralFromLine Complete\n" << endl;
 }
 
 void testGetAtomFromLine(){
+    cout << "Testing getAtomFromLine" << endl;
+
     string line1 = "2, 4.234, 56.34, 1.23, 4.12, 9.76";
     string line2 = "4, 7.89, 2.12345, 34.5, 65.7, 7.96";
 
@@ -60,10 +64,11 @@ void testGetAtomFromLine(){
     assert(a2.sigma == 65.7);
     assert(a2.epsilon == 7.96);
 
-    cout << "getAtomFromLine Passed" << endl;
+    cout << "Testing getAtomFromLine Complete\n" << endl;
 }
 
 void testGetBondFromLine(){
+    cout << "Testing getBondFromLine" << endl;
     string line = "3 5 3.456 0";
     string line2 = "89 21 45.21 1";
 
@@ -80,11 +85,11 @@ void testGetBondFromLine(){
     assert(d2.distance = 3.456);
     assert(d2.variable = true);
 
-    cout << "getBondFromLine Passed" << endl;
-
+    cout << "Testing getBondFromLine Complete\n" << endl;
 }
 
 void testGetAngleFromLine(){
+    cout << "Testing getAngleFromLine" << endl;
     string line = "3 5 3.456 0";
     string line2 = "89 21 45.21 1";
 
@@ -101,10 +106,11 @@ void testGetAngleFromLine(){
     assert(d2.value = 3.456);
     assert(d2.variable = true);
 
-    cout << "getAngleFromLine Passed" << endl;
+    cout << "Testing getAngleFromLine Complete\n" << endl;
 }
 
 void testGetEnvironmentFromLine(){
+    cout << "Testing getEnvironmentFromLine" << endl;
     string line1 = "10.0, 11.2, 32.34, 90";
     string line2 = "11.4, 34.1, 12.54, 45";
 
@@ -121,11 +127,11 @@ void testGetEnvironmentFromLine(){
     assert(e2.z == 12.54);
     assert(e2.numOfAtoms == 45);
 
-    cout << "getEnvironmentFromLine Passed" << endl;
+    cout << "Testing getEnvironmentFromLine Complete" << endl;
 }
 
 void testWriteOutReadInState(){
-    printf("Testing State read and write.\n");
+    cout << "Testing readInEnvironment" << endl;
     Atom atom1 = createAtom(0, 1.23f, 2.3f, 4.3f, 5.6f, 4.34f);
     Atom atom2 = createAtom(1, 3.22f, 4.2f, 6.5f, 8.6f, 6.36f);
     Atom atom3 = createAtom(2, 2.21f, 7.4f, 2.8f, 4.2f, 2.22f);
@@ -220,7 +226,7 @@ void testWriteOutReadInState(){
         }
     }
 
-    cout << "readInEnvironment Passed" << endl;
+    cout << "Testing readInEnvironment Complete\n" << endl;
 }
 
 
