@@ -96,4 +96,10 @@ void testRotateAboutVector();
 */
 void testRotateInPlane();
 
+/**
+  runs all the test in this file
+*/
+
+void testGeometric();
+
 #endif //GEOMETRICTEST_H

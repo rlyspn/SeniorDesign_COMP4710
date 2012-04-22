@@ -31,7 +31,7 @@ double atom3Sigma = 2.250;
 double atom3Epsilon = 0.05;
 
 void testGetAtom(Opls_Scan scan){
-
+    cout << "Testing Opls_Scan.getAtom" << endl;
     Atom atom1 = scan.getAtom(atomNumber1);
     Atom atom2 = scan.getAtom(atomNumber2);
     Atom atom3 = scan.getAtom(atomNumber3);
@@ -51,6 +51,7 @@ void testGetAtom(Opls_Scan scan){
 }
 
 void testGetSigma(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getSigma" << endl;
     assert(scan.getSigma(atomNumber1) == atom1Sigma); 
     assert(scan.getSigma(atomNumber2) == atom2Sigma); 
     assert(scan.getSigma(atomNumber3) == atom3Sigma); 
@@ -58,6 +59,7 @@ void testGetSigma(Opls_Scan scan){
 }
 
 void testGetEpsilon(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getEpsilon" << endl;
     assert(scan.getEpsilon(atomNumber1) == atom1Epsilon);
     assert(scan.getEpsilon(atomNumber2) == atom2Epsilon);
     assert(scan.getEpsilon(atomNumber3) == atom3Epsilon);
@@ -65,6 +67,7 @@ void testGetEpsilon(Opls_Scan scan){
 }
 
 void testGetCharge(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getCharge" << endl;
     assert(scan.getCharge(atomNumber1) == atom1Charge);
     assert(scan.getCharge(atomNumber2) == atom2Charge);
     assert(scan.getCharge(atomNumber3) == atom3Charge);
@@ -81,6 +84,7 @@ string atomNumber6 ="073";
 double atom6Fourier[4] = { 0.0, -4.0396, 1.2261, 3.5637 };
 
 void testGetFourier(Opls_Scan scan){
+    cout << "Testing Opls_Scan.getVvalues" << endl;
     Fourier f = scan.getFourier(atomNumber4);
     
     for(int i=0; i<4; i++){
@@ -101,6 +105,7 @@ void testGetFourier(Opls_Scan scan){
 }
 
 void testPDBoutput(){
+    cout << "Testing PDBoutput" << endl;
     Atom* pdbAtoms;
     Environment pdbEnviro;
 
@@ -140,12 +145,13 @@ void testPDBoutput(){
 
     readPDB.close();
 
-    cout << "testPDBoutput successful.\n" << endl;
+    cout << "Testing PDBoutput Completed\n" << endl;
 }
 
 void testLogOutput(){
-    cout << "Testing OutputLog writer\n" <<endl;
+    cout << "Testing OutputLog writer" <<endl;
     
+	 system("find ../ -name OutputLog | xargs rm");
     string line1 = "This is line1 text";
 	 string line2 = "This is line2 text";
 	 string line3 = "This is line3 text";
@@ -166,33 +172,21 @@ void testLogOutput(){
 	 
 	 getline(fileReader,readInLine);
 	 string temp= "--Z_Matrix: ";
-	 temp += line2;
+	 temp+=line2;
 	 assert(readInLine.compare(temp)==0);
+	 //getline(fileReader,readInLine);
+	 //assert(readInLine.compare(line2)==0);
 	 
 	 getline(fileReader,readInLine);
 	 temp= "--OPLS: ";
-	 temp += line3;
+	 temp+=line3;
 	 assert(readInLine.compare(temp)==0);
+	 //getline(fileReader,readInLine);
+	 //assert(readInLine.compare(line3)==0);
 	 
-	 cout << "Testing OutputLog writer Completed\n" <<endl;
-	 
+	 cout << "Testing OutputLog writer Completed\n" <<endl;	 
 }
 
-bool asserTwoBool(bool b1, bool b2){
-    if(b1 && b2)
-        return true;
-    else if(!b1 && !b2)
-        return true;
-    else
-        return false;
-}
-
-bool percentDifference(double d1, double d2){
-    double difference = d2-d1;
-    double average = (d2+d1)/d2;
-    double percentDiff = (difference/average)*100;
-    return percentDiff < 3;
-}
 
 Molecule createMeshZMolecules(Opls_Scan scanner){
 
@@ -219,7 +213,7 @@ Molecule createMeshZMolecules(Opls_Scan scanner){
     //5 C    217    0    1    1.811119   4   96.401770   2  180.000000        0
     Atom atom5=scanner.getAtom("217");
     atom5.id=5;
-    Bond bond5=createBond(5,1,1.8119,true);
+    Bond bond5=createBond(5,1,1.811119,true);
     Angle angle5=createAngle(5,4,96.401770,true);
     Dihedral dihed5=createDihedral(5,2,180,false);
 
@@ -285,6 +279,43 @@ Molecule createMeshZMolecules(Opls_Scan scanner){
     return createMolecule(1,atomPtr,anglePtr,bondPtr,dihedPtr,hopPtr,8,6,7,5,11);
 }
 
+void addPositionsToMeshZ(Molecule *meshMolec){
+    //the hardcoded positions(x y z) of the mezh.z molecule
+    // Atom#   X    Y    Z
+	 // 0       0    0    0
+	 meshMolec->atoms[0].x = 0;
+	 meshMolec->atoms[0].y = 0;
+    meshMolec->atoms[0].z = 0;
+	 // 1       0    0.5    0
+	 meshMolec->atoms[1].x = 0;
+	 meshMolec->atoms[1].y = 0.5;
+    meshMolec->atoms[1].z = 0;
+	 // 2     -0.5    0.5   -0.5
+	 meshMolec->atoms[2].x = -0.5;
+	 meshMolec->atoms[2].y = 0.5;
+    meshMolec->atoms[2].z = -0.5;
+	 // 3    1.33653   2.39894e-9   1.33653
+	 meshMolec->atoms[3].x = 1.33653;
+	 meshMolec->atoms[3].y = 0.00000000239894;
+    meshMolec->atoms[3].z = 1.33653;
+	 // 4   -0.857136    -1.36313   -0.823996
+	 meshMolec->atoms[4].x = -0.857136 ;
+	 meshMolec->atoms[4].y = -1.36313;
+    meshMolec->atoms[4].z = -0.823996;
+	 // 5   -1.92671    -1.51275   -0.405374
+	 meshMolec->atoms[5].x = -1.92671;
+	 meshMolec->atoms[5].y = -1.51275;
+    meshMolec->atoms[5].z = -0.405374;
+	 // 6   -0.878138    -1.16034   -1.94557
+	 meshMolec->atoms[6].x = -0.878138;
+	 meshMolec->atoms[6].y = -1.16034;
+    meshMolec->atoms[6].z = -1.94557;
+	 // 7    -0.244983    -2.314   -0.710251
+	 meshMolec->atoms[7].x = -0.244983;
+	 meshMolec->atoms[7].y = -2.314;
+    meshMolec->atoms[7].z = -0.710251;
+}
+
 void compareTestMolecules(Molecule molec1, Molecule molec2){
     // check if id's are equal
     assert(molec1.id == molec2.id);	 
@@ -293,9 +324,12 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
     assert(molec1.numOfAtoms == molec2.numOfAtoms);
     for(int i=0; i< molec1.numOfAtoms; i++){
         assert(molec1.atoms[i].id==molec2.atoms[i].id);
-        assert(percentDifference(molec1.atoms[i].charge,molec2.atoms[i].charge));
-        assert(percentDifference(molec1.atoms[i].sigma,molec2.atoms[i].sigma));
-        assert(percentDifference(molec1.atoms[i].epsilon,molec2.atoms[i].epsilon));		
+        assert(percentDifference(molec1.atoms[i].charge, molec2.atoms[i].charge));
+        assert(percentDifference(molec1.atoms[i].sigma, molec2.atoms[i].sigma));
+        assert(percentDifference(molec1.atoms[i].epsilon, molec2.atoms[i].epsilon));
+        assert(percentDifference(molec1.atoms[i].x, molec2.atoms[i].x));
+        assert(percentDifference(molec1.atoms[i].y, molec2.atoms[i].y));
+        assert(percentDifference(molec1.atoms[i].z, molec2.atoms[i].z));			
     }
 
     //check bond
@@ -336,8 +370,11 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
 }
 
 void testZmatrixScanner(Opls_Scan opls){
-    string zMatrixFile1 = "bin/mesh.z";
-    Molecule meshZ= createMeshZMolecules(opls);
+    cout << "Testing Z-matrix scanner"<< endl;
+    string zMatrixFile1 = "Utilities/bossFiles/mesh.z";
+    Molecule meshZ= createMeshZMolecules(opls);	 
+	 addPositionsToMeshZ(&meshZ);
+	 
     Zmatrix_Scan zScan (zMatrixFile1,&opls);
     vector<Molecule> scannedInMolecules;
 
@@ -354,6 +391,7 @@ void testZmatrixScanner(Opls_Scan opls){
 }
 
 void testZmatrixScanner_multpleSingle(Opls_Scan opls){
+    cout << "Testing Z-matrix scanner with reuse 500 molec : 1 atom each"<< endl;
     string zMatrixFile1 = "Utilities/bossFiles/testZ.z";
     Zmatrix_Scan zScan (zMatrixFile1,&opls);
     vector<Molecule> scannedInMolecules;
@@ -378,7 +416,8 @@ void testZmatrixScanner_multpleSingle(Opls_Scan opls){
 }
 
 void testZmatrixScanner_multpleAmount(Opls_Scan opls){
-    string zMatrixFile1 = "bin/mesh.z";
+    cout << "Testing Z-matrix scanner with reuse 500 molec : 8 atoms each"<< endl;
+    string zMatrixFile1 =  "Utilities/bossFiles/mesh.z";
     Zmatrix_Scan zScan (zMatrixFile1,&opls);
     vector<Molecule> scannedInMolecules;
 
@@ -405,32 +444,25 @@ void testZmatrixScanner_multpleAmount(Opls_Scan opls){
         }
         runningNumOfAtoms += molec.numOfAtoms;	     
     }
-
     cout << "Testing Z-matrix scanner with reuse 500 molec : 8 atoms each Complete\n"<< endl;	 
 }
 
 
 
-
 int main(){
-    testTranslateAtom();
-    testRotateAboutX();
-    testRotateAboutY();
-    testRotateAboutZ();
-    testRotateAboutVector();
-    testRotateInPlane(); 
-    
+    cout<< "----- Starting Utility Test ----\n" << endl;
     runStateTests();
     testConfigScan();    
     
     Opls_Scan scanner(oplsPath);
     int returnInt = scanner.scanInOpls(oplsPath);
-    cout << "Attempting to open " << oplsPath << endl;
+    cout << "--Attempting to open " << oplsPath << endl;
     if(returnInt == -1){
         cout << "Failed to open Opls file." << endl;
         exit(0);
     }
 
+    //test OPLS
     testGetAtom(scanner);
     testGetSigma(scanner);
     testGetEpsilon(scanner);
@@ -438,26 +470,12 @@ int main(){
     testGetFourier(scanner);
 
     testPDBoutput();
-	testLogOutput();
+	 testLogOutput();
+	 
+	 //Test Zmatrix
     testZmatrixScanner(scanner); 
-	testZmatrixScanner_multpleSingle(scanner);
+	 testZmatrixScanner_multpleSingle(scanner);
     testZmatrixScanner_multpleAmount(scanner);
 
-    testGetNormal();
-    testGetAngleBetweenPlanes();
-    testGetBond();
-    testGetAllBonds();
-    testGetIntersection();
-    testIsMember();
-    testTranslateAtom();
-    testRotateAboutX();
-    testRotateAboutY();
-    testRotateAboutZ();
-	testD2RandR2D();
-	testGetOppositeAtom();
-	testGetCommonAtom();
-    testGetDistance();
-	testGetAngle();
-	testRotateAboutVector();
-	testRotateInPlane();
+    testGeometric();
 }

@@ -14,6 +14,7 @@ Zmatrix_Scan::Zmatrix_Scan(string filename, Opls_Scan* oplsScannerRef){
 Zmatrix_Scan::~Zmatrix_Scan(){}
 
 int Zmatrix_Scan::scanInZmatrix(){
+    stringstream output;
     int numOfLines=0;
     ifstream zmatrixScanner(fileName.c_str());
 
@@ -73,6 +74,12 @@ int Zmatrix_Scan::scanInZmatrix(){
     }
 
     zmatrixScanner.close();
+	 
+	 output << "Finished Reading Z-Matrix file"<<endl;
+	 output <<"Scanned in " << numOfLines << " lines" <<endl;
+	 output <<"Found "<<moleculePattern.size()<< " Molecules"<<endl;
+	 output <<"Ready to Build Molecules"<<endl;
+	 writeToLog(output,Z_MATRIX);
     }
 
     return 0;
@@ -97,11 +104,7 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         Bond lineBond;
         Angle lineAngle;
         Dihedral lineDihedral;
-
-        bool hasBond = false;
-        bool hasAngle = false;
-        bool hasDihedral = false;
-
+		  
         if (oplsA.compare("-1") != 0)
         {
             lineAtom = oplsScanner->getAtom(oplsA);
@@ -112,12 +115,11 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
         else//dummy atom
         {
-            lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1, -1, -1);
+            lineAtom = createAtom(atoi(atomID.c_str()), -1, -1, -1, -1, -1,-1);
         }
+		  atomVector.push_back(lineAtom);
 
         if (bondWith.compare("0") != 0){
-            hasBond = true;
-
             lineBond.atom1 = lineAtom.id;
             lineBond.atom2 = atoi(bondWith.c_str());
             lineBond.distance = atof(bondDistance.c_str());
@@ -126,8 +128,6 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
 
         if (angleWith.compare("0") != 0){
-            hasAngle = true;
-
             lineAngle.atom1 = lineAtom.id;
             lineAngle.atom2 = atoi(angleWith.c_str());
             lineAngle.value = atof(angleMeasure.c_str());
@@ -136,153 +136,12 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
         }
 
         if (dihedralWith.compare("0") != 0){
-            hasDihedral = true;
-
             lineDihedral.atom1 = lineAtom.id;
             lineDihedral.atom2 = atoi(dihedralWith.c_str());
             lineDihedral.value = atof(dihedralMeasure.c_str());
             lineDihedral.variable = false;
             dihedralVector.push_back(lineDihedral);
         }
-
-        /******************************************
-        BUILDING MOLECULE WITH CORRECT POSITIONS
-        ******************************************/        
-        cout << "\nBuilding Atom: " << lineAtom.id << endl;
-        if(compareDoubleDifference(lineAtom.x, -1, DOUBPREC) &&
-            compareDoubleDifference(lineAtom.y, -1, DOUBPREC) &&
-            compareDoubleDifference(lineAtom.z, -1, DOUBPREC)){
-
-            dummies.push_back(lineAtom.id);
-        }
-
-        if(1 < 10){
-
-            lineAtom.x = 0.0;
-            lineAtom.y = 0.0;
-            lineAtom.z = 0.0;
-            if(hasBond){
-                // Get other atom in bond
-                unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
-                cout << "Building Bond:\n" << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
-                Atom otherAtom = getAtom(atomVector, otherID);
-
-                // Move newAtom bond distance away from other atom in y direction.
-                lineAtom.x = otherAtom.x;
-                lineAtom.y = otherAtom.y + lineBond.distance;
-                lineAtom.z = otherAtom.z;
-            }
-            if(hasAngle){
-                // Get other atom listed in angle
-                Atom otherAtom = createAtom(-1, -1, -1, -1);
-                unsigned long otherID = getOppositeAtom(lineAngle, lineAtom.id);
-                otherAtom = getAtom(atomVector, otherID);
-
-                // Get common atom that lineAtom and otherAtom are bonded to
-                //it will be the vertex of the angle.
-                unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
-                otherID);
-                Atom commonAtom = getAtom(atomVector, commonID);
-
-                printf("Building Angle:\n%lu -- %lu -- %lu\n", lineAtom.id,
-                commonAtom.id, otherAtom.id);
-
-                double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
-                double angleChange = lineAngle.value - currentAngle;
-
-                lineAtom = rotateAtomInPlane(lineAtom, commonAtom, otherAtom, angleChange);
-            }
-            if(hasDihedral){
-                //get other atom in the dihedral
-                unsigned long otherID = getOppositeAtom(lineDihedral, lineAtom.id);
-                Atom otherAtom = getAtom(atomVector, otherID);
-
-                //There are guranteed to be 4 atoms involved in the dihedral
-                //because it takes atleast 4 atoms to define two non equal
-                //planes.
-
-                //get all of the atoms bonded to lineAtom
-                vector<unsigned long> bondedToLineAtom = getAllBonds(bondVector, lineAtom.id);
-                //get all of the atoms bonded to  otherAtom
-                vector<unsigned long> bondedToOtherAtom = getAllBonds(bondVector, otherAtom.id);
-
-                //find bond that bonds together two of the atoms in the intersection
-                Bond linkingBond = createBond(-1, -1, -1, false);
-                bool foundBond = false; 
-
-                // this could possibly be abstracted into its own function and may made not to be and n^3 algorithm. ugh
-                for(int i = 0; i < bondedToLineAtom.size(); i++){
-                    unsigned long currentToLine = bondedToLineAtom[i];
-                    for(int j = 0; j < bondedToOtherAtom.size(); j++){
-                        unsigned long currentToOther = bondedToOtherAtom[i];
-                        for(int k = 0; k < bondVector.size(); k++){
-                            Bond currentBond = bondVector[k];
-                            if(getOppositeAtom(currentBond, currentToOther) == currentToLine){
-                                linkingBond = currentBond;
-                                foundBond = true;
-                            }
-                            if(foundBond)
-                                break;
-                        }
-                        if(foundBond)
-                            break;
-                    }
-                    if(foundBond)
-                        break;
-                }
-
-                //find atom bonded to the common atom that is not line atom or otherAtom
-                if(linkingBond.atom1 == -1 || linkingBond.atom2 == -1){
-                    unsigned long commonAtom = getCommonAtom(bondVector, otherAtom.id, lineAtom.id);
-                    for(int i = 0; i < bondVector.size(); i++){
-                        unsigned long opposite = getOppositeAtom(bondVector[i], commonAtom);
-                        if(opposite != -1 && opposite != otherAtom.id && opposite != lineAtom.id){
-                            linkingBond = bondVector[i];
-                            break;
-                        }
-                    }
-                }
-                printf("Building Dihedral:\n%lu -- (%d %d) -- %lu\n", lineAtom.id,
-                linkingBond.atom1, linkingBond.atom2, otherAtom.id);
-                //plane 1 is lineAtom and atoms in linking bond and will be rotated
-                //plane 2 is otherAtom and atoms in linking bond
-                //the bond creates the vector about which lineAtom will be rotated.
-
-                Plane rotatePlane = createPlane(lineAtom,
-                getAtom(atomVector, linkingBond.atom1),
-                getAtom(atomVector, linkingBond.atom2));
-
-                Plane nonMovingPlane = createPlane(otherAtom,
-                getAtom(atomVector, linkingBond.atom1),
-                getAtom(atomVector, linkingBond.atom2));
-
-                //find the angle between the planes.
-                double initialAngle = getAngle(rotatePlane, nonMovingPlane);
-                //find the angle needed to rotate.
-                double toRotate = initialAngle - lineDihedral.value;
-                //rotate lineAtom needed degrees about linkbond.
-                //determine which atom in linkingBond is vector head and tail
-                Atom vectorHead;
-                Atom vectorTail;
-                Bond temp = getBond(bondVector, lineAtom.id, linkingBond.atom1);
-                if(temp.atom1 == -1 && temp.atom2 == -1){
-                    // linkingBond.atom1 is not bonded to line atom and is the tail(start)
-                    vectorTail = getAtom(atomVector, linkingBond.atom1);
-                    vectorHead = getAtom(atomVector, linkingBond.atom2);
-                }
-                else{
-                    vectorTail = getAtom(atomVector, linkingBond.atom2);
-                    vectorHead = getAtom(atomVector, linkingBond.atom1);
-                }
-
-                lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
-            }
-            printf("Built Atom:\n");
-            printAtoms(&lineAtom, 1);
-            atomVector.push_back(lineAtom);
-
-        }//end of atom placing
-
     } // if format == 1
 
     else if(format == 2)
@@ -493,10 +352,8 @@ void Zmatrix_Scan::buildAdjacencyMatrix(int **&graph, Molecule molec){
     //fill with adjacent array with bonds
     for(int x=0; x<molec.numOfBonds; x++){
         Bond bond = molec.bonds[x];
-
         graph[bond.atom1-1][bond.atom2-1]=1;
         graph[bond.atom2-1][bond.atom1-1]=1;
-
     }
 }
 
@@ -535,6 +392,12 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
                                     moleculePattern[i].numOfBonds,
                                     moleculePattern[i].numOfDihedrals,
                                     numOfHops);
+		  
+        //calculate and assign the xyz positions to the atoms in the molecule
+		  bool printToLog = false;
+		  if( startingID==0)
+		      printToLog = true; 									
+		  molecCopy = buildMoleculeInSpace(&molecCopy, printToLog);
  
         newMolecules.push_back(molecCopy);	      
     }

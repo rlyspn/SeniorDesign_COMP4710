@@ -15,6 +15,9 @@
 #include "metroUtil.h"
 using namespace std;
 
+/**
+  Structure used to represent the 4 Fourier Coeficients
+*/
 struct Fourier
 {
     double vValues[4];
@@ -30,13 +33,29 @@ class Opls_Scan{
    */
     map<string,Atom> oplsTable;
 	/**
-        //TODO
+        HashTable that houlds all the Fourier Coefficents
+		  stored
     */
-    map<string,Fourier> vTable;
+    map<string,Fourier> fourierTable;
     /**
       the path to the OPLS file.
     */
     string fileName;
+	 /**
+     Vector used to keep track of errors when lines in 
+	  the OPLS file that don't match the correct format.
+    */
+	 vector<int> errLines;
+	 /**
+      Vector used to keep track of errors when the hashes in 
+		the OPLS file that exist more than once. 
+    */
+	 vector<string> errHashes;
+	  /**
+      Vector used to keep track of errors when the hashes in the fourier coefficent
+		section of the OPLS file that exist more than once. 
+    */
+	 vector<string> errHashesFourier;
    public:
    /**
         Constrctor for the Opls_Scan object.
@@ -64,15 +83,20 @@ class Opls_Scan{
       void addLineToTable(string line, int numOfLines);
 		
 		/**
-		Checks the format of the line being read in
-		returns false if the format of the line is invalid
-		@param line -  a line from the opls file
+		  Checks the format of the line being read in
+		  returns false if the format of the line is invalid
+		  @param line -  a line from the opls file
         @return - Format code
                   -1: Invalid Format
                   1: Normal OPLS format
-                  2: Dihedral format
+                  2: Fourier Coefficent format
 		*/
 		int checkFormat(string line);
+				
+		/**
+		  Logs all the Errors found in the OPLS file to the output log.
+		*/
+		void logErrors();
 		
 		/**
 		Returns an Atom struct based on the hashNum (1st col) in Z matrix file

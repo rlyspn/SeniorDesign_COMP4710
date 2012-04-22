@@ -1,6 +1,7 @@
 #include "geometricTest.h"
 
 void testGetNormal(){
+    cout << "Testing GetNormal" <<endl;   
     Atom atom1, atom2, atom3;
     atom1.x = 3.2;
     atom1.y = 4.6;
@@ -25,10 +26,11 @@ void testGetNormal(){
     assert(test.y == expected.y);
     assert(test.z == expected.z);
 
-    printf("testGetNormal completed successfully.\n");
+    cout << "Testing GetNormal Completed\n" <<endl;
 }
 
 void testGetAngleBetweenPlanes(){
+    cout << "Testing GetAngleBetweenPlanes" <<endl;
     srand(time(NULL));
 
     int numberOfTests = 100;
@@ -74,15 +76,16 @@ void testGetAngleBetweenPlanes(){
         double testTheta = getAngle(a, b);
 
         if (!((testTheta - expectedTheta) / expectedTheta < PRECISION)){
-            printf("testGetAngleBetweenPlanes #%d failed. testTheta = %f | expectedTheta = %f.\n", i, testTheta, expectedTheta);
+            printf("Test GetAngleBetweenPlanes #%d failed. testTheta = %f | expectedTheta = %f.\n", i, testTheta, expectedTheta);
         }
 
         assert((testTheta - expectedTheta) / expectedTheta < PRECISION);
     }
-    printf("testGetAngleBetweenPlanes completed successfully.\n");
+    cout << "Testing GetAngleBetweenPlanes Completed\n" <<endl;
 }
 
 void testGetBond(){
+    cout <<"Testing GetBond"<<endl;
     vector<Bond> bonds;
 
     Bond bond1 = createBond(1, 2, 3.0, false);
@@ -103,10 +106,11 @@ void testGetBond(){
     assert(bond3.atom1 == testBond3.atom1 && bond3.atom2 == testBond3.atom2 && bond3.distance == testBond3.distance);
     assert(testBond4.atom1 == -1 && testBond4.atom2 == -1 && testBond4.distance == -1.0);
 
-    printf("testGetBond completed successfully.\n");
+    cout <<"Testing GetBond Completed\n"<<endl;
 }
 
 void testGetAllBonds(){
+    cout<<"Testing GetAllBonds"<<endl;
     vector<Bond> bonds;
 
     Bond bond1 = createBond(1, 2, 3.0, false);
@@ -129,10 +133,11 @@ void testGetAllBonds(){
     assert(testBonds4[0] == 3 && testBonds4.size() == 1);
     assert(testBonds5.size() == 0);
 
-    printf("testGetAllBonds completed successfully.\n");
+    cout<<"Testing GetAllBonds Completed\n"<<endl;
 }
 
 void testGetIntersection(){
+    cout<<"Testing GetIntersection"<<endl;
     vector<unsigned long> section1, section2;
 
     section1.push_back(1);
@@ -149,11 +154,11 @@ void testGetIntersection(){
 
     assert(intersection[0] == 2 && intersection[1] == 4 && intersection.size() == 2);
 
-    printf("testGetIntersection completed successfully.\n");
-
+    cout<<"Testing GetIntersection Completed\n"<<endl;
 }
 
 void testIsMember(){
+    cout<<"Testing IsMember"<<endl;
     vector<unsigned long> section;
 
     section.push_back(1);
@@ -167,38 +172,31 @@ void testIsMember(){
     assert(isMember(section, 4));
     assert(!isMember(section, 5));
 
-    printf("testIsMember completed successfully.\n");
-}
-
-bool percentDifferenceG(double d1, double d2){
-    double difference = d2-d1;
-    double average = (d2+d1)/d2;
-    double percentDiff = (difference/average)*100;
-    
-    return percentDiff < 3;
+    cout<<"Testing IsMember Completed\n"<<endl;
 }
 
 
 void testD2RandR2D(){
+    cout << "Testing degrees2radins and radian2degrees" << endl;
     //test converting Degrees to Radians
-    assert(percentDifferenceG(degreesToRadians(1),0.0174532925) );
-	 assert(percentDifferenceG(degreesToRadians(45),0.785398163) );
-	 assert(percentDifferenceG(degreesToRadians(254),4.4331363) );
-	 assert(percentDifferenceG(degreesToRadians(360),6.283185307) );
-	 assert(percentDifferenceG(degreesToRadians(15),0.261799388) );
+    assert(percentDifference(degreesToRadians(1),0.0174532925) );
+	 assert(percentDifference(degreesToRadians(45),0.785398163) );
+	 assert(percentDifference(degreesToRadians(254),4.4331363) );
+	 assert(percentDifference(degreesToRadians(360),6.283185307) );
+	 assert(percentDifference(degreesToRadians(15),0.261799388) );
 	 
 	 //test converting Radians to Degrees
-	 assert(percentDifferenceG( radiansToDegrees(3.14),179.908747671) );
-	 assert(percentDifferenceG( radiansToDegrees(.1234567),7.073547863) );
-	 assert(percentDifferenceG( radiansToDegrees(0.174532925),10) );
-	 assert(percentDifferenceG( radiansToDegrees(1.745329252),100) );
-	 assert(percentDifferenceG( radiansToDegrees(6.195918845),355) );
+	 assert(percentDifference( radiansToDegrees(3.14),179.908747671) );
+	 assert(percentDifference( radiansToDegrees(.1234567),7.073547863) );
+	 assert(percentDifference( radiansToDegrees(0.174532925),10) );
+	 assert(percentDifference( radiansToDegrees(1.745329252),100) );
+	 assert(percentDifference( radiansToDegrees(6.195918845),355) );
 	 
-	 cout << "test degrees2radins and radian2degrees complete" << endl;
-
+	 cout << "Testing degrees2radins and radian2degrees Complete\n" << endl;
 }
 
 void testGetOppositeAtom(){
+    cout << "Testing getOppositeAtom"<< endl;
     Bond testBond = createBond(1,3,5.5,true);
 	 Angle testAngle = createAngle(2,6,30,false);
 	 Dihedral testDihed = createDihedral(3,7,180,true);
@@ -237,11 +235,12 @@ void testGetOppositeAtom(){
 	 assert(getOppositeAtom(testDihed,9)==5);
 	 assert(getOppositeAtom(testDihed,62)==-1);
 	 
-	 cout << "test getOppositeAtom complete" << endl;
+	 cout << "Testing getOppositeAtom Complete\n" << endl;
 
 }
 
 void testGetCommonAtom(){
+    cout << "Testing getCommonAtom" << endl;
     vector<Bond> bondVect(7); 
     bondVect[0] =createBond(2,1,0.5,false);
 	 bondVect[1] =createBond(3,2,0.5,false);
@@ -258,40 +257,43 @@ void testGetCommonAtom(){
 	 assert(getCommonAtom(bondVect,3,5)==-1 );
 	 assert(getCommonAtom(bondVect,8,2)==-1 );
 	 
-	 cout << "test getCommonAtom complete" << endl;
+	 cout << "Testing getCommonAtom Complete\n" << endl;
 }
 
 void testGetDistance(){
+    cout << "Testing getDistance" << endl;
     Atom atom1= createAtom(1,5,6,7);
 	 Atom atom2= createAtom(2,10,11,12);
-	 assert(percentDifferenceG(getDistance(atom1,atom2),8.6) );
+	 assert(percentDifference(getDistance(atom1,atom2),8.66025) );
 	 
 	 atom1= createAtom(1,8,12,21);
 	 atom2= createAtom(2,4,5,10);
-	 assert(percentDifferenceG(getDistance(atom1,atom2),13.638181) );
+	 assert(percentDifference(getDistance(atom1,atom2),13.638181) );
 	 
 	 atom1= createAtom(1,45,2,22);
 	 atom2= createAtom(2,37,22,18);
-	 assert(percentDifferenceG(getDistance(atom1,atom2),21.9089023002) );
+	 assert(percentDifference(getDistance(atom1,atom2),21.9089023002) );
 	 
-	 cout << "test getDistance complete" << endl;
+	 cout << "Testing getDistance Complete\n" << endl;
 }
 
 void testGetAngle(){
+    cout << "Testing getAngle" << endl;
     Atom atom1= createAtom(1,5,6,7);
 	 Atom atom2= createAtom(2,10,11,12);
 	 Atom atom3= createAtom(3,14,22,9);
-	 assert(percentDifferenceG(getAngle(atom1,atom2,atom3),124.986));
+	 assert(percentDifference(getAngle(atom1,atom2,atom3),124.986));
 	 
 	 atom1= createAtom(1,15,23,8);
 	 atom2= createAtom(2,5,3,12);
 	 atom3= createAtom(3,9,18,7);
-	 assert(percentDifferenceG(getAngle(atom1,atom2,atom3),13.6609));
+	 assert(percentDifference(getAngle(atom1,atom2,atom3),13.6609));
 	 
-	 cout << "test getAngle complete" << endl;
+	 cout << "Testing getAngle Complete\n" << endl;
 }
 
 void testTranslateAtom(){
+    cout << "Testing TranslateAtom" << endl;
     srand(time(NULL));
     Atom testAtom;
     for (int i = 0; i < 2; i++){
@@ -325,10 +327,11 @@ void testTranslateAtom(){
     assert(testAtom.y == oldY + translateY);
     assert(testAtom.z == oldZ + translateZ);
 
-    cout << "testTranslateAtom completed successfully" << endl;    
+    cout << "Testing TranslateAtom Complete\n" << endl;    
 }
 
 void testRotateAboutX(){
+    cout << "Testing RotateAboutX" << endl;
     srand(time(NULL));
     Atom testAtom;
     for (int i = 0; i < 2; i++){
@@ -364,11 +367,11 @@ void testRotateAboutX(){
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
 
-    cout << "testRotateAboutX completed successfully" << endl;    
+    cout << "Testing RotateAboutX Complete\n" << endl;    
 }
 
 void testRotateAboutY(){
-
+    cout << "Testing RotateAboutY" << endl;
     srand(time(NULL));
     Atom testAtom;
     for (int i = 0; i < 2; i++){
@@ -404,11 +407,11 @@ void testRotateAboutY(){
     assert((testAtom.x - expectedX) / expectedX < PRECISION);
     assert((testAtom.z - expectedZ) / expectedZ < PRECISION);
     
-    cout << "testRotateAboutY completed successfully" << endl;    
+    cout << "Testing RotateAboutY Complete\n" << endl;    
 }
 
 void testRotateAboutZ(){
-
+    cout << "Testing RotateAboutZ" << endl;
     srand(time(NULL));
     Atom testAtom;
     for (int i = 0; i < 2; i++){
@@ -444,10 +447,11 @@ void testRotateAboutZ(){
     assert((testAtom.x - expectedX) / expectedX < PRECISION);
     assert((testAtom.y - expectedY) / expectedY < PRECISION);
     
-    cout << "testRotateAboutZ completed successfully" << endl;    
+    cout << "Testing RotateAboutZ Complete\n" << endl;    
 }
 
 void testRotateAboutVector(){
+    cout<<"Testing RotateAtomAboutVector"<<endl;
     double rotation = 90;
     Atom vertex = createAtom(-1, 0, 0, 0);
     Atom head = createAtom(-1, 1, 0, 0);
@@ -474,18 +478,15 @@ void testRotateAboutVector(){
     assert(fabs(rotated.z - 0) < .01);
 
 
-    printf("testRotateAtomAboutVector() Passed\n");
+    cout<<"Testing RotateAtomAboutVector Complete\n"<<endl;
 }
 
 void testRotateInPlane(){
+    cout<<"Testing RotateAtomInPlane"<<endl;
     double rotation = 90;
     Atom vertex = createAtom(-1, 0, .5, 0);
     Atom head = createAtom(-1, 0, 0, 0);
     Atom toRotate = createAtom(-1, 0, 1, 0);
-    
-    printAtoms(&toRotate, 1);
-    printAtoms(&vertex, 1);
-    printAtoms(&head, 1);
 
     Atom rotated = rotateAtomInPlane(toRotate, vertex, head, rotation);
     
@@ -502,5 +503,25 @@ void testRotateInPlane(){
     assert(fabs(rotated.x - 0.0) < .01);
     assert(fabs(rotated.z - sqrt(.5)) < .01);
   
-    printf("testRotateAtomInPlane() Passed\n");
+    cout<<"Testing RotateAtomInPlane Complete\n"<<endl;
+}
+
+void testGeometric(){
+    testGetNormal();
+    testGetAngleBetweenPlanes();
+    testGetBond();
+    testGetAllBonds();
+    testGetIntersection();
+    testIsMember();
+    testTranslateAtom();
+    testRotateAboutX();
+    testRotateAboutY();
+    testRotateAboutZ();
+	 testD2RandR2D();
+	 testGetOppositeAtom();
+	 testGetCommonAtom();
+    testGetDistance();
+	 testGetAngle();
+	 testRotateAboutVector();
+	 testRotateInPlane();
 }

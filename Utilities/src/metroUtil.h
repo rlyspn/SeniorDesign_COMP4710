@@ -15,6 +15,7 @@
 #include <string.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <vector>
 #include <time.h>
 
@@ -354,19 +355,19 @@ Molecule createMolecule(int id,
 
 								
 /**
-    @param id - the integer id of the molecule
-    @param atoms - an array of the atoms in the molecule
-    @param atomCount - the number of atoms in the molecule
-    @return - an instance of the new molecule
+  @param id - the integer id of the molecule
+  @param atoms - an array of the atoms in the molecule
+  @param atomCount - the number of atoms in the molecule
+  @return - an instance of the new molecule
 */
 Molecule createMolecule(int id, 
                         Atom *atoms,
                         int atomCount);
 
 /**
-    Copies by value molec2 into molec1
-    @param molec1 - the destination molecule
-    @param molec2 - the source molecule
+  Copies by value molec2 into molec1
+  @param molec1 - the destination molecule
+  @param molec2 - the source molecule
  */
 void copyMolecule(Molecule *molec1, Molecule *molec2);
 
@@ -386,18 +387,47 @@ void writePDB(Atom *atoms, Environment enviro, string filename);
 
 #define DEFAULT 0
 #define START 1
-#define OPLS 2
-#define Z_MATRIX 3
+#define END 2
+#define OPLS 3
+#define Z_MATRIX 4
+#define GEOM 5
 /**
   Logs output to the OutputLog file
   @param text - the text to be written to the output log
-  @param stamp - optional variable that uses one of the above flags
+  @param stamp - optional flag used to add the specified tag see above for MACROSs
 */
 void writeToLog(string text, int stamp=0 );
 
 /**
+  Wrapper that takes in a stringstream instead of a string.
+  flushes the stringstream after writing to the OutputLog file
+  @param ss - the stringstream to be written to the output log and flushed
+  @param stamp - optional flag used to add the specified tag see above for MACROS
+*/
+void writeToLog(stringstream& ss, int stamp=0 );
+
+/**
   Prints a molecule and its fields
+  @param *molec - the molecule to be printed
 */
 void printMolecule(Molecule *molec);
+
+/**
+  Calulates the percent difference between two doubles by finding the percentage
+  of the difference between the two over their adverage.
+  @param d1 - the first double
+  @param d2 - the second double
+  @return - true if the percent difference is less than 3%, else returns false
+*/
+bool percentDifference(double d1, double d2);
+
+/**
+  Checks to see if two boolean values are equal.
+  @param b1 - the first boolean value
+  @param b2 - the second boolean value
+  @return - returns true if they are the same, else returns false
+*/
+bool asserTwoBool(bool b1, bool b2);
+
 
 #endif //METROUTIL_H
