@@ -11,10 +11,8 @@ FLAGS=-arch sm_20 -lcurand -g -c
 FLAGSALT=-arch sm_20 -lcurand -g
 
 TSTEXE=parallelTest
-EXE=metroSim
-LINEXE=linearSim
-KRYPTONEXE=kryptonSim
-DEMOEXE=parallelDemo
+EXE=parallelExample
+LINEXE=linearExample
 UTILTESTEXE=utilTest
 COMMONUTILO=$(BIN)geometricUtil.o $(BIN)metroUtil.o
 SCANNERO=$(BIN)State_Scan.o $(BIN)Config_Scan.o $(BIN)Opls_Scan.o $(BIN)Zmatrix_Scan.o
@@ -79,3 +77,7 @@ dir:
 
 clean:
 	rm -f $(BIN)*.o
+	rm -f $(BIN)$(UTILTESTEXE)
+	rm -f $(BIN)$(EXE)
+	rm -f $(BIN)$(TSTEXE)
+	rm -f $(BIN)$(LINEXE)
