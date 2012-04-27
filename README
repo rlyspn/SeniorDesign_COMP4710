@@ -93,3 +93,6 @@ Configuration File:
 [20]    <path to the stateoutput file>
 [21]    #line 21 is a comment and is ignored.
 [22]    <path to the pdb output file>
+
+There are some known issues and TODOs listed here:
+https://github.com/rlyspn/SeniorDesign_COMP4710/wiki/Known-Issues-and-TODOs

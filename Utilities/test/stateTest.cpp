@@ -43,9 +43,10 @@ void testGetDihedralFromLine(){
 
 void testGetAtomFromLine(){
     cout << "Testing getAtomFromLine" << endl;
-
-    string line1 = "2, 4.234, 56.34, 1.23, 4.12, 9.76";
-    string line2 = "4, 7.89, 2.12345, 34.5, 65.7, 7.96";
+    
+    //id x y z sigma epsilon charg
+    string line1 = "2, 4.234, 56.34, 1.23, 4.12, 9.76 -2.4";
+    string line2 = "4, 7.89, 2.12345, 34.5, 65.7, 7.96 5.46";
 
     Atom a1 = getAtomFromLine(line1);
     Atom a2 = getAtomFromLine(line2);
@@ -56,6 +57,7 @@ void testGetAtomFromLine(){
     assert(a1.z == 1.23);
     assert(a1.sigma == 4.12);
     assert(a1.epsilon == 9.76);
+    assert(a1.charge == -2.4)
 
     assert(a2.id == 4);
     assert(a2.x == 7.89);
@@ -63,6 +65,7 @@ void testGetAtomFromLine(){
     assert(a2.z == 34.5);
     assert(a2.sigma == 65.7);
     assert(a2.epsilon == 7.96);
+    assert(a2.charge == 5.46);
 
     cout << "Testing getAtomFromLine Complete\n" << endl;
 }
@@ -111,8 +114,8 @@ void testGetAngleFromLine(){
 
 void testGetEnvironmentFromLine(){
     cout << "Testing getEnvironmentFromLine" << endl;
-    string line1 = "10.0, 11.2, 32.34, 90";
-    string line2 = "11.4, 34.1, 12.54, 45";
+    string line1 = "10.0 11.2 32.34 90 150.4";
+    string line2 = "11.4 34.1 12.54 45 160.9";
 
     Environment e1 = getEnvironmentFromLine(line1);
     Environment e2 = getEnvironmentFromLine(line2);
@@ -121,11 +124,13 @@ void testGetEnvironmentFromLine(){
     assert(e1.y == 11.2);
     assert(e1.z == 32.34);
     assert(e1.numOfAtoms == 90);
+    assert(e1.temperature == 150.4);
 
     assert(e2.x == 11.4);
     assert(e2.y == 34.1);
     assert(e2.z == 12.54);
     assert(e2.numOfAtoms == 45);
+    assert(e2.temperature == 160.9);
 
     cout << "Testing getEnvironmentFromLine Complete" << endl;
 }
