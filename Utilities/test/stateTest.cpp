@@ -57,7 +57,7 @@ void testGetAtomFromLine(){
     assert(a1.z == 1.23);
     assert(a1.sigma == 4.12);
     assert(a1.epsilon == 9.76);
-    assert(a1.charge == -2.4)
+    assert(a1.charge == -2.4);
 
     assert(a2.id == 4);
     assert(a2.x == 7.89);
