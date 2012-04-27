@@ -36,42 +36,12 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
     double maxTranslation = enviro->maxTranslation;
     double temperature = enviro->temperature;
     double kT = kBoltz * temperature;
-   
-    Atom *atoms;
-    atoms = (Atom *)malloc(sizeof(Atom) * numberOfAtoms);
     
-    //create array of atoms from arrays in the molecules
-    cout << "Allocated array" << endl;
-    int atomIndex = 0;
-    for(int i = 0; i < enviro->numOfMolecules; i++){
-        for(int j = 0; j < molecules[i].numOfAtoms; j++){
-            atoms[atomIndex] = molecules[i].atoms[j];
-            atomIndex++;
-        }
-    }
-
-    cout << "array assigned " << endl;
-    generatePoints(atoms, enviro);
-            
-    int atomTotal = 0;
-    int aIndex = 0;
-    int mIndex = 0;
-    while(atomTotal < numberOfAtoms && mIndex < enviro->numOfMolecules){
-        molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
-        atomTotal++;
-        aIndex++;
-        if(mIndex == enviro->numOfMolecules){
-            break;
-        }
-        if(aIndex == molecules[mIndex].numOfAtoms){
-            aIndex = 0;
-            mIndex++;
-        }
-    }
+    double currentEnergy = 0.0;
 
     printState(enviro, molecules, enviro->numOfMolecules, "initialState");
     for(int move = 0; move < numberOfSteps; move++){
-        double oldEnergy = calcEnergyWrapper(atoms, enviro);
+        double oldEnergy = calcEnergyWrapper(molecules, enviro);
         
         //Pick a molecule to move
         int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
@@ -116,9 +86,11 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 
         if(accept){
             accepted++;
+            currentEnergy = newEnergy;
         }
         else{
             rejected++;
+            currentEnergy = oldEnergy;
             //restore previous configuration
             copyMolecule(&toMove, &oldToMove);
             molecules[moleculeIndex] = toMove;
@@ -126,35 +98,14 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 
         //Print the state every 100 moves.
         if(move % 100 == 0){
-             atomTotal = 0;
-             aIndex = 0;
-             mIndex = 0;
-            while(atomTotal < numberOfAtoms){
-                molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
-                atomTotal++;
-                aIndex++;
-                if(aIndex == molecules[mIndex].numOfAtoms){
-                    aIndex = 0;
-                    mIndex++;
-                }
-            }
-
             cout << "Move: " << move << endl;
-            cout << "Current Energy: " << newEnergy << endl;
+            cout << "Current Energy: " << currentEnergy << endl;
         }
     }
-        atomTotal = 0;
-        aIndex = 0;
-        mIndex = 0;
-        while(atomTotal < numberOfAtoms){
-            molecules[mIndex].atoms[aIndex] = atoms[atomTotal];
-            atomTotal++;
-            aIndex++;
-            if(aIndex == molecules[mIndex].numOfAtoms){
-                aIndex = 0;
-                mIndex++;
-            }
-        }
+            
+    cout << "Final Energy: " << currentEnergy << endl;
+    cout << "Accepted Moves: " << accepted << endl;
+    cout << "Rejected Moves: " << rejected << endl;
 }
 
 /**

@@ -401,6 +401,7 @@ void testCalcEnergyWithMolecules(){
         hops[0] = createHop(atomCount, atomCount+3, 3);
         hops[1] = createHop(atomCount, atomCount+4, 4);
         molecules[i].hops = hops;
+        molecules[i].numOfHops = 2;
 
         for (int j = 0; j < molecules[i].numOfAtoms; j++){
             molecules[i].atoms[j] = atoms[atomCount];
@@ -839,7 +840,6 @@ void testCalcChargeWrapper(){
 }
 
 int main(){
-    //testAllocateMemory();
     testCopyMolecules();
     testKeepMoleculeInBox();
     testRotateMolecule();
