@@ -9,7 +9,8 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
     ofstream outFile;
     outFile.open(filename.c_str());
     //print the environment
-    outFile << enviro->x << " " << enviro->y << " " << enviro->z << " " << enviro->numOfAtoms << " " << enviro->temperature << endl;
+    outFile << enviro->x << " " << enviro->y << " " << enviro->z << " " << enviro->numOfAtoms
+        << " " << enviro->temperature << endl;
     outFile << endl; // blank line
     for(int i = 0; i < numOfMolecules; i++){
         Molecule currentMol = molecules[i];
@@ -21,7 +22,8 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
             Atom currentAtom = currentMol.atoms[j];
             outFile << currentAtom.id << " "
                 << currentAtom.x << " " << currentAtom.y << " " << currentAtom.z
-                << " " << currentAtom.sigma << " " << currentAtom.epsilon << endl;
+                << " " << currentAtom.sigma << " " << currentAtom.epsilon  << " "
+                << currentAtom.charge << endl;
         }
         outFile << "= Bonds" << endl; // delimiter
         
@@ -144,6 +146,9 @@ Atom getAtomFromLine(string line){
                 break;
             case 5: // epsilon
                 returnAtom.epsilon = atof(tokens);
+                break;
+            case 6: //charge
+                returnAtom.charge = atof(tokens);
                 break;
     
         }
