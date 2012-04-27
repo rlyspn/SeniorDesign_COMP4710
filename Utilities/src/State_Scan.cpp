@@ -9,7 +9,7 @@ void printState(Environment *enviro, Molecule *molecules, int numOfMolecules, st
     ofstream outFile;
     outFile.open(filename.c_str());
     //print the environment
-    outFile << enviro->x << " " << enviro->y << " " << enviro->z << " " << enviro->numOfAtoms << endl;
+    outFile << enviro->x << " " << enviro->y << " " << enviro->z << " " << enviro->numOfAtoms << " " << enviro->temperature << endl;
     outFile << endl; // blank line
     for(int i = 0; i < numOfMolecules; i++){
         Molecule currentMol = molecules[i];

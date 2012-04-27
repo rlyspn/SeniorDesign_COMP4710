@@ -111,8 +111,8 @@ void testGetAngleFromLine(){
 
 void testGetEnvironmentFromLine(){
     cout << "Testing getEnvironmentFromLine" << endl;
-    string line1 = "10.0, 11.2, 32.34, 90";
-    string line2 = "11.4, 34.1, 12.54, 45";
+    string line1 = "10.0 11.2 32.34 90 150.4";
+    string line2 = "11.4 34.1 12.54 45 160.9";
 
     Environment e1 = getEnvironmentFromLine(line1);
     Environment e2 = getEnvironmentFromLine(line2);
@@ -121,11 +121,13 @@ void testGetEnvironmentFromLine(){
     assert(e1.y == 11.2);
     assert(e1.z == 32.34);
     assert(e1.numOfAtoms == 90);
+    assert(e1.temperature == 150.4);
 
     assert(e2.x == 11.4);
     assert(e2.y == 34.1);
     assert(e2.z == 12.54);
     assert(e2.numOfAtoms == 45);
+    assert(e2.temperature == 160.9);
 
     cout << "Testing getEnvironmentFromLine Complete" << endl;
 }

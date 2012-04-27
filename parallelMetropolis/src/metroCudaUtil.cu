@@ -441,8 +441,7 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, 
             charge_energy = calcCharge(xAtom, yAtom, enviro);
             double fValue = 1.0;
             //Should this be here?
-            if (dev_molecules != NULL){
-                
+            if (dev_molecules != NULL){ 
             }
             
             energySum[idx] = fValue * (lj_energy + charge_energy);
