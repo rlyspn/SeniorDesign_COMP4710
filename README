@@ -37,14 +37,29 @@ To Run a Simulation on a local machine:
     >> ./ParallelExample
 
 To Run a Simulation on the Alabama Supercomputer Center:
+
     >> cd /path/to/SeniorDesign_COMP4710/
     >> run_gpu bin/ParallelExample
-    ...
-    ...
-    ...
-    ...
-    ... fermi
-    ...
+    Choose a batch job queue:
+     
+    Queue                 CPU    Mem # CPUs
+    -------------- ---------- ------ ------
+    daytime           4:00:00   16gb    1-4 
+    express          01:00:00  500mb      1 
+    large-parallel  240:00:00  120gb   2-64 
+    large-serial    240:00:00   35gb      1 
+    medium-parallel 100:00:00   32gb   2-16 
+    medium-serial    90:00:00    4gb      1 
+    small-parallel   48:00:00    8gb    2-8 
+    small-serial     40:00:00    1gb      1 
+    
+     
+    Enter Queue Name (default <cr>: small-serial) <must be a serial queue>
+    Enter number of processor cores (default <cr>: 1 ) <enter>
+    Enter Time Limit (default <cr>: 40:00:00 HH:MM:SS) <enter time limit>
+    Enter memory limit (default <cr>: 500mb ) <enter required memory>
+    Enter GPU architecture [t10/fermi/any] (default <cr>: any) <fermi>
+    Enter a name for your job (default: bin/parallelTe)
     <name of your job>
     
     You standard out for your job will be written to 
