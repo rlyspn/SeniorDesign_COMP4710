@@ -126,11 +126,16 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             writeToLog(ss);
         }
     }
-    ss<< "Steps Complete"<<endl;        
+    
+    char fileName[50];
+    sprintf(fileName, "FinalState.state");
+    string fileNameStr(fileName);
+    printState(enviro, molecules, enviro->numOfMolecules, fileNameStr);
+
     ss << "Final Energy: " << currentEnergy << endl;
     ss << "Accepted Moves: " << accepted << endl;
     ss << "Rejected Moves: " << rejected << endl;
-	ss << "Aceptence Rate: " <<  accepted/numberOfSteps*100 << "%" << endl;
+	ss << "Acceptence Rate: " << (int) ((float) accepted/ (float) numberOfSteps*100) << "%" << endl;
 	cout << ss.str();
 	writeToLog(ss);
 }
