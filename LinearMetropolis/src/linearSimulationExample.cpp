@@ -114,10 +114,10 @@ void runLinear(Molecule *molecules, Environment *enviro, int numberOfSteps, stri
         //Print the state every 100 moves.
         if(move % 100 == 0){
             printState(enviro, molecules, enviro->numOfMolecules, stateFile);
-				cout << ss << "Step Number: "<< move <<  endl;
-				cout<< ss << "Current Energy: " << currentEnergy << endl;
-            ss << "Num Accepted: "<< accepted <<" Num Rejected: "<< rejected << "at ";
-            ss << accepted/move*100 << "%" << endl;
+			cout << ss << "Step Number: "<< move <<  endl;
+			cout<< ss << "Current Energy: " << currentEnergy << endl;
+
+            ss << "Accepted: "<< accepted <<" Rejected: "<< rejected << endl;
             writeToLog(ss);
         }
     }
