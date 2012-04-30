@@ -481,7 +481,7 @@ void testZmatrixScanner_BondedMolecules(Opls_Scan opls){
 void testZmatrix(Opls_Scan scanner){
     //Test Zmatrix
     testZmatrixScanner(scanner); 
-	 testZmatrixScanner_multpleSingle(scanner);
+	testZmatrixScanner_multpleSingle(scanner);
     testZmatrixScanner_multpleAmount(scanner);
-	 testZmatrixScanner_BondedMolecules(scanner);
+	testZmatrixScanner_BondedMolecules(scanner);
 }

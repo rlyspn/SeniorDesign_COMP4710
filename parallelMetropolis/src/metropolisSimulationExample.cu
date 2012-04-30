@@ -41,23 +41,23 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 	     
     double currentEnergy = 0.0;
 	 
-	 ss << "Assigning Molecule Positions..." << endl;
-	 cout << ss.str();
+	ss << "Assigning Molecule Positions..." << endl;
+	cout << ss.str();
     writeToLog(ss);
     generatePoints(molecules, enviro);
     ss << "Finished Assigning Molecule Positions" << endl;
-	 cout << ss.str();
+	cout << ss.str();
     writeToLog(ss);
 
 
     printState(enviro, molecules, enviro->numOfMolecules, "initialState.state");
 	 
-	 ss << "Starting first step in Simulation" <<endl;
+	ss << "Starting first step in Simulation" <<endl;
     writeToLog(ss);
 
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(molecules, enviro);
-        
+            
         //Pick a molecule to move
         int moleculeIndex = randomFloat(0, enviro->numOfMolecules);
         Molecule toMove = molecules[moleculeIndex];
@@ -117,11 +117,12 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             sprintf(fileName, "%dState.state", move);
             string fileNameStr(fileName);
             printState(enviro, molecules, enviro->numOfMolecules, fileNameStr);
-				ss << "Step Number: "<< move <<  endl;
-				ss << "Current Energy: " << currentEnergy << endl;
-				cout << ss.str();
-            ss << "Accepted: "<< accepted <<"Rejected: "<< rejected << "at ";
-            ss << accepted/move*100 << "%" << endl;
+
+			ss << "Step Number: "<< move <<  endl;
+			ss << "Current Energy: " << currentEnergy << endl;
+			cout << ss.str();
+
+            ss << "Accepted: "<< accepted << endl <<"Rejected: "<< rejected << endl;
             writeToLog(ss);
         }
     }
@@ -129,9 +130,9 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
     ss << "Final Energy: " << currentEnergy << endl;
     ss << "Accepted Moves: " << accepted << endl;
     ss << "Rejected Moves: " << rejected << endl;
-	 ss << "Aceptence Rate: " <<  accepted/numberOfSteps*100 << "%" << endl;
-	 cout << ss.str();
-	 writeToLog(ss);
+	ss << "Aceptence Rate: " <<  accepted/numberOfSteps*100 << "%" << endl;
+	cout << ss.str();
+	writeToLog(ss);
 }
 
 /**
@@ -204,14 +205,19 @@ int main(int argc, char ** argv){
         writeToLog(ss);
 
         //Convert molecule vectors into an array
-        molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
         int moleculeIndex = 0;
         int atomCount = 0;
-		  
+
+        vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
+        int molecMod = enviro.numOfMolecules % molecVec.size();
+        if (molecMod != 0){
+            enviro.numOfMolecules += molecVec.size() - molecMod;
+            cout << "Number of molecules not divisible by specified z-matrix. Changing number of molecules to: " << enviro.numOfMolecules << endl;
+        }
+        molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
+            
         while(moleculeIndex < enviro.numOfMolecules){
-            vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
-            //cout << "Vector size = " << molecVec.size() << endl;
-				
+            molecVec = zMatrixScan.buildMolecule(atomCount);
             //cycle through the number of molecules from the zMatrix
             for(int j = 0; j < molecVec.size(); j++){
                 //Copy data from vector to molecule
@@ -250,9 +256,7 @@ int main(int argc, char ** argv){
                     molecules[moleculeIndex].dihedrals[k] = molec1.dihedrals[k];
                 }
 
-                //cout << "AtomIndex ID: " << molecules[moleculeIndex].atoms[0].id << endl;
                 atomCount += molecules[moleculeIndex].numOfAtoms;
-                //cout << "MolecIndex " << moleculeIndex << endl;
                
                 moleculeIndex++;
             }

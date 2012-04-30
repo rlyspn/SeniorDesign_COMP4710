@@ -147,6 +147,8 @@ void testPDBoutput(){
     readPDB.close();
 
     cout << "Testing PDBoutput Completed\n" << endl;
+
+    free(pdbAtoms);
 }
 
 void testLogOutput(){
@@ -203,8 +205,8 @@ int main(){
     }
 
     testPDBoutput();
-	 testLogOutput();
+	testLogOutput();
 	 
-	 testZmatrix(scanner);
+	testZmatrix(scanner);
     testGeometric();
 }
