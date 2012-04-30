@@ -359,7 +359,7 @@ double calcEnergyWrapper(Atom *atoms, Environment *enviro, Molecule *molecules){
         if (isnan(energySum_host[i]) != 0 || isinf(energySum_host[i]) != 0){
             energySum_host[i] = calcEnergyOnHost(atoms[atomXid], atoms[atomYid], enviro, molecules);
         }
-       
+           
         //sum up energies 
         totalEnergy += energySum_host[i];
     }
@@ -440,16 +440,12 @@ __global__ void calcEnergy(Atom *atoms, Environment *enviro, double *energySum, 
             lj_energy = calc_lj(xAtom,yAtom,*enviro);
             charge_energy = calcCharge(xAtom, yAtom, enviro);
             double fValue = 1.0;
-            //Should this be here?
             if (dev_molecules != NULL){
-                
+               fValue = getFValue(xAtom, yAtom, dev_molecules, enviro, hops);
             }
             
             energySum[idx] = fValue * (lj_energy + charge_energy);
         }
-    }
-    else {
-        energySum[idx] = 0.0;
     }
 }
 
@@ -500,22 +496,22 @@ __device__ int getMoleculeFromAtomID(Atom a1, DeviceMolecule *dev_molecules, Env
 __device__ double getFValue(Atom atom1, Atom atom2, DeviceMolecule *dev_molecules, Environment *enviro, Hop *hops){
     int m1 = getMoleculeFromAtomID(atom1, dev_molecules, *enviro);
     int m2 = getMoleculeFromAtomID(atom2, dev_molecules, *enviro);
-    if(m1 != m2)
+    if(m1 != m2){
         return 1.0;
-	/**
-      This line gives a warning about not knowing what memory space it points to
-      because CUDA has multiple memory spaces.  This should not be a problem because
-      it defaults to global memory space which is correct in this case.  May want
-      to look into it in the future.
-    */
+    }
     else{
-        size_t molecHopSize = sizeof(Hop) * dev_molecules[m1].numOfHops;
+        int moleculeIndex = 0;
+        for (int i = 0; i < enviro->numOfMolecules; i++){
+            if (dev_molecules[i].id == m1)
+                moleculeIndex = i;
+        }
+        size_t molecHopSize = sizeof(Hop) * dev_molecules[moleculeIndex].numOfHops;
         Hop *molecHops = (Hop *)malloc(molecHopSize);
-        int hopStart = dev_molecules[m1].hopStart;
-        for (int i = 0; i < dev_molecules[m1].numOfHops; i++){
+        int hopStart = dev_molecules[moleculeIndex].hopStart;
+        for (int i = 0; i < dev_molecules[moleculeIndex].numOfHops; i++){
             molecHops[i] = hops[hopStart + i];
         }
-        int hopChain = hopGE3(atom1.id, atom2.id, dev_molecules[m1], molecHops);
+        int hopChain = hopGE3(atom1.id, atom2.id, dev_molecules[moleculeIndex], molecHops);
         free(molecHops);
         if (hopChain == 3)
             return 0.5;
@@ -728,12 +724,6 @@ void moleculeDeepCopyToDevice(DeviceMolecule *molec_d, Molecule *molec_h,
     cudaErrorCheck(cudaMemcpy(dihedrals_d, dihedrals_h, dihedralSize, cudaMemcpyHostToDevice));
     cudaErrorCheck(cudaMemcpy(hops_d, hops_h, hopSize, cudaMemcpyHostToDevice));
 
-    Molecule* returnMolecules_d;
-    size_t returnMolecSize = sizeof(Molecule) * numOfMolecules;
-    cudaMalloc((void **) &returnMolecules_d, returnMolecSize);
-
-    int blocks = numOfMolecules / THREADS_PER_BLOCK + (numOfMolecules % THREADS_PER_BLOCK == 0 ? 0 : 1);
-    
     free(dMolec_h);
     free(atoms_h);
     free(bonds_h);

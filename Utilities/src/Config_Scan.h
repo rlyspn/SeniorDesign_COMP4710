@@ -1,6 +1,7 @@
 /*!\file
   \brief Class used to read and write configuration files.
   \author Alexander Luchs, Riley Spahn, Seth Wooten
+  Class used to read and write configuration files.
  
  */
 
@@ -14,6 +15,11 @@
 
 using namespace std;
 
+/**
+  Class used to read and write configuration files.
+
+
+*/
 class Config_Scan{
     private:
         /**
