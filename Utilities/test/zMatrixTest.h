@@ -18,7 +18,7 @@
   @param scanner - an Opls_Scan scanner object used to asaign the charge, sigma, and epsilon
   @returns - a Molecule object with the data from mesh.z matrix file
 */
-Molecule createMeshZMolecules(Opls_Scan scanner);
+Molecule createMeshZMolecules(Opls_Scan *scanner);
 
 /**
   sets the x y z positions to a molecule based on the relationships defined in mesh.z z-matrix file
@@ -31,13 +31,13 @@ void addPositionsToMeshZ(Molecule *meshMolec);
   @param scanner - an Opls_Scan scanner object used to asaign the charge, sigma, and epsilon
   @returns - a vector with the 2 bonded molecules
 */
-vector<Molecule> createT3pdimMolecules(Opls_Scan scanner);
+vector<Molecule> createT3pdimMolecules(Opls_Scan *scanner);
 
 /**
   sets the x y z positions to a molecule based on the relationships defined in t3pdim.z z-matrix file
   @param t3pdimMolec - the vector of bonded molecules to assign the positions to. 
 */
-void addPositionsToT3pdim(vector<Molecule> &t3pdimMolec);
+void addPositionsToT3pdim(vector<Molecule> t3pdimMolec);
 
 /**
   Compares all the values of two Molecules using asserts.
@@ -50,32 +50,25 @@ void compareTestMolecules(Molecule molec1, Molecule molec2);
   test the Zmatrix Scanner with the mesh.z file
   @param opls - Opls_Scan object
 */
-void testZmatrixScanner(Opls_Scan opls);
+void testZmatrixScanner(Opls_Scan *opls);
 
 /**
   test the Zmatrix Scanner with the test.z file to check for the the id assignments
   when resusing the buildMolecule() function
   @param opls - Opls_Scan object
 */
-void testZmatrixScanner_multpleSingle(Opls_Scan opls);
-
-/**
-  test the Zmatrix Scanner with the mesh.z file to check for the the id assignments
-  when resusing the buildMolecule() function
-  @param opls - Opls_Scan object
-*/
-void testZmatrixScanner_multpleAmount(Opls_Scan opls);
+void testZmatrixScanner_multipleSingle(Opls_Scan *opls);
 
 /**
   test the Zmatrix Scanner with the t3pdim.z file 
   @param opls - Opls_Scan object
 */
-void testZmatrixScanner_BondedMolecules(Opls_Scan opls);
+void testZmatrixScanner_BondedMolecules(Opls_Scan *opls);
 
 /**
   test all the Zmatrix 
   @param opls - Opls_Scan object
 */
-void testZmatrix(Opls_Scan opls);
+void testZmatrix(Opls_Scan *opls);
 
 #endif //ZMATRIXTEST_H

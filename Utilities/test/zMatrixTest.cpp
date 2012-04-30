@@ -1,9 +1,9 @@
 #include "zMatrixTest.h"
 
-Molecule createMeshZMolecules(Opls_Scan scanner){
+Molecule createMeshZMolecules(Opls_Scan *scanner){
 
     //1 S    200    0    0    0.000000   0    0.000000   0    0.000000        0  
-    Atom atom1=scanner.getAtom("200");
+    Atom atom1=scanner->getAtom("200");
     atom1.id=1;
 
     // 2 DUM   -1    0    1    0.500000   0    0.000000   0    0.000000        0
@@ -16,35 +16,35 @@ Molecule createMeshZMolecules(Opls_Scan scanner){
     Angle angle3=createAngle(3,1,90,false);
 
     //4 hH    204    0    1    1.336532   2   90.000000   3  180.000000        0    
-    Atom atom4=scanner.getAtom("204");
+    Atom atom4=scanner->getAtom("204");
     atom4.id=4;
     Bond bond4=createBond(4,1,1.336532,true);
     Angle angle4=createAngle(4,2,90,false);
     Dihedral dihed4=createDihedral(4,3,180,false);
 
     //5 C    217    0    1    1.811119   4   96.401770   2  180.000000        0
-    Atom atom5=scanner.getAtom("217");
+    Atom atom5=scanner->getAtom("217");
     atom5.id=5;
     Bond bond5=createBond(5,1,1.811119,true);
     Angle angle5=createAngle(5,4,96.401770,true);
     Dihedral dihed5=createDihedral(5,2,180,false);
 
     //6 HC   140    0    5    1.090187   1  110.255589   4  179.999947        0
-    Atom atom6=scanner.getAtom("140");
+    Atom atom6=scanner->getAtom("140");
     atom6.id=6;
     Bond bond6=createBond(6,5,1.090187,true);
     Angle angle6=createAngle(6,1,110.255589,true);
     Dihedral dihed6=createDihedral(6,4,179.999947,true);    
 
     //7 HC   140    0    5    1.090135   6  108.527646   1  121.053891        0
-    Atom atom7=scanner.getAtom("140");
+    Atom atom7=scanner->getAtom("140");
     atom7.id=7;
     Bond bond7=createBond(7,5,1.090135,true);
     Angle angle7=createAngle(7,6,108.527646,true);
     Dihedral dihed7=createDihedral(7,1,121.053891,true);    
 
     //8 HC   140    0    5    1.090135   6  108.527646   1  238.946114        0
-    Atom atom8=scanner.getAtom("140");
+    Atom atom8=scanner->getAtom("140");
     atom8.id=8;
     Bond bond8=createBond(8,5,1.090135,true);
     Angle angle8=createAngle(8,6,108.527646,true);
@@ -128,10 +128,10 @@ void addPositionsToMeshZ(Molecule *meshMolec){
     meshMolec->atoms[7].z = -0.710251;
 }
 
-vector<Molecule> createT3pdimMolecules(Opls_Scan scanner){
+vector<Molecule> createT3pdimMolecules(Opls_Scan *scanner){
    // TIP3P Water Dimer                                      Tot. E =     -6.5396
    //1  O   111  111    0     .000000   0     .000000   0     .000000        0
-	Atom atom1 = scanner.getAtom("111");
+	Atom atom1 = scanner->getAtom("111");
 	atom1.id=1;    
 	
    //2  DU   -1   -1    1    1.000000   0     .000000   0     .000000        0 
@@ -144,14 +144,14 @@ vector<Molecule> createT3pdimMolecules(Opls_Scan scanner){
 	Angle angle3=createAngle(3,1,90.0,false);    
 	
    //4  HO  112  112    1     .957200   2  127.740000   3   90.000000        0
-	Atom atom4=scanner.getAtom("112");
+	Atom atom4=scanner->getAtom("112");
 	atom4.id=4;
 	Bond bond4=createBond(4,1,.957200,false);
 	Angle angle4=createAngle(4,2,127.740000,false);
 	Dihedral dihed4=createDihedral(4,3,90.00,false);
 	    
    //5  HO  112  112    1     .957200   4  104.520000   2  180.000000        0 
-	Atom atom5=scanner.getAtom("112");
+	Atom atom5=scanner->getAtom("112");
 	atom5.id=5;
 	Bond bond5=createBond(5,1,.957200,false);
 	Angle angle5=createAngle(5,4,104.520000,false);
@@ -165,7 +165,7 @@ vector<Molecule> createT3pdimMolecules(Opls_Scan scanner){
 	
 	//TERZ 2nd Bonded Molecule                                                                           
    //7  O   111  111    1    2.751259   2  131.716186   3  269.946364        0
-	Atom atom7=scanner.getAtom("111");
+	Atom atom7=scanner->getAtom("111");
 	atom7.id=7;
 	Bond bond7=createBond(7,1,2.751259,false);
 	Angle angle7=createAngle(7,2,131.716186,false);
@@ -184,7 +184,7 @@ vector<Molecule> createT3pdimMolecules(Opls_Scan scanner){
 	Dihedral dihed9=createDihedral(9,1,179.624613,false); 
 	    
    //10  HO  112  112    7     .957200   8  127.740000   9   90.000000        0
-	Atom atom10=scanner.getAtom("112");
+	Atom atom10=scanner->getAtom("112");
 	atom10.id=10;
 	Bond bond10=createBond(10,7,0.957200,false);
 	Angle angle10=createAngle(10,8,127.74,false);
@@ -192,7 +192,7 @@ vector<Molecule> createT3pdimMolecules(Opls_Scan scanner){
 
     
    //11  HO  112  112    7     .957200  10  104.520000   8  180.000000        0
-	Atom atom11=scanner.getAtom("112");
+	Atom atom11=scanner->getAtom("112");
 	atom11.id=11;
 	Bond bond11=createBond(11,7,0.957200,false);
 	Angle angle11=createAngle(11,10,104.52,false);
@@ -259,7 +259,7 @@ vector<Molecule> createT3pdimMolecules(Opls_Scan scanner){
 	return retVect;
 }
 
-void addPositionsToT3pdim(vector<Molecule> &t3pdimMolec){
+void addPositionsToT3pdim(vector<Molecule> t3pdimMolec){
    //the hardcoded positions(x y z) of the t3pdim.z molecule
    // Atom#   X    Y    Z
    //1, 0, 0, 0
@@ -378,13 +378,13 @@ void compareTestMolecules(Molecule molec1, Molecule molec2){
 }
 
 
-void testZmatrixScanner(Opls_Scan opls){
+void testZmatrixScanner(Opls_Scan *opls){
     cout << "Testing Z-matrix scanner"<< endl;
     string zMatrixFile1 = "Utilities/bossFiles/mesh.z";
     Molecule meshZ= createMeshZMolecules(opls);	 
 	 addPositionsToMeshZ(&meshZ);
 	 
-    Zmatrix_Scan zScan (zMatrixFile1,&opls);
+    Zmatrix_Scan zScan (zMatrixFile1,opls);
     vector<Molecule> scannedInMolecules;
 
     int open = zScan.scanInZmatrix();
@@ -399,20 +399,24 @@ void testZmatrixScanner(Opls_Scan opls){
     cout << "Testing Z-matrix scanner Completed\n"<< endl;  
 }
 
-void testZmatrixScanner_multpleSingle(Opls_Scan opls){
-    cout << "Testing Z-matrix scanner with reuse 500 molec : 1 atom each"<< endl;
+void testZmatrixScanner_multipleSingle(Opls_Scan *opls){
+    cout << "Testing Z-matrix scanner with reuse 100 molec : 1 atom each"<< endl;
     string zMatrixFile1 = "Utilities/bossFiles/testZ.z";
-    Zmatrix_Scan zScan (zMatrixFile1,&opls);
+    Zmatrix_Scan zScan (zMatrixFile1,opls);
     vector<Molecule> scannedInMolecules;
+    
+    cout << "Zmatrix_Scan created." << endl;
 
     int open = zScan.scanInZmatrix();
     if(open == -1){
         cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
         assert(open >= 0 );
     }
+    
+    cout << "ZmatrixFile opened and read." << endl;
 
     Molecule molec;
-    for(int i=0; i<500; i++){
+    for(int i=0; i<100; i++){
         scannedInMolecules = zScan.buildMolecule(i);
         assert(scannedInMolecules.size()==1);
         molec = scannedInMolecules[0];
@@ -421,48 +425,17 @@ void testZmatrixScanner_multpleSingle(Opls_Scan opls){
         assert(molec.atoms[0].id == i);
     }
      
-    cout << "Testing Z-matrix scanner with reuse 500 molec : 1 atom each Complete\n"<< endl;	 
+    cout << "Testing Z-matrix scanner with reuse 100 molec : 1 atom each Complete\n"<< endl;	 
 }
 
-void testZmatrixScanner_multpleAmount(Opls_Scan opls){
-    cout << "Testing Z-matrix scanner with reuse 500 molec : 8 atoms each"<< endl;
-    string zMatrixFile1 =  "Utilities/bossFiles/mesh.z";
-    Zmatrix_Scan zScan (zMatrixFile1,&opls);
-    vector<Molecule> scannedInMolecules;
-
-    int open = zScan.scanInZmatrix();
-    if(open == -1){
-        cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
-        assert(open >= 0 );
-    }
-
-    int runningNumOfAtoms =0;	 
-    Molecule* myMolecArray = new Molecule[500];
-    Molecule molec;
-    for(int i=0; i<500; i++){	
-        scannedInMolecules = zScan.buildMolecule(runningNumOfAtoms);
-        assert(scannedInMolecules.size()==1);
-
-        myMolecArray[i] = scannedInMolecules[0];
-        molec = myMolecArray[i] ;
-        assert(molec.id == i*8);
-        assert(molec.numOfAtoms==8);
-
-        for(int j=0; j< molec.numOfAtoms; j++){
-            assert( molec.atoms[j].id == molec.id+j); 
-        }
-        runningNumOfAtoms += molec.numOfAtoms;	     
-    }
-    cout << "Testing Z-matrix scanner with reuse 500 molec : 8 atoms each Complete\n"<< endl;	 
-}
-
-void testZmatrixScanner_BondedMolecules(Opls_Scan opls){
+void testZmatrixScanner_BondedMolecules(Opls_Scan *opls){
     cout <<"Testing Z-matrix scanner with Bonded molecules: t3pdim"<< endl;
 	 string zMatrixFile1 =  "Utilities/bossFiles/t3pdim.z";
-    Zmatrix_Scan zScan (zMatrixFile1,&opls);
+    Zmatrix_Scan zScan (zMatrixFile1,opls);
+    cout << "Zmatrix_Scan created" << endl;
     vector<Molecule> t3pdim= createT3pdimMolecules(opls) ;
-	 addPositionsToT3pdim(t3pdim);
-
+    cout << "t3pdim created." << endl;	
+    addPositionsToT3pdim(t3pdim);
     int open = zScan.scanInZmatrix();
     if(open == -1){
         cout << "Zmatrix file: " << zMatrixFile1 << "Failed to Open" << endl;
@@ -478,10 +451,9 @@ void testZmatrixScanner_BondedMolecules(Opls_Scan opls){
     cout <<"Testing Z-matrix scanner with Bonded molecules: t3pdim Complete\n"<< endl;
 }
 
-void testZmatrix(Opls_Scan scanner){
+void testZmatrix(Opls_Scan *scanner){
     //Test Zmatrix
     testZmatrixScanner(scanner); 
-	testZmatrixScanner_multpleSingle(scanner);
-    testZmatrixScanner_multpleAmount(scanner);
+	testZmatrixScanner_multipleSingle(scanner);
 	testZmatrixScanner_BondedMolecules(scanner);
 }

@@ -42,7 +42,7 @@ int Zmatrix_Scan::scanInZmatrix(){
             Bond* bondArray;
             Angle* angleArray;
             Dihedral* dihedralArray;
-
+            
             atomArray = (Atom*) malloc(sizeof(Atom) * atomVector.size());
             bondArray = (Bond*) malloc(sizeof(Bond) * bondVector.size());
             angleArray = (Angle*) malloc(sizeof(Angle) * angleVector.size());
@@ -75,11 +75,6 @@ int Zmatrix_Scan::scanInZmatrix(){
 
     zmatrixScanner.close();
 	 
-	 output << "Finished Reading Z-Matrix file"<<endl;
-	 output <<"Scanned in " << numOfLines << " lines" <<endl;
-	 output <<"Found "<<moleculePattern.size()<< " Molecules"<<endl;
-	 output <<"Ready to Build Molecules"<<endl;
-	 writeToLog(output,Z_MATRIX);
     }
 
     return 0;
@@ -406,13 +401,9 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
 		  newMolecules[i] = molecCopy; 
              
     }
-		   
-	 bool printToLog = false;
-		  if( startingID==0|| startingID==1)
-		      printToLog = true;
 				
 	 //Assign/calculate the appropiate x,y,z positions to the molecules. 									
-	 buildMoleculeInSpace(newMolecules, numOfMolec, printToLog);
+	 buildMoleculeInSpace(newMolecules, numOfMolec);
 	 
 
     for (int i = 0; i < numOfMolec; i++)

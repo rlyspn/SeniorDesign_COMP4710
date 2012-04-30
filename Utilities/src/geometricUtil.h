@@ -399,8 +399,7 @@ void setMoleculeVectors(Molecule *molec, int numBonded, unsigned long lineAtomId
   atoms position.  
   @param *molec - an array of bonded molecules to be set
   @param numBounded - the number of bonded molecules being passed in
-  @param printFlg - a flag used to print the building proces to the Log file
 */
-void buildMoleculeInSpace(Molecule *molec,int numBonded=1, bool printFlg=false);
+void buildMoleculeInSpace(Molecule *molec,int numBonded=1);
 
 #endif //GEOMETRICUTIL_H

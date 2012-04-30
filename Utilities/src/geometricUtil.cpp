@@ -474,10 +474,7 @@ void setMoleculeVectors(Molecule *molec,  int numBonded, unsigned long lineAtomI
 } 
 
 
-//vector<Molecule> buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
-void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
-    if(printFlg)
-	     output << "Building New Molecule Structure:"<<endl ;
+void buildMoleculeInSpace(Molecule *molec, int numBonded){
 	 vector<Molecule> retVector;
     vector<Atom> atomVector;
 	 vector<Bond> bondVector;
@@ -495,9 +492,6 @@ void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
 		  //set the vectors with appropiate contents as if in Zmatrix		  
 		  setMoleculeVectors(molec, numBonded, lineAtom.id, bondVector, angleVector, dihedralVector);
 		  
-		  if(printFlg)
-	         output << "\nBuilding Atom: " << lineAtom.id << endl;
-			
 		  //use the first atoms position as the centerpoint
 		  if(x==0){
 		      centX=lineAtom.x;
@@ -515,9 +509,6 @@ void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
 				// Get other atom in bond
             unsigned long otherID = getOppositeAtom(lineBond, lineAtom.id);
 				
-				if(printFlg)
-                output << "Building Bond:\n" << lineBond.atom1 << " --- " << lineBond.atom2 << endl;
-					 
             Atom otherAtom = getAtom(atomVector, otherID);
 
             // Move newAtom bond distance away from other atom in y direction.
@@ -539,9 +530,6 @@ void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
             unsigned long commonID = getCommonAtom(bondVector, lineAtom.id,
                 otherID);
             Atom commonAtom = getAtom(atomVector, commonID);
-
-            if(printFlg)
-				    output << "Building Angle:\n" << lineAtom.id <<" -- "<< commonAtom.id<<" -- "<< otherAtom.id << endl;
 
             double currentAngle = getAngle(lineAtom, commonAtom, otherAtom); 
             double angleChange = lineAngle.value - currentAngle;
@@ -603,8 +591,6 @@ void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
                     }
                 }
             }			
-				if(printFlg)
-                output << "Building Dihedral:\n"<< lineAtom.id<<" -- ("<< linkingBond.atom1<<" "<<linkingBond.atom2<<") -- "<<otherAtom.id<<endl;
             
 				//plane 1 is lineAtom and atoms in linking bond and will be rotated
             //plane 2 is otherAtom and atoms in linking bond
@@ -638,15 +624,9 @@ void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
 
             lineAtom = rotateAtomAboutVector(lineAtom, vectorTail, vectorHead, toRotate);
 		  }
-		  if(printFlg){
-		      output<<"Built Atom:"<<endl;
-				output<<lineAtom.id<<", "<<lineAtom.x<<", "<<lineAtom.y<<", "<<lineAtom.z<<endl;
-			}
         atomVector.push_back(lineAtom);
     }//for loop
 	 	 
-	 if(printFlg)
-	     writeToLog(output,GEOM);
 	//modify/adjust the molecules x,y,z values to the newly calculated ones  
 	 int i=0;
 	 int x=0;

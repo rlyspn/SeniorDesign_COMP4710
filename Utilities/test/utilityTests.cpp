@@ -207,6 +207,6 @@ int main(){
     testPDBoutput();
 	testLogOutput();
 	 
-	testZmatrix(scanner);
+	testZmatrix(&scanner);
     testGeometric();
 }
