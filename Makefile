@@ -45,8 +45,8 @@ linearUtil: metroUtil baseTest $(LIN)$(SRC)metroLinearUtil.h $(LIN)$(SRC)metroLi
 metroUtil: OPLSScan zMatrix geoUtil $(UTIL)$(SRC)metroUtil.h $(UTIL)$(SRC)metroUtil.cpp
 	$(NV) $(FLAGS) $(UTIL)$(SRC)metroUtil.cpp -o $(BIN)metroUtil.o
 
-utilTests: stateScan stateTest configTest metroUtil zMatrix OPLSScan geoTest
-	$(NV) $(COMMONUTILO) $(SCANNERO) $(BIN)configurationTest.o $(BIN)stateTest.o $(BIN)geometricTest.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
+utilTests: stateScan stateTest configTest metroUtil zMatrix OPLSScan geoTest zMatrixTest
+	$(NV) $(COMMONUTILO) $(SCANNERO) $(BIN)configurationTest.o $(BIN)stateTest.o $(BIN)geometricTest.o $(BIN)zMatrixTest.o Utilities/test/utilityTests.cpp -o $(BIN)$(UTILTESTEXE)
 
 zMatrix: geoUtil $(UTIL)$(SRC)Zmatrix_Scan.cpp $(UTIL)$(SRC)Zmatrix_Scan.h
 	$(NV) $(FLAGS) $(UTIL)$(SRC)Zmatrix_Scan.cpp -o $(BIN)Zmatrix_Scan.o
@@ -71,6 +71,10 @@ configTest: configScan $(UTIL)$(TST)configurationTest.h $(UTIL)$(TST)configurati
 
 geoTest: geoUtil $(UTIL)$(TST)geometricTest.cpp $(UTIL)$(TST)geometricTest.h
 	$(NV) $(FLAGS) $(UTIL)$(TST)geometricTest.cpp -o $(BIN)geometricTest.o
+
+zMatrixTest: metroUtil zMatrix OPLSScan $(UTIL)$(TST)zMatrixTest.cpp $(UTIL)$(TST)zMatrixTest.h 
+	$(NV) $(FLAGS) $(UTIL)$(TST)zMatrixTest.cpp -o $(BIN)zMatrixTest.o
+
 
 dir:
 	mkdir -p $(BIN)

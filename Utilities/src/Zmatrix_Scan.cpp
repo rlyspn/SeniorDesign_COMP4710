@@ -142,10 +142,11 @@ void Zmatrix_Scan::parseLine(string line, int numOfLines){
             lineDihedral.variable = false;
             dihedralVector.push_back(lineDihedral);
         }
-    } // if format == 1
+    } //end if format == 1
 
-    else if(format == 2)
+    else if(format == 2){
         startNewMolecule = true;
+	 }
     else if(format == 3){
         startNewMolecule = true;
     }
@@ -172,25 +173,26 @@ int Zmatrix_Scan::checkFormat(string line){
         format = 1;
     else{
         someLine = line;
-        if(someLine.find("TERZ")!=string::npos)
+        if(someLine.find("TERZ")!=string::npos){
             format = 2;
-        else if(someLine.find("Geometry Variations follow")!=string::npos)
+		  }
+        else if(someLine.find("Geometry Variations")!=string::npos)
             format = 3;
-        else if(someLine.find("Variable Bonds follow")!=string::npos)
+        else if(someLine.find("Variable Bonds")!=string::npos)
             format = 4;
-        else if(someLine.find("Additional Bonds follow")!=string::npos)
+        else if(someLine.find("Additional Bonds")!=string::npos)
             format = 5;
-        else if(someLine.find("Harmonic Constraints follow")!=string::npos)
+        else if(someLine.find("Harmonic Constraints")!=string::npos)
             format = 6;
-        else if(someLine.find("Variable Bond Angles follow")!=string::npos)
+        else if(someLine.find("Variable Bond Angles")!=string::npos)
             format = 7;
-        else if(someLine.find("Additional Bond Angles follow")!=string::npos)
+        else if(someLine.find("Additional Bond Angles")!=string::npos)
             format = 8;
-        else if(someLine.find("Variable Dihedrals follow")!=string::npos)
+        else if(someLine.find("Variable Dihedrals")!=string::npos)
             format = 9;
-        else if(someLine.find("Additional Dihedrals follow")!=string::npos)
+        else if(someLine.find("Additional Dihedrals")!=string::npos)
             format = 10;
-        else if(someLine.find("Domain Definitions follow")!=string::npos)
+        else if(someLine.find("Domain Definitions")!=string::npos)
             format = 11;
         else if(someLine.find("Final blank line")!=string::npos)
             format = -2;  
@@ -205,7 +207,7 @@ void Zmatrix_Scan::handleZAdditions(string line, int cmdFormat){
     stringstream tss(line.substr(0,15) );
 
     if(line.find("AUTO")!=string::npos){
-
+	     //Do stuff for AUTO
     }
     else{
         while(tss >> id){
@@ -277,6 +279,7 @@ vector<Hop> Zmatrix_Scan::calculateHops(Molecule molec){
     vector<Hop> newHops;
     int **graph;
     int size = molec.numOfAtoms;
+	 int startId = molec.atoms[0].id;
 
     buildAdjacencyMatrix(graph,molec);
 
@@ -284,7 +287,7 @@ vector<Hop> Zmatrix_Scan::calculateHops(Molecule molec){
         for(int atom2=atom1+1; atom2<size; atom2++){
             int distance = findHopDistance(atom1,atom2,size,graph);
             if(distance >=3){
-                Hop tempHop = createHop(atom1+1,atom2+1,distance); //+1 because atoms start at 1
+					 Hop tempHop = createHop(atom1+startId,atom2+startId,distance); //+startId because atoms may not start at 1
                 newHops.push_back(tempHop);					
             }  		      
         }
@@ -339,7 +342,9 @@ int Zmatrix_Scan::findHopDistance(int atom1,int atom2,int size, int **graph){
 }
 
 void Zmatrix_Scan::buildAdjacencyMatrix(int **&graph, Molecule molec){
-    int size = molec.numOfAtoms;	
+    int size = molec.numOfAtoms;
+	 int startId = molec.atoms[0].id; //the first atom ID in the molecule
+	 int lastId = startId + molec.numOfAtoms -1; //the last atom ID in the molecule
     graph =  new int*[size]; //create colums
     for(int i=0; i<size; i++) //create rows
         graph[i]=new int[size];	
@@ -352,13 +357,19 @@ void Zmatrix_Scan::buildAdjacencyMatrix(int **&graph, Molecule molec){
     //fill with adjacent array with bonds
     for(int x=0; x<molec.numOfBonds; x++){
         Bond bond = molec.bonds[x];
-        graph[bond.atom1-1][bond.atom2-1]=1;
-        graph[bond.atom2-1][bond.atom1-1]=1;
+		  //make sure the bond is intermolecular
+		  if( (bond.atom1 >= startId && bond.atom1 <= lastId) &&
+		     (bond.atom2 >= startId && bond.atom2 <= lastId) ){
+			       graph[bond.atom1-startId][bond.atom2-startId]=1;
+                graph[bond.atom2-startId][bond.atom1-startId]=1;
+			  }       
     }
 }
 
 vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
-    vector<Molecule> newMolecules;
+	 int numOfMolec = moleculePattern.size();
+	 Molecule newMolecules[numOfMolec];
+	 
     //need a deep copy of molecule pattern incase it is modified.
     for (int i = 0; i < moleculePattern.size(); i++){
         Atom *atomCopy = new Atom[ moleculePattern[i].numOfAtoms] ;
@@ -391,19 +402,20 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
                                     moleculePattern[i].numOfAngles,
                                     moleculePattern[i].numOfBonds,
                                     moleculePattern[i].numOfDihedrals,
-                                    numOfHops);
-		  
-        //calculate and assign the xyz positions to the atoms in the molecule
-		  bool printToLog = false;
-		  if( startingID==0)
-		      printToLog = true; 									
-		  molecCopy = buildMoleculeInSpace(&molecCopy, printToLog);
- 
-        newMolecules.push_back(molecCopy);	      
+                                    numOfHops);	
+		  newMolecules[i] = molecCopy; 
+             
     }
+		   
+	 bool printToLog = false;
+		  if( startingID==0|| startingID==1)
+		      printToLog = true;
+				
+	 //Assign/calculate the appropiate x,y,z positions to the molecules. 									
+	 buildMoleculeInSpace(newMolecules, numOfMolec, printToLog);
+	 
 
-
-    for (int i = 0; i < newMolecules.size(); i++)
+    for (int i = 0; i < numOfMolec; i++)
     {
         if(i == 0){
             newMolecules[i].id = startingID;
@@ -411,44 +423,54 @@ vector<Molecule> Zmatrix_Scan::buildMolecule(int startingID){
         else
             newMolecules[i].id = newMolecules[i-1].id + newMolecules[i-1].numOfAtoms; 
     }
-
-    for (int j = 0; j < newMolecules.size(); j++)
+	 
+    for (int j = 0; j < numOfMolec; j++)
     {
         Molecule newMolecule = newMolecules[j];
         //map unique IDs to atoms within structs based on startingID
         for(int i = 0; i < newMolecules[j].numOfAtoms; i++){
             int atomID = newMolecule.atoms[i].id - 1;
-            newMolecule.atoms[i].id = atomID + newMolecule.id;
+            //newMolecule.atoms[i].id = atomID + newMolecule.id;
+				newMolecule.atoms[i].id = atomID + startingID;
+
         }
         for (int i = 0; i < newMolecule.numOfBonds; i++){
             int atom1ID = newMolecule.bonds[i].atom1 - 1;
             int atom2ID = newMolecule.bonds[i].atom2 - 1;
 
-            newMolecule.bonds[i].atom1 = atom1ID + newMolecule.id;
-            newMolecule.bonds[i].atom2 = atom2ID + newMolecule.id;
+            //newMolecule.bonds[i].atom1 = atom1ID + newMolecule.id;
+            //newMolecule.bonds[i].atom2 = atom2ID + newMolecule.id;
+				newMolecule.bonds[i].atom1 = atom1ID + startingID;
+            newMolecule.bonds[i].atom2 = atom2ID + startingID;
         }
         for (int i = 0; i < newMolecule.numOfAngles; i++){
             int atom1ID = newMolecule.angles[i].atom1 - 1;
             int atom2ID = newMolecule.angles[i].atom2 - 1;
 
-            newMolecule.angles[i].atom1 = atom1ID + newMolecule.id;
-            newMolecule.angles[i].atom2 = atom2ID + newMolecule.id;
+            //newMolecule.angles[i].atom1 = atom1ID + newMolecule.id;
+            //newMolecule.angles[i].atom2 = atom2ID + newMolecule.id;
+				newMolecule.angles[i].atom1 = atom1ID + startingID;
+            newMolecule.angles[i].atom2 = atom2ID + startingID;
         }
         for (int i = 0; i < newMolecule.numOfDihedrals; i++){
             int atom1ID = newMolecule.dihedrals[i].atom1 - 1;
             int atom2ID = newMolecule.dihedrals[i].atom2 - 1;
 
-            newMolecule.dihedrals[i].atom1 = atom1ID + newMolecule.id;
-            newMolecule.dihedrals[i].atom2 = atom2ID + newMolecule.id;
+            //newMolecule.dihedrals[i].atom1 = atom1ID + newMolecule.id;
+            //newMolecule.dihedrals[i].atom2 = atom2ID + newMolecule.id;
+				newMolecule.dihedrals[i].atom1 = atom1ID + startingID;
+            newMolecule.dihedrals[i].atom2 = atom2ID + startingID;
         }
         for (int i = 0; i < newMolecule.numOfHops; i++){
             int atom1ID = newMolecule.hops[i].atom1 - 1;
             int atom2ID = newMolecule.hops[i].atom2 - 1;
 
-            newMolecule.hops[i].atom1 = atom1ID + newMolecule.id;
-            newMolecule.hops[i].atom2 = atom2ID + newMolecule.id;
+            //newMolecule.hops[i].atom1 = atom1ID + newMolecule.id;
+            //newMolecule.hops[i].atom2 = atom2ID + newMolecule.id;
+				newMolecule.hops[i].atom1 = atom1ID + startingID;
+            newMolecule.hops[i].atom2 = atom2ID + startingID;
         }
     }
 
-    return newMolecules;
+    return vector<Molecule>(newMolecules,newMolecules+sizeof(newMolecules)/sizeof(Molecule) );
 }

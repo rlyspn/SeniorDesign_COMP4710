@@ -127,7 +127,7 @@ void testGetEnvironmentFromLine(){
     assert(e2.z == 12.54);
     assert(e2.numOfAtoms == 45);
 
-    cout << "Testing getEnvironmentFromLine Complete" << endl;
+    cout << "Testing getEnvironmentFromLine Complete\n" << endl;
 }
 
 void testWriteOutReadInState(){

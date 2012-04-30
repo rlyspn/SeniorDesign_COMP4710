@@ -389,7 +389,7 @@ int hasDihedral(vector<Dihedral> Dihedrals, unsigned long atomId);
   @param &angleVector - the vector of angles to fill
   @param &dihedralVector -  the vector of dihedrals to fill 
 */
-void setMoleculeVectors(Molecule *molec, unsigned long lineAtomId, vector<Bond> &bondVector, 
+void setMoleculeVectors(Molecule *molec, int numBonded, unsigned long lineAtomId, vector<Bond> &bondVector, 
     vector<Angle> &angleVector, vector<Dihedral> &dihedralVector);
 
 /**
@@ -397,10 +397,10 @@ void setMoleculeVectors(Molecule *molec, unsigned long lineAtomId, vector<Bond> 
   defined in the Bond, Angle, and Dihedral structures. Builds the Molecule structure one atom at
   a time, starting with the first atom in the Atom array. Builds the Molecule around the first
   atoms position.  
-  @param *molec - the molecule to be set
+  @param *molec - an array of bonded molecules to be set
+  @param numBounded - the number of bonded molecules being passed in
   @param printFlg - a flag used to print the building proces to the Log file
-  @return - a new Molecule structure with its atoms in he correct 3d postions(x,y,z).
 */
-Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg=false);
+void buildMoleculeInSpace(Molecule *molec,int numBonded=1, bool printFlg=false);
 
 #endif //GEOMETRICUTIL_H

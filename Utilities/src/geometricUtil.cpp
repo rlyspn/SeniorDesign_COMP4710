@@ -452,41 +452,48 @@ int hasDihedral(vector<Dihedral> Dihedrals, unsigned long atomId){
 
 }
 
-void setMoleculeVectors(Molecule *molec, unsigned long lineAtomId, vector<Bond> &bondVector, 
+void setMoleculeVectors(Molecule *molec,  int numBonded, unsigned long lineAtomId, vector<Bond> &bondVector, 
     vector<Angle> &angleVector, vector<Dihedral> &dihedralVector){
 	 bondVector.clear();  angleVector.clear();  dihedralVector.clear();
 	int atomId = (int) lineAtomId;
-	 for(int x=0; x<molec->numOfBonds; x++){
-	     if(molec->bonds[x].atom1 <= atomId)
-		      bondVector.push_back(molec->bonds[x]);
-	 }
-	 for(int x=0; x<molec->numOfAngles; x++){
-	     if(molec->angles[x].atom1 <= atomId)
-		      angleVector.push_back(molec->angles[x]);
-	 }
-	  for(int x=0; x<molec->numOfDihedrals; x++){
-	     if(molec->dihedrals[x].atom1 <= atomId)
-		      dihedralVector.push_back(molec->dihedrals[x]);
+	for(int m =0; m<numBonded; m++){
+	     for(int x=0; x<molec[m].numOfBonds; x++){
+	         if(molec[m].bonds[x].atom1 <= atomId)
+		          bondVector.push_back(molec[m].bonds[x]);
+	     }
+	     for(int x=0; x<molec[m].numOfAngles; x++){
+	         if(molec[m].angles[x].atom1 <= atomId)
+		          angleVector.push_back(molec[m].angles[x]);
+	     }
+	     for(int x=0; x<molec[m].numOfDihedrals; x++){
+	         if(molec[m].dihedrals[x].atom1 <= atomId)
+		          dihedralVector.push_back(molec[m].dihedrals[x]);
+	     }
 	 }
 	 //cout << "Sizes Bond Angle Dihedral vectors\n" << bondVector.size()<<" | "<<angleVector.size()<<" | "<<dihedralVector.size()<<endl;
 } 
 
 
-Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg){
+//vector<Molecule> buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
+void buildMoleculeInSpace(Molecule *molec, int numBonded, bool printFlg){
     if(printFlg)
 	     output << "Building New Molecule Structure:"<<endl ;
+	 vector<Molecule> retVector;
     vector<Atom> atomVector;
 	 vector<Bond> bondVector;
     vector<Angle> angleVector;
 	 vector<Dihedral> dihedralVector;
     vector<unsigned long> dummies;
+	 //run a build on each bonded molecule
+	 for(int m=0; m<numBonded; m++){
+	 
 	 double centX, centY, centZ=0.0; //centerPoint to build molecule around
 	 Atom lineAtom;
     //run build on each atom in the molecule
-    for(int x = 0; x < molec->numOfAtoms; x++){
-	     lineAtom = molec->atoms[x];
+    for(int x = 0; x < molec[m].numOfAtoms; x++){	     
+	     lineAtom = molec[m].atoms[x];
 		  //set the vectors with appropiate contents as if in Zmatrix		  
-		  setMoleculeVectors(molec, lineAtom.id, bondVector, angleVector, dihedralVector);
+		  setMoleculeVectors(molec, numBonded, lineAtom.id, bondVector, angleVector, dihedralVector);
 		  
 		  if(printFlg)
 	         output << "\nBuilding Atom: " << lineAtom.id << endl;
@@ -566,9 +573,11 @@ Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg){
             for(int i = 0; i < bondedToLineAtom.size(); i++){
                 unsigned long currentToLine = bondedToLineAtom[i];
                 for(int j = 0; j < bondedToOtherAtom.size(); j++){
-                    unsigned long currentToOther = bondedToOtherAtom[i];
+                    unsigned long currentToOther = bondedToOtherAtom[j];
+						 // cout << "Needs bond between atom " << currentToLine << " and " << currentToOther << endl;
                     for(int k = 0; k < bondVector.size(); k++){
                         Bond currentBond = bondVector[k];
+								//printf("Current bond: atom1=%d, atom2=%d\n", currentBond.atom1, currentBond.atom2);
                         if(getOppositeAtom(currentBond, currentToOther) == currentToLine){
                             linkingBond = currentBond;
                             foundBond = true;
@@ -593,7 +602,7 @@ Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg){
                         break;
                     }
                 }
-            }
+            }			
 				if(printFlg)
                 output << "Building Dihedral:\n"<< lineAtom.id<<" -- ("<< linkingBond.atom1<<" "<<linkingBond.atom2<<") -- "<<otherAtom.id<<endl;
             
@@ -635,33 +644,21 @@ Molecule buildMoleculeInSpace(Molecule *molec, bool printFlg){
 			}
         atomVector.push_back(lineAtom);
     }//for loop
-	 
+	 	 
 	 if(printFlg)
 	     writeToLog(output,GEOM);
-	 
-	 Atom *atomCopy = new Atom[atomVector.size()];
-	 for(int i =0; i<atomVector.size(); i++)
-	     atomCopy[i] = atomVector[i];
-		  
-	 Bond *bondCopy = new Bond[bondVector.size()];
-	 for(int i =0; i<bondVector.size(); i++)
-	     bondCopy[i] = bondVector[i];
-		  
-	 Angle *angleCopy = new Angle[angleVector.size()];
-	 for(int i =0; i<angleVector.size(); i++)
-	     angleCopy[i] = angleVector[i];
-		  
-	 Dihedral *dihedralCopy = new Dihedral[dihedralVector.size()];
-	 for(int i =0; i<dihedralVector.size(); i++)
-	     dihedralCopy[i] = dihedralVector[i];
-	 
-	 Hop *hopCopy = new Hop[molec->numOfHops];
-	 for(int i =0; i<molec->numOfHops; i++)
-	     hopCopy[i] = molec->hops[i];	
-		  
-	Molecule retMolec = createMolecule(molec->id, atomCopy, angleCopy, bondCopy, dihedralCopy, hopCopy, 
-	                          atomVector.size(), angleVector.size(), bondVector.size(), dihedralVector.size(), molec->numOfHops);
-	return retMolec;
+	//modify/adjust the molecules x,y,z values to the newly calculated ones  
+	 int i=0;
+	 int x=0;
+	 if(m>0)
+	     x=molec[m-1].numOfAtoms;
+	 while( i < molec[m].numOfAtoms){
+	     molec[m].atoms[i].x = atomVector[x].x;
+		  molec[m].atoms[i].y = atomVector[x].y;
+		  molec[m].atoms[i].z = atomVector[x].z;
+		  i++;x++;
+		  }
 
+	}//for loop for molecule
 }
 
