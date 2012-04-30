@@ -39,7 +39,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
     
     double currentEnergy = 0.0;
 
-    printState(enviro, molecules, enviro->numOfMolecules, "initialState");
+    printState(enviro, molecules, enviro->numOfMolecules, "initialState.state");
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(molecules, enviro);
         
@@ -98,6 +98,10 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
 
         //Print the state every 100 moves.
         if(move % 100 == 0){
+            char fileName[50];
+            sprintf(fileName, "%dState.state", move);
+            string fileNameStr(fileName);
+            printState(enviro, molecules, enviro->numOfMolecules, fileNameStr);
             cout << "Move: " << move << endl;
             cout << "Current Energy: " << currentEnergy << endl;
         }
