@@ -24,6 +24,8 @@ const double kBoltz = 1.987206504191549E-003;
 
 const double maxRotation = 10.0; // degrees
 
+stringstream ss;
+
 double randomFloat(const double start, const double end)
 {
     return (end-start) * (double(rand()) / RAND_MAX) + start;
@@ -32,14 +34,27 @@ double randomFloat(const double start, const double end)
 void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, string stateFile, string pdbFile){
     int accepted = 0; // number of accepted moves
     int rejected = 0; // number of rejected moves
-    int numberOfAtoms = enviro->numOfAtoms;
+    //int numberOfAtoms = enviro->numOfAtoms;//UNUSED?
     double maxTranslation = enviro->maxTranslation;
     double temperature = enviro->temperature;
     double kT = kBoltz * temperature;
-    
+	     
     double currentEnergy = 0.0;
+	 
+	 ss << "Assigning Molecule Positions..." << endl;
+	 cout << ss.str();
+    writeToLog(ss);
+    generatePoints(molecules, enviro);
+    ss << "Finished Assigning Molecule Positions" << endl;
+	 cout << ss.str();
+    writeToLog(ss);
+
 
     printState(enviro, molecules, enviro->numOfMolecules, "initialState.state");
+	 
+	 ss << "Starting first step in Simulation" <<endl;
+    writeToLog(ss);
+
     for(int move = 0; move < numberOfSteps; move++){
         double oldEnergy = calcEnergyWrapper(molecules, enviro);
         
@@ -102,24 +117,31 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
             sprintf(fileName, "%dState.state", move);
             string fileNameStr(fileName);
             printState(enviro, molecules, enviro->numOfMolecules, fileNameStr);
-            cout << "Move: " << move << endl;
-            cout << "Current Energy: " << currentEnergy << endl;
+				ss << "Step Number: "<< move <<  endl;
+				ss << "Current Energy: " << currentEnergy << endl;
+				cout << ss.str();
+            ss << "Accepted: "<< accepted <<"Rejected: "<< rejected << "at ";
+            ss << accepted/move*100 << "%" << endl;
+            writeToLog(ss);
         }
     }
-            
-    cout << "Final Energy: " << currentEnergy << endl;
-    cout << "Accepted Moves: " << accepted << endl;
-    cout << "Rejected Moves: " << rejected << endl;
+    ss<< "Steps Complete"<<endl;        
+    ss << "Final Energy: " << currentEnergy << endl;
+    ss << "Accepted Moves: " << accepted << endl;
+    ss << "Rejected Moves: " << rejected << endl;
+	 ss << "Aceptence Rate: " <<  accepted/numberOfSteps*100 << "%" << endl;
+	 cout << ss.str();
+	 writeToLog(ss);
 }
 
 /**
-  ./metroSim flag path/to/config/file
+  ./linearExample flag path/to/config/file
     flags:
         -z run from z matrix file spcecified in the configuration file
         -s run from state input file specified in the configuration file
 */
 int main(int argc, char ** argv){
-    
+    writeToLog("",START);
     clock_t startTime, endTime;
     startTime = clock();
     
@@ -150,32 +172,46 @@ int main(int argc, char ** argv){
 
     //Simulation will run based on the zMatrix and configuration Files
     if(flag.compare("-z") == 0){
-        printf("Running simulation based on zMatrixFile\n");
+        ss << "Running simulation based on Z-Matrix File"<<endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
+		  		  
         //get environment from the config file
         enviro = configScan.getEnviro();
-        cout << "Configuration Path = " << configScan.getConfigPath() << endl;
+		  ss << "Reading Configuation File \nPath: " << configScan.getConfigPath() << endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
+		  
         //set up Opls scan and zMatrixScan
-        cout << "OPLS File Path = " << configScan.getOplsusaparPath() << endl;
+        ss << "Reading OPLS File \nPath: " << configScan.getOplsusaparPath() << endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
+		  
         string oplsPath = configScan.getOplsusaparPath();
         Opls_Scan oplsScan (oplsPath);
         oplsScan.scanInOpls(oplsPath);
-        cout << "Created oplsScan" << endl;
+        ss << "OplsScan and OPLS ref table Created " << endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
         
+		  //set up zMatrixScan
+        ss << "Reading Z-Matrix File \nPath: " << configScan.getZmatrixPath() << endl;
+		  cout << ss.str()<< endl;
         Zmatrix_Scan zMatrixScan (configScan.getZmatrixPath(), &oplsScan);
         if (zMatrixScan.scanInZmatrix() == -1){
-            cerr << "Error, Could not open: " << configScan.getZmatrixPath() << endl;
+            ss << "Error, Could not open: " << configScan.getZmatrixPath() << endl;
+            cerr << ss.str()<< endl;
+            writeToLog(ss);
             exit(1);
         }
-        cout << "Opened zMatrix file" << endl;
+        ss << "Opened Z-Matrix File \nBuilding "<< enviro.numOfMolecules << " Molecules..." << endl;
+        writeToLog(ss);
 
         //Convert molecule vectors into an array
         molecules = (Molecule *)malloc(sizeof(Molecule) * enviro.numOfMolecules);
         int moleculeIndex = 0;
         int atomCount = 0;
-        cout << "Simulating " << enviro.numOfMolecules << endl;
+		  
         while(moleculeIndex < enviro.numOfMolecules){
             vector<Molecule> molecVec = zMatrixScan.buildMolecule(atomCount);
             //cout << "Vector size = " << molecVec.size() << endl;
+				
             //cycle through the number of molecules from the zMatrix
             for(int j = 0; j < molecVec.size(); j++){
                 //Copy data from vector to molecule
@@ -222,18 +258,28 @@ int main(int argc, char ** argv){
             }
         }
         enviro.numOfAtoms = atomCount;
-        cout << "Created Molecule Array" << endl;
+        ss << "Molecules Created into an Array" << endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
     }       
     //Simulation will run based on the state file
     else if(flag.compare("-s") == 0){
-        printf("Running simulation based on state file\n");
+        ss << "Running simulation based on State File\n"<<endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
+		  
         //get path for the state file
         string statePath = configScan.getStatePath();
+		  ss << "Reading State File \nPath: " << statePath << endl;
+        cout <<ss.str()<< endl; writeToLog(ss);  
+		  
         //get environment from the state file
         enviro = readInEnvironment(statePath);
+		  ss << "Scanning in Enviorment " << endl;
+        cout <<ss.str()<< endl; writeToLog(ss);
+		  
         //get vector of molecules from the state file
         vector<Molecule> molecVec = readInMolecules(statePath);
         enviro.numOfMolecules = molecVec.size();
+		  
         //convert vector of molecules to array
         molecules = (Molecule *)malloc(sizeof(Molecule) * molecVec.size());
         for(int i = 0; i < molecVec.size(); i++){
@@ -241,19 +287,25 @@ int main(int argc, char ** argv){
         }
     }
     else{
-        printf("Error, Unknown flag.\n");
+        ss << "Error, Unknown flag"<<endl;
+		  cout <<ss.str(); writeToLog(ss);
         exit(1);
     }
-    cout << "Beginning simulation with: " << endl;
-    printf("%d atoms\n%d molecules\n%lu steps\n", enviro.numOfAtoms,
-            enviro.numOfMolecules, simulationSteps);
-
-    
+	 
+    ss << "\nBeginning simulation with: " << endl;
+    ss << "\tmolecules "<< enviro.numOfMolecules << endl;
+    ss << "\tatoms: "<< enviro.numOfAtoms << endl;
+    ss << "\tsteps: "<< simulationSteps << endl;
+    cout << ss.str() <<endl;
+    writeToLog(ss);    
     runParallel(molecules, &enviro, simulationSteps, configScan.getStateOutputPath(),
             configScan.getPdbOutputPath());
     
-        endTime = clock();
+    endTime = clock();
 
-        double diffTime = difftime(endTime, startTime) / CLOCKS_PER_SEC;
-        printf("Time = %f seconds.\n\n", diffTime);
+    double diffTime = difftime(endTime, startTime) / CLOCKS_PER_SEC;
+    ss << "\nSimulation Complete \nRun Time: " << diffTime << endl;
+    cout << ss.str() <<endl;
+    writeToLog(ss);      
+    writeToLog("",END);
 }

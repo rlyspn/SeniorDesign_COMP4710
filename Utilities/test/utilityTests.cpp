@@ -150,18 +150,19 @@ void testPDBoutput(){
 }
 
 void testLogOutput(){
-    cout << "Testing OutputLog writer" <<endl;
-    
+    cout << "Testing OutputLog writer... \n--May Take some time due to system call" <<endl;
+    //clear and remove it
 	 system("find ../ -name OutputLog | xargs rm");
     string line1 = "This is line1 text";
 	 string line2 = "This is line2 text";
 	 string line3 = "This is line3 text";
 	 
+	 //write lines to OutputLog
 	 writeToLog(line1);
 	 writeToLog(line2,Z_MATRIX);
 	 writeToLog(line3,OPLS);
 
-
+    //check if written lines and tag exist in file
     string outPutFile= "OutputLog";
 	 ifstream fileReader;
 	 fileReader.open(outPutFile.c_str());
@@ -187,10 +188,6 @@ void testLogOutput(){
 	 
 	 cout << "Testing OutputLog writer Completed\n" <<endl;	 
 }
-
-
-
-
 
 int main(){
     cout<< "----- Starting Utility Test ----\n" << endl;

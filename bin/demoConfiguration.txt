@@ -13,7 +13,7 @@
 #path to opls file
 bin/oplsua.par
 #path to z matrix file
-bin/mesh.z
+Utilities/bossFiles/mesh.z
 #path to state input
 none
 #path to state output
