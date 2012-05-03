@@ -131,6 +131,7 @@ void runParallel(Molecule *molecules, Environment *enviro, int numberOfSteps, st
     sprintf(fileName, "FinalState.state");
     string fileNameStr(fileName);
     printState(enviro, molecules, enviro->numOfMolecules, fileNameStr);
+    writePDB(molecules, *enviro, pdbFile);
 
     ss << "Final Energy: " << currentEnergy << endl;
     ss << "Accepted Moves: " << accepted << endl;

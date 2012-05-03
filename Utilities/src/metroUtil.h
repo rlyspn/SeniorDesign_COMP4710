@@ -385,6 +385,13 @@ void printAtoms(Atom *atoms, int count);
 */
 void writePDB(Atom *atoms, Environment enviro, string filename);
 
+/**
+  @param molecules - array of molecules to be written to the file
+  @param enviro - structure holding environmental data.
+  @param filename - the name of the file that is to be written
+*/
+void writePDB(Molecule *molecules, Environment enviro, string filename);
+
 #define DEFAULT 0
 #define START 1
 #define END 2

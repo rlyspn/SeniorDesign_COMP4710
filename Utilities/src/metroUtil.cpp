@@ -158,6 +158,20 @@ void writePDB(Atom *atoms, Environment enviro, string filename){
     outputFile.close();
 }
 
+void writePDB(Molecule *molecules, Environment enviro, string filename){
+    Atom *atoms = (Atom *)malloc(sizeof(Atom) * enviro.numOfAtoms);
+    
+    int atomIndex = 0;
+    for (int i = 0; i < enviro.numOfMolecules; i++){
+        for (int j = 0; j < molecules[i].numOfAtoms; j++){
+            atoms[atomIndex] = molecules[i].atoms[j];
+            atomIndex++;
+        }
+    }
+    writePDB(atoms, enviro, filename);
+    free(atoms);
+}
+
 void writeOutAtoms(Atom *atoms, Environment *enviro, string filename, int accepts, int rejects, double totalEnergy){
    ofstream outputFile;
    outputFile.open(filename.c_str());
